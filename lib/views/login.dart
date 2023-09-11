@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:aplicativo_inclinometro/components/email_field.dart';
+import 'package:aplicativo_inclinometro/components/password_field.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -46,30 +48,7 @@ class LoginPage extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-            TextFormField(
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                hintText: 'Digite seu e-mail',
-                border: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10),
-                  ),
-                ),
-                labelStyle: const TextStyle(
-                  color: Color.fromARGB(255, 0, 0, 0),
-                  fontWeight: FontWeight.w400,
-                  fontSize: 16,
-                ),
-                prefixIcon: Image.asset('assets/mail.png'),
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 20,
-                ),
-              ),
-              style: const TextStyle(
-                fontSize: 16,
-              ),
-            ),
+            EmailField(), // Utilizando o componente de e-mail
             const SizedBox(
               height: 20,
             ),
@@ -85,31 +64,7 @@ class LoginPage extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-            TextFormField(
-              keyboardType: TextInputType.text,
-              obscureText: true,
-              decoration: InputDecoration(
-                hintText: 'Digite sua senha',
-                border: const OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(10),
-                  ),
-                ),
-                labelStyle: const TextStyle(
-                  color: Color.fromARGB(255, 0, 0, 0),
-                  fontWeight: FontWeight.w400,
-                  fontSize: 14,
-                ),
-                prefixIcon: Image.asset('assets/lock.png'),
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 20,
-                ),
-              ),
-              style: const TextStyle(
-                fontSize: 16,
-              ),
-            ),
+            PasswordField(), // Utilizando o componente de senha
             const SizedBox(
               height: 10,
             ),
