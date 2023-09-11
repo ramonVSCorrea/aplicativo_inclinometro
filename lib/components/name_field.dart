@@ -17,8 +17,7 @@ class NameField extends StatelessWidget {
           fontWeight: FontWeight.w400,
           fontSize: 16,
         ),
-        prefixIcon:
-            Icon(Icons.person), // Você pode usar um ícone padrão para o nome
+        prefixIcon: Icon(Icons.person),
         contentPadding: const EdgeInsets.symmetric(
           vertical: 10,
           horizontal: 20,

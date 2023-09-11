@@ -1,23 +1,22 @@
-// import 'package:aplicativo_inclinometro/views/login.dart';
-import 'package:aplicativo_inclinometro/views/register.dart';
 import 'package:flutter/material.dart';
+import 'package:aplicativo_inclinometro/views/login_page.dart';
+import 'package:aplicativo_inclinometro/views/signup_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: Signup(),
+      title: 'Aplicativo Inclinometro',
+      theme: ThemeData(),
+      initialRoute: '/login',
+      routes: {
+        '/login': (context) => LoginPage(),
+        '/register': (context) => SignupPage(),
+      },
     );
   }
 }

@@ -4,7 +4,14 @@ import 'package:aplicativo_inclinometro/components/email_field.dart';
 import 'package:aplicativo_inclinometro/components/password_field.dart';
 import 'package:aplicativo_inclinometro/components/custom_button.dart';
 
-class Signup extends StatelessWidget {
+class SignupPage extends StatefulWidget {
+  @override
+  _SignupState createState() => _SignupState();
+}
+
+class _SignupState extends State<SignupPage> {
+  bool acceptedTerms = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,12 +95,39 @@ class Signup extends StatelessWidget {
             ),
             PasswordField(),
             const SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                Checkbox(
+                  value: acceptedTerms,
+                  onChanged: (value) {
+                    setState(() {
+                      acceptedTerms = value!;
+                    });
+                  },
+                ),
+                const Text(
+                  "Aceito os Termos de Uso",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontFamily: 'Poppins',
+                    color: Color(0xFFA59AFF),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(
               height: 30,
             ),
             CustomButton(
               label: "Continue",
               onPressed: () {},
-            )
+            ),
+            const SizedBox(
+              height: 20,
+            ),
           ],
         ),
       ),
