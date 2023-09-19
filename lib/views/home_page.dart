@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-class MainPage extends StatefulWidget {
+class HomePage extends StatefulWidget {
   @override
-  _MainState createState() => _MainState();
+  _HomePage createState() => _HomePage();
 }
+
 final double AnguloLateral = 8.2;
 final double AnguloFrontal = 3.7;
 
-class _MainState extends State<MainPage>{
-
+class _HomePage extends State<HomePage> {
   @override
-  Widget build(BuildContext context){
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Ângulos'),
@@ -43,7 +43,6 @@ class _MainState extends State<MainPage>{
                 color: Color.fromARGB(255, 0, 0, 0),
               ),
             ),
-
             const SizedBox(
               height: 50,
             ),
@@ -57,7 +56,6 @@ class _MainState extends State<MainPage>{
                 color: AnguloLateral > 5.0 ? Colors.red : Colors.green,
               ),
             ),
-
             const SizedBox(
               height: 50,
             ),
@@ -84,7 +82,6 @@ class _MainState extends State<MainPage>{
                 color: Color.fromARGB(255, 0, 0, 0),
               ),
             ),
-
             const SizedBox(
               height: 50,
             ),
