@@ -13,9 +13,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Aplicativo Inclinometro',
       theme: ThemeData(),
-      initialRoute: '/',
+      initialRoute: '/home',
       routes: {
-        '/': (context) => HomePage(),
         '/login': (context) => LoginPage(),
         '/register': (context) => SignupPage(),
         '/home': (context) => HomePage(),
