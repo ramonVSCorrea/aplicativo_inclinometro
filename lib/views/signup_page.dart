@@ -46,7 +46,7 @@ class _SignupState extends State<SignupPage> {
               height: 30,
             ),
             const Text(
-              "Primeiro Nome",
+              "Primeiro nome",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w900,
@@ -59,7 +59,7 @@ class _SignupState extends State<SignupPage> {
               height: 10,
             ),
             const Text(
-              "Último Nome",
+              "Último nome",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w900,
