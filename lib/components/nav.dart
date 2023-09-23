@@ -7,19 +7,19 @@ class Nav extends StatefulWidget {
 }
 
 class _NavState extends State<Nav> {
-  // int _selectedItem = 0;
+  int _selectedItem = 0;
 
-  // List<Widget> _widgetOptions = <Widget>[
-  //   Text('Home'),
-  //   Text('Profile'),
-  //   Text('Settings'),
-  // ];
+  List<Widget> _widgetOptions = <Widget>[
+    Text('Home'),
+    Text('Profile'),
+    Text('Settings'),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar:
-          BottomNavigationBar(items: const <BottomNavigationBarItem>[
+      BottomNavigationBar(items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         BottomNavigationBarItem(
