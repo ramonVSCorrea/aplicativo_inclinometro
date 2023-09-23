@@ -1,3 +1,4 @@
+import 'package:aplicativo_inclinometro/views/connect_page.dart';
 import 'package:aplicativo_inclinometro/views/home_page.dart';
 import 'package:flutter/material.dart';
 
@@ -23,10 +24,10 @@ class _SettingsPage extends State<SettingsPage>{
             title: Text('Conectar Sensor'),
             subtitle: Text('Faça conexão de algum sensor via Bluetooth'),
             onTap: (){
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => HomePage()),
-              // );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ConnectPage()),
+              );
             },
           ),
 
