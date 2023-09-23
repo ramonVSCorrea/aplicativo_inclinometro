@@ -9,12 +9,20 @@ final double AnguloLateral = 8.2;
 final double AnguloFrontal = 3.7;
 
 class _HomePage extends State<HomePage> {
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Ângulos'),
         backgroundColor: const Color(0xFFF07300),
+        centerTitle: true,
       ),
       body: Container(
         padding: const EdgeInsets.only(
@@ -26,7 +34,7 @@ class _HomePage extends State<HomePage> {
         child: ListView(
           children: <Widget>[
             const SizedBox(
-              height: 70,
+              height: 10,
             ),
 
             /**
@@ -44,22 +52,30 @@ class _HomePage extends State<HomePage> {
               ),
             ),
             const SizedBox(
-              height: 50,
+              height: 20,
             ),
+
             Text(
-              '$AnguloLateralº',
+              ' $AnguloLateralº',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 80,
+                fontSize: 50,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Poppins',
                 color: AnguloLateral > 5.0 ? Colors.red : Colors.green,
               ),
             ),
             const SizedBox(
-              height: 50,
+              height: 20,
             ),
-
+            SizedBox(
+              width: 150,
+              height: 150,
+              child: Image.asset('assets/truck1.png'),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
             /**
              * Desenha a linha divisora
              */
@@ -83,17 +99,22 @@ class _HomePage extends State<HomePage> {
               ),
             ),
             const SizedBox(
-              height: 50,
+              height: 20,
             ),
             Text(
               '$AnguloFrontalº',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 80,
+                fontSize: 50,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Poppins',
                 color: AnguloFrontal > 5.0 ? Colors.red : Colors.green,
               ),
+            ),
+            SizedBox(
+              width: 150,
+              height: 200,
+              child: Image.asset('assets/truck2.png'),
             ),
           ],
         ),
