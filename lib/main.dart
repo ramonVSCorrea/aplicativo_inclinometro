@@ -17,13 +17,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Aplicativo Inclinometro',
       theme: ThemeData(),
-      initialRoute: '/settings',
+      initialRoute: '/login',
       routes: {
         '/login': (context) => LoginPage(),
         '/register': (context) => SignupPage(),
         '/home': (context) => HomePage(),
         '/settings': (context) => SettingsPage(),
         '/connect': (context) => ConnectPage(),
+        '/nav': (context) => Nav(),
       },
     );
   }

@@ -1,6 +1,7 @@
 import 'package:aplicativo_inclinometro/views/connect_page.dart';
 import 'package:aplicativo_inclinometro/views/home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:aplicativo_inclinometro/components/nav.dart';
 
 class SettingsPage extends StatefulWidget{
   @override
@@ -58,7 +59,25 @@ class _SettingsPage extends State<SettingsPage>{
             },
           ),
         ],
-      )
+      ),
+      // bottomNavigationBar: NavBar(
+      //   selectedIndex: 2,
+      //   onItemSelected: (index){
+      //     switch (index){
+      //       case 0:
+      //         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
+      //         break;
+      //
+      //       case 1:
+      //         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ConnectPage()));
+      //         break;
+      //
+      //       case 2:
+      //         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SettingsPage()));
+      //         break;
+      //     }
+      //   },
+      // ),
     );
   }
 }
