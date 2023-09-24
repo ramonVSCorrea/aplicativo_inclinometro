@@ -5,7 +5,6 @@ import 'package:aplicativo_inclinometro/views/login_page.dart';
 import 'package:aplicativo_inclinometro/views/signup_page.dart';
 import 'package:aplicativo_inclinometro/views/home_page.dart';
 import 'package:aplicativo_inclinometro/views/settings_page.dart';
-import 'package:aplicativo_inclinometro/views/connect_page.dart';
 
 void main() {
   runApp(MyApp());
