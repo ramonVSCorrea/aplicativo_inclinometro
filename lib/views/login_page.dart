@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/components/email_field.dart';
 import 'package:aplicativo_inclinometro/components/password_field.dart';
 import 'package:aplicativo_inclinometro/components/custom_button.dart';
+import 'package:aplicativo_inclinometro/components/nav.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -115,7 +116,9 @@ class _LoginPageState extends State<LoginPage> {
             ),
             CustomButton(
               label: "Entrar",
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Nav()));
+              },
             ),
             const SizedBox(
               height: 40,

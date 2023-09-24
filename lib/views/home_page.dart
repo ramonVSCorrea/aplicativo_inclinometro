@@ -1,4 +1,8 @@
+import 'package:aplicativo_inclinometro/views/connect_page.dart';
+import 'package:aplicativo_inclinometro/views/settings_page.dart';
 import 'package:flutter/material.dart';
+import 'dart:math';
+import 'package:aplicativo_inclinometro/components/nav.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -16,25 +20,21 @@ class _HomePage extends State<HomePage> {
       _selectedIndex = index;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Ângulos'),
+        title: Text('Início'),
         backgroundColor: const Color(0xFFF07300),
-        centerTitle: true,
+        //centerTitle: true,
       ),
       body: Container(
-        padding: const EdgeInsets.only(
-          top: 60,
-          left: 40,
-          right: 40,
-        ),
         color: const Color(0xFFFFFEFE),
-        child: ListView(
+        child: Column(
           children: <Widget>[
             const SizedBox(
-              height: 10,
+              height: 50,
             ),
 
             /**
@@ -42,15 +42,17 @@ class _HomePage extends State<HomePage> {
              * o ângulo lateral
              */
             const Text(
-              "ÂNGULO LATERAL",
+              "Ângulo Lateral",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.w600,
-                fontFamily: 'Poppins',
+                fontFamily: 'Roboto',
                 color: Color.fromARGB(255, 0, 0, 0),
               ),
             ),
+
+
             const SizedBox(
               height: 20,
             ),
@@ -62,16 +64,19 @@ class _HomePage extends State<HomePage> {
                 fontSize: 50,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Poppins',
-                color: AnguloLateral > 5.0 ? Colors.red : Colors.green,
+                color: AnguloLateral.abs() > 5.0 ? Colors.red : Colors.green,
               ),
             ),
             const SizedBox(
               height: 20,
             ),
-            SizedBox(
-              width: 150,
-              height: 150,
-              child: Image.asset('assets/truck1.png'),
+            Transform.rotate(
+              angle: AnguloLateral * (pi / 180),
+              child: Image.asset(
+                'assets/truck1.png',
+                width: 150,
+                height: 150,
+              ),
             ),
             const SizedBox(
               height: 20,
@@ -89,7 +94,7 @@ class _HomePage extends State<HomePage> {
               height: 50,
             ),
             const Text(
-              "ÂNGULO FRONTAL",
+              "Ângulo Frontal",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 30,
@@ -108,13 +113,16 @@ class _HomePage extends State<HomePage> {
                 fontSize: 50,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Poppins',
-                color: AnguloFrontal > 5.0 ? Colors.red : Colors.green,
+                color: AnguloFrontal.abs() > 5.0 ? Colors.red : Colors.green,
               ),
             ),
-            SizedBox(
-              width: 150,
-              height: 200,
-              child: Image.asset('assets/truck2.png'),
+            Transform.rotate(
+              angle: AnguloFrontal * (pi / 180),
+              child: Image.asset(
+                'assets/truck2.png',
+                width: 200,
+                height: 200,
+              ),
             ),
           ],
         ),
