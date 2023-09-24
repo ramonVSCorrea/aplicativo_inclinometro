@@ -51,12 +51,9 @@ class _HomePage extends State<HomePage> {
                 color: Color.fromARGB(255, 0, 0, 0),
               ),
             ),
-
-
             const SizedBox(
               height: 20,
             ),
-
             Text(
               ' $AnguloLateralº',
               textAlign: TextAlign.center,
@@ -74,8 +71,8 @@ class _HomePage extends State<HomePage> {
               angle: AnguloLateral * (pi / 180),
               child: Image.asset(
                 'assets/truck1.png',
-                width: 150,
-                height: 150,
+                width: 140,
+                height: 140,
               ),
             ),
             const SizedBox(
@@ -91,7 +88,7 @@ class _HomePage extends State<HomePage> {
              * Esse trecho escreve na tela o ângulo frontal
              */
             const SizedBox(
-              height: 50,
+              height: 20,
             ),
             const Text(
               "Ângulo Frontal",
@@ -104,7 +101,7 @@ class _HomePage extends State<HomePage> {
               ),
             ),
             const SizedBox(
-              height: 20,
+              height: 5,
             ),
             Text(
               '$AnguloFrontalº',
@@ -120,8 +117,8 @@ class _HomePage extends State<HomePage> {
               angle: AnguloFrontal * (pi / 180),
               child: Image.asset(
                 'assets/truck2.png',
-                width: 200,
-                height: 200,
+                width: 140,
+                height: 140,
               ),
             ),
           ],
