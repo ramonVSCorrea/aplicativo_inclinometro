@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 
-class CalibrateSensorPage extends StatefulWidget {
+class LockAnglePage extends StatefulWidget {
   @override
-  _CalibrateSensorPage createState() => _CalibrateSensorPage();
+  _LockAnglePage createState() => _LockAnglePage();
 }
 
-final double BloqueioLateral = 0.2;
-final double BloqueioFrontal = 1.3;
+final double BloqueioLateral = 3.5;
+final double BloqueioFrontal = 5.0;
 
-class _CalibrateSensorPage extends State<CalibrateSensorPage> {
+class _LockAnglePage extends State<LockAnglePage> {
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width; // Largura da tela
+
     return Scaffold(
       appBar: AppBar(
         title: Center(
           child: Text(
-            'Calibrar Sensor',
+            'Ângulo de Bloqueio',
             style: TextStyle(
               color: Color.fromARGB(255, 255, 230, 4), // Cor do título
             ),
@@ -35,10 +37,15 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
             const SizedBox(
               height: 70,
             ),
+
+            /**
+             * Esse trecho do código escreve na tela
+             * o ângulo lateral
+             */
             Container(
-              margin: EdgeInsets.only(left: 20.0),
+              margin: EdgeInsets.only(left: 20.0), // Margem de 20 pixels à esquerda
               child: const Text(
-                "Calibração Lateral:",
+                "Bloqueio Lateral",
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.w600,
@@ -63,16 +70,23 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
             const SizedBox(
               height: 50,
             ),
+
+            /**
+             * Desenha a linha divisora
+             */
             Divider(
               color: const Color.fromARGB(255, 255, 255, 255),
             ),
+            /**
+             * Esse trecho escreve na tela o ângulo frontal
+             */
             const SizedBox(
               height: 50,
             ),
             Container(
-              margin: EdgeInsets.only(left: 20.0),
+              margin: EdgeInsets.only(left: 20.0), // Margem de 20 pixels à esquerda
               child: const Text(
-                "Calibração Frontal:",
+                "ÂNGULO FRONTAL",
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.w600,
@@ -94,56 +108,29 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
                 color: BloqueioFrontal > 5.0 ? Colors.red : Colors.green,
               ),
             ),
-            const SizedBox(
-              height: 50,
-            ),
-            // Defina a largura do botão como 200 pixels
             SizedBox(
-              width: 200,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Lógica do botão "Calibrar" aqui
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Color.fromARGB(255, 255, 230, 4),
-                  onPrimary: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                  ),
-                ),
-                child: Text(
-                  'CALIBRAR',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-              ),
+              height: 70,
             ),
+
+            // Defina a largura do botão como 50% da largura da tela
             SizedBox(
-              height: 30,
-            ),
-            // Defina a largura do botão "Limpar" como 200 pixels
-            SizedBox(
-              width: 200,
+              width: screenWidth * 0.5, // 50% da largura da tela
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
-                  // Lógica do botão "Limpar" aqui
+                  // Lógica do botão "Salvar" aqui
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Color.fromARGB(255, 255, 230, 4),
-                  onPrimary: Colors.black,
+                  primary: Color.fromARGB(255, 255, 230, 4), // Cor de fundo
+                  onPrimary: Colors.black, // Cor do texto preto
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0),
+                    borderRadius: BorderRadius.circular(20.0), // Border radius
                   ),
                 ),
                 child: Text(
-                  'LIMPAR',
+                  'Salvar',
                   style: TextStyle(
-                    fontSize: 30,
+                    fontSize: 30, // Tamanho da fonte
                     fontWeight: FontWeight.w600,
                     fontFamily: 'Poppins',
                   ),
