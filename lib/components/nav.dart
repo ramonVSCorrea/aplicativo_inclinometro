@@ -11,11 +11,7 @@ class Nav extends StatefulWidget {
 
 class _NavState extends State<Nav> {
   int _indiceAtual = 0;
-  final List<Widget> _telas = [
-    HomePage(),
-    ProfilePage(), //Alterar para profilePage quando estiver pronto
-    SettingsPage()
-  ];
+  final List<Widget> _telas = [HomePage(), ProfilePage(), SettingsPage()];
 
   void onTabTapped(int index) {
     setState(() {
