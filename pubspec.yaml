@@ -36,6 +36,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_blue:
     git: https://github.com/espresso3389/flutter_blue
+  semicircle_indicator: ^1.1.1
+  syncfusion_flutter_gauges: ^23.1.36
 
 dev_dependencies:
   flutter_test:
@@ -71,3 +73,4 @@ flutter:
     - assets/lock.png
     - assets/truck1.png
     - assets/truck2.png
+    - assets/profile1.png
