@@ -1,4 +1,6 @@
 import 'package:aplicativo_inclinometro/components/nav.dart';
+import 'package:aplicativo_inclinometro/views/LockAngle_page.dart';
+import 'package:aplicativo_inclinometro/views/calibratesensor.dart';
 import 'package:aplicativo_inclinometro/views/connect_page.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/views/login_page.dart';
@@ -24,6 +26,8 @@ class MyApp extends StatelessWidget {
         '/settings': (context) => SettingsPage(),
         '/connect': (context) => ConnectPage(),
         '/nav': (context) => Nav(),
+        '/lockangle':(context) => LockAnglePage(),
+        '/calibratesensor':(context) => CalibrateSensorPage(),
       },
     );
   }
