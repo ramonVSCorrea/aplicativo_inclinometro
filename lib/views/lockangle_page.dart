@@ -1,14 +1,17 @@
+import 'package:aplicativo_inclinometro/components/custom_button.dart';
+import 'package:aplicativo_inclinometro/components/nav.dart';
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 class LockAnglePage extends StatefulWidget {
   @override
   _LockAnglePage createState() => _LockAnglePage();
 }
 
-final double BloqueioLateral = 3.5;
-final double BloqueioFrontal = 5.0;
-
 class _LockAnglePage extends State<LockAnglePage> {
+  double BloqueioLateral = 0;
+  double BloqueioFrontal = 0;
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width; // Largura da tela
@@ -19,123 +22,213 @@ class _LockAnglePage extends State<LockAnglePage> {
           child: Text(
             'Ângulo de Bloqueio',
             style: TextStyle(
-              color: Color.fromARGB(255, 255, 230, 4), // Cor do título
+              color: Color.fromARGB(255, 255, 255, 255),
             ),
           ),
         ),
         backgroundColor: const Color(0xFFF07300),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => Nav()));
+          },
+        ),
       ),
       body: Container(
         padding: const EdgeInsets.only(
-          top: 60,
+          top: 30,
           left: 40,
           right: 40,
         ),
-        color: Color(0xFFF07300),
+        color: Color.fromARGB(255, 246, 246, 246),
         child: ListView(
           children: <Widget>[
-            const SizedBox(
-              height: 70,
-            ),
-
             /**
              * Esse trecho do código escreve na tela
              * o ângulo lateral
              */
             Container(
-              margin: EdgeInsets.only(left: 20.0), // Margem de 20 pixels à esquerda
+              margin:
+                  EdgeInsets.only(left: 40.0), // Margem de 20 pixels à esquerda
               child: const Text(
                 "Bloqueio Lateral",
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Poppins',
-                  color: Color.fromARGB(255, 255, 230, 4),
+                  color: Color.fromARGB(255, 0, 0, 0),
                 ),
               ),
             ),
             const SizedBox(
-              height: 50,
+              height: 10,
             ),
             Text(
               '$BloqueioLateralº',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 80,
+                fontSize: 50,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Poppins',
-                color: BloqueioLateral > 5.0 ? Colors.red : Colors.green,
+                color: BloqueioLateral.abs() < 5.0 ? Colors.red : Colors.green,
               ),
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Transform.rotate(
+                  angle: BloqueioLateral * (pi / 180),
+                  child: Image.asset(
+                    'assets/truck1.png',
+                    width: 140,
+                    height: 140,
+                  ),
+                ),
+                SizedBox(width: 25),
+                Column(
+                  children: <Widget>[
+                    FloatingActionButton(
+                      onPressed: () {
+                        setState(() {
+                          BloqueioLateral++;
+                        });
+                      },
+                      child: Icon(Icons.add, size: 10),
+                      mini: true,
+                      backgroundColor: Colors.blue,
+                    ),
+                    SizedBox(height: 10),
+                    FloatingActionButton(
+                      onPressed: () {
+                        setState(() {
+                          BloqueioLateral--;
+                        });
+                      },
+                      child: Icon(Icons.remove, size: 10),
+                      mini: true,
+                      backgroundColor: Colors.red,
+                    ),
+                  ],
+                ),
+              ],
+            ),
             const SizedBox(
-              height: 50,
+              height: 20,
             ),
 
             /**
              * Desenha a linha divisora
              */
             Divider(
-              color: const Color.fromARGB(255, 255, 255, 255),
+              color: Color.fromARGB(255, 0, 0, 0),
             ),
             /**
              * Esse trecho escreve na tela o ângulo frontal
              */
             const SizedBox(
-              height: 50,
+              height: 10,
             ),
             Container(
-              margin: EdgeInsets.only(left: 20.0), // Margem de 20 pixels à esquerda
+              margin: EdgeInsets.only(left: 40.0),
               child: const Text(
-                "ÂNGULO FRONTAL",
+                "Bloqueio Frontal",
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Poppins',
-                  color: Color.fromARGB(255, 255, 230, 4),
+                  color: Color.fromARGB(255, 0, 0, 0),
                 ),
               ),
             ),
             const SizedBox(
-              height: 50,
+              height: 20,
             ),
             Text(
               '$BloqueioFrontalº',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 80,
+                fontSize: 50,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Poppins',
-                color: BloqueioFrontal > 5.0 ? Colors.red : Colors.green,
+                color: BloqueioFrontal.abs() > 5.0 ? Colors.red : Colors.green,
               ),
             ),
-            SizedBox(
-              height: 70,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Transform.rotate(
+                  angle: BloqueioFrontal * (pi / 180),
+                  child: Image.asset(
+                    'assets/truck2.png',
+                    width: 140,
+                    height: 140,
+                  ),
+                ),
+                SizedBox(width: 25),
+                Column(
+                  children: <Widget>[
+                    FloatingActionButton(
+                      onPressed: () {
+                        setState(() {
+                          BloqueioFrontal++;
+                        });
+                      },
+                      child: Icon(Icons.add, size: 10),
+                      mini: true,
+                      backgroundColor: Colors.blue,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    FloatingActionButton(
+                      onPressed: () {
+                        setState(() {
+                          BloqueioFrontal--;
+                        });
+                      },
+                      child: Icon(Icons.remove, size: 10),
+                      mini: true,
+                      backgroundColor: Colors.red,
+                    ),
+                  ],
+                ),
+              ],
             ),
-
-            // Defina a largura do botão como 50% da largura da tela
-            SizedBox(
-              width: screenWidth * 0.5, // 50% da largura da tela
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Lógica do botão "Salvar" aqui
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Color.fromARGB(255, 255, 230, 4), // Cor de fundo
-                  onPrimary: Colors.black, // Cor do texto preto
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0), // Border radius
-                  ),
-                ),
-                child: Text(
-                  'Salvar',
-                  style: TextStyle(
-                    fontSize: 30, // Tamanho da fonte
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-              ),
+            CustomButton(
+              label: "Salvar",
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text("Valores Salvos"),
+                      content: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          ListTile(
+                            leading: Icon(Icons.lock),
+                            title: Text("Bloqueio Lateral: $BloqueioLateralº"),
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.lock),
+                            title: Text("Bloqueio Frontal: $BloqueioFrontalº"),
+                          ),
+                        ],
+                      ),
+                      actions: <Widget>[
+                        ElevatedButton(
+                          child: Text("OK"),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
             ),
           ],
         ),

@@ -1,5 +1,7 @@
+import 'package:aplicativo_inclinometro/views/calibratesensor.dart';
 import 'package:aplicativo_inclinometro/views/connect_page.dart';
 import 'package:aplicativo_inclinometro/views/events_page.dart';
+import 'package:aplicativo_inclinometro/views/lockangle_page.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
 
@@ -39,13 +41,21 @@ class _SettingsPage extends State<SettingsPage> {
             leading: Icon(Icons.lock, color: Color(0xFFF07300)),
             title: Text('Ângulos de Bloqueio'),
             subtitle: Text('Ajuste dos ângulos de bloqueio'),
-            onTap: () {},
+            onTap: () {
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => LockAnglePage()));
+            },
           ),
           ListTile(
             leading: Icon(Icons.adjust, color: Color(0xFFF07300)),
             title: Text('Calibrar Sensor'),
             subtitle: Text('Calibre o sensor para melhor ajuste'),
-            onTap: () {},
+            onTap: () {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CalibrateSensorPage()));
+            },
           ),
           ListTile(
             leading: Icon(Icons.event, color: Color(0xFFF07300)),
@@ -58,24 +68,6 @@ class _SettingsPage extends State<SettingsPage> {
           ),
         ],
       ),
-      // bottomNavigationBar: NavBar(
-      //   selectedIndex: 2,
-      //   onItemSelected: (index){
-      //     switch (index){
-      //       case 0:
-      //         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage()));
-      //         break;
-      //
-      //       case 1:
-      //         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ConnectPage()));
-      //         break;
-      //
-      //       case 2:
-      //         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SettingsPage()));
-      //         break;
-      //     }
-      //   },
-      // ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:aplicativo_inclinometro/views/profile_page.dart';
 import 'package:aplicativo_inclinometro/views/home_page.dart';
 import 'package:aplicativo_inclinometro/views/settings_page.dart';
+import 'package:aplicativo_inclinometro/views/lockangle_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/material/bottom_navigation_bar.dart';
 
@@ -11,7 +12,12 @@ class Nav extends StatefulWidget {
 
 class _NavState extends State<Nav> {
   int _indiceAtual = 0;
-  final List<Widget> _telas = [HomePage(), ProfilePage(), SettingsPage()];
+  final List<Widget> _telas = [
+    HomePage(),
+    ProfilePage(),
+    SettingsPage(),
+    LockAnglePage()
+  ];
 
   void onTabTapped(int index) {
     setState(() {
