@@ -5,12 +5,14 @@ class CustomButton extends StatelessWidget {
   final void Function() onPressed;
   final double buttonHeight;
   final double buttonWidth;
+  final Color backgroundColor;
 
   const CustomButton({
     required this.label,
     required this.onPressed,
     this.buttonHeight = 40,
     this.buttonWidth = double.infinity,
+    this.backgroundColor = const Color(0xFFF07300),
   });
 
   @override
@@ -21,7 +23,7 @@ class CustomButton extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: ElevatedButton(
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(const Color(0xFFF07300)),
+          backgroundColor: MaterialStateProperty.all(backgroundColor),
         ),
         onPressed: onPressed,
         child: Text(

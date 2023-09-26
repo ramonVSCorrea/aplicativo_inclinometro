@@ -1,154 +1,203 @@
+import 'package:aplicativo_inclinometro/components/create_custom_container.dart';
+import 'package:aplicativo_inclinometro/components/custom_button.dart';
+import 'package:aplicativo_inclinometro/components/nav.dart';
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 class CalibrateSensorPage extends StatefulWidget {
   @override
   _CalibrateSensorPage createState() => _CalibrateSensorPage();
 }
 
-final double BloqueioLateral = 0.2;
-final double BloqueioFrontal = 1.3;
-
 class _CalibrateSensorPage extends State<CalibrateSensorPage> {
+  double calibracaoLateral = 3.5;
+  double calibracaoFrontal = 8.2;
+
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            'Calibrar Sensor',
-            style: TextStyle(
-              color: Color.fromARGB(255, 255, 230, 4), // Cor do título
-            ),
+        title: Text(
+          'Calibrar Sensor',
+          style: TextStyle(
+            color: Colors.white,
           ),
         ),
-        backgroundColor: const Color(0xFFF07300),
+        backgroundColor: Color.fromARGB(255, 43, 43, 43),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (context) => Nav()));
+          },
+        ),
       ),
       body: Container(
-        padding: const EdgeInsets.only(
-          top: 60,
-          left: 40,
-          right: 40,
+        padding: EdgeInsets.symmetric(
+          vertical: 30,
+          horizontal: 40,
         ),
-        color: Color(0xFFF07300),
+        color: Color(0xFFF6F6F6),
         child: ListView(
           children: <Widget>[
-            const SizedBox(
-              height: 70,
-            ),
+            // Calibração Lateral
             Container(
-              margin: EdgeInsets.only(left: 20.0),
-              child: const Text(
-                "Calibração Lateral:",
+              child: Text(
+                "Calibrar Sensor Lateral",
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 25,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Poppins',
-                  color: Color.fromARGB(255, 255, 230, 4),
+                  color: Colors.black,
                 ),
               ),
             ),
-            const SizedBox(
-              height: 50,
+            SizedBox(
+              height: 5,
             ),
             Text(
-              '$BloqueioLateralº',
+              '$calibracaoLateralº',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 80,
+                fontSize: 50,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Poppins',
-                color: BloqueioLateral > 5.0 ? Colors.red : Colors.green,
+                color:
+                    calibracaoLateral.abs() < 5.0 ? Colors.red : Colors.green,
               ),
             ),
-            const SizedBox(
-              height: 50,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                CustomContainer(
+                  child: Transform.rotate(
+                    angle: calibracaoLateral * (pi / 180),
+                    child: Image.asset(
+                      'assets/truck1.png',
+                      width: 100,
+                      height: 100,
+                    ),
+                  ),
+                ),
+              ],
             ),
+            SizedBox(
+              height: 5,
+            ),
+
+            // Linha divisora
             Divider(
-              color: const Color.fromARGB(255, 255, 255, 255),
+              color: Colors.black,
             ),
-            const SizedBox(
-              height: 50,
+
+            // Calibração Frontal
+            SizedBox(
+              height: 10,
             ),
             Container(
-              margin: EdgeInsets.only(left: 20.0),
-              child: const Text(
-                "Calibração Frontal:",
+              margin: EdgeInsets.only(left: 40),
+              child: Text(
+                "Calibrar Sensor Frontal",
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 25,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Poppins',
-                  color: Color.fromARGB(255, 255, 230, 4),
+                  color: Colors.black,
                 ),
               ),
             ),
-            const SizedBox(
-              height: 50,
+            SizedBox(
+              height: 20,
             ),
             Text(
-              '$BloqueioFrontalº',
+              '$calibracaoFrontalº',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 80,
+                fontSize: 50,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Poppins',
-                color: BloqueioFrontal > 5.0 ? Colors.red : Colors.green,
+                color:
+                    calibracaoFrontal.abs() > 5.0 ? Colors.red : Colors.green,
               ),
             ),
-            const SizedBox(
-              height: 50,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                CustomContainer(
+                  child: Transform.rotate(
+                    angle: calibracaoFrontal * (pi / 180),
+                    child: Image.asset(
+                      'assets/truck2.png',
+                      width: 100,
+                      height: 100,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            // Defina a largura do botão como 200 pixels
-            SizedBox(
-              width: 200,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Lógica do botão "Calibrar" aqui
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Color.fromARGB(255, 255, 230, 4),
-                  onPrimary: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                  ),
-                ),
-                child: Text(
-                  'CALIBRAR',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-              ),
+
+            CustomButton(
+              label: "Calibrar",
+              onPressed: () {
+                setState(() {
+                  if (calibracaoLateral == 0 && calibracaoFrontal == 0) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text("Seu item já está calibrado"),
+                          actions: <Widget>[
+                            ElevatedButton(
+                              child: Text("Fechar"),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    calibracaoLateral = 0;
+                    calibracaoFrontal = 0;
+                  }
+                });
+              },
+              buttonWidth: 10,
+              backgroundColor: Colors.green,
             ),
-            SizedBox(
-              height: 30,
-            ),
-            // Defina a largura do botão "Limpar" como 200 pixels
-            SizedBox(
-              width: 200,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Lógica do botão "Limpar" aqui
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Color.fromARGB(255, 255, 230, 4),
-                  onPrimary: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                  ),
-                ),
-                child: Text(
-                  'LIMPAR',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Poppins',
-                  ),
-                ),
-              ),
+
+            CustomButton(
+              label: "Limpar",
+              onPressed: () {
+                setState(() {
+                  if (calibracaoLateral == 0 && calibracaoFrontal == 0) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text("Seu item já foi limpado"),
+                          actions: <Widget>[
+                            ElevatedButton(
+                              child: Text("Fechar"),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    calibracaoLateral = 0;
+                    calibracaoFrontal = 0;
+                  }
+                });
+              },
+              buttonWidth: 20,
+              backgroundColor: Colors.red,
             ),
           ],
         ),
