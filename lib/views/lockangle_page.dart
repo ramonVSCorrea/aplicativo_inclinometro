@@ -1,3 +1,4 @@
+import 'package:aplicativo_inclinometro/components/create_custom_container.dart';
 import 'package:aplicativo_inclinometro/components/custom_button.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
 import 'package:flutter/material.dart';
@@ -5,10 +6,10 @@ import 'dart:math';
 
 class LockAnglePage extends StatefulWidget {
   @override
-  _LockAnglePage createState() => _LockAnglePage();
+  _LockAnglePageState createState() => _LockAnglePageState();
 }
 
-class _LockAnglePage extends State<LockAnglePage> {
+class _LockAnglePageState extends State<LockAnglePage> {
   double BloqueioLateral = 0;
   double BloqueioFrontal = 0;
 
@@ -26,7 +27,7 @@ class _LockAnglePage extends State<LockAnglePage> {
             ),
           ),
         ),
-        backgroundColor: const Color(0xFFF07300),
+        backgroundColor: Color.fromARGB(255, 43, 43, 43),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -49,8 +50,7 @@ class _LockAnglePage extends State<LockAnglePage> {
              * o ângulo lateral
              */
             Container(
-              margin:
-                  EdgeInsets.only(left: 40.0), // Margem de 20 pixels à esquerda
+              margin: EdgeInsets.only(left: 40.0),
               child: const Text(
                 "Bloqueio Lateral",
                 style: TextStyle(
@@ -77,12 +77,14 @@ class _LockAnglePage extends State<LockAnglePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Transform.rotate(
-                  angle: BloqueioLateral * (pi / 180),
-                  child: Image.asset(
-                    'assets/truck1.png',
-                    width: 140,
-                    height: 140,
+                CustomContainer(
+                  child: Transform.rotate(
+                    angle: BloqueioLateral * (pi / 180),
+                    child: Image.asset(
+                      'assets/truck1.png',
+                      width: 100,
+                      height: 100,
+                    ),
                   ),
                 ),
                 SizedBox(width: 25),
@@ -157,12 +159,14 @@ class _LockAnglePage extends State<LockAnglePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Transform.rotate(
-                  angle: BloqueioFrontal * (pi / 180),
-                  child: Image.asset(
-                    'assets/truck2.png',
-                    width: 140,
-                    height: 140,
+                CustomContainer(
+                  child: Transform.rotate(
+                    angle: BloqueioFrontal * (pi / 180),
+                    child: Image.asset(
+                      'assets/truck2.png',
+                      width: 100,
+                      height: 100,
+                    ),
                   ),
                 ),
                 SizedBox(width: 25),
@@ -194,6 +198,9 @@ class _LockAnglePage extends State<LockAnglePage> {
                   ],
                 ),
               ],
+            ),
+            const SizedBox(
+              height: 10,
             ),
             CustomButton(
               label: "Salvar",
