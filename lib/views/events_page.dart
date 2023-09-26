@@ -42,7 +42,7 @@ class _EventsPageState extends State<EventsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Tela de Eventos'),
-        backgroundColor: Color(0xFFF07300),
+        backgroundColor: Color.fromARGB(255, 43, 43, 43),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {

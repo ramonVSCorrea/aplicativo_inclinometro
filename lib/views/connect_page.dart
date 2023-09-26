@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'device_screen.dart';
 
-class ConnectPage extends StatefulWidget{
+class ConnectPage extends StatefulWidget {
   @override
   _ConnectPage createState() => _ConnectPage();
 }
 
-class _ConnectPage extends State<ConnectPage>{
+class _ConnectPage extends State<ConnectPage> {
   FlutterBlue flutterBlue = FlutterBlue.instance;
   List<ScanResult> scanResultList = [];
   bool _isScanning = false;
@@ -93,7 +93,7 @@ class _ConnectPage extends State<ConnectPage>{
     return Scaffold(
       appBar: AppBar(
         title: Text('Conectar Sensor'),
-        backgroundColor: const Color(0xFFF07300),
+        backgroundColor: Color.fromARGB(255, 43, 43, 43),
       ),
       body: Center(
         child: ListView.separated(
