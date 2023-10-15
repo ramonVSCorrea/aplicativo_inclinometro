@@ -38,6 +38,7 @@ dependencies:
     git: https://github.com/espresso3389/flutter_blue
   semicircle_indicator: ^1.1.1
   syncfusion_flutter_gauges: ^23.1.36
+  flutter_bluetooth_serial: ^0.4.0
 
 dev_dependencies:
   flutter_test:

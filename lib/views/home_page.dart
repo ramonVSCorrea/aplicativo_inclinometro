@@ -1,12 +1,18 @@
+import 'dart:typed_data';
+
+import 'package:aplicativo_inclinometro/store/variables.dart';
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:math';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 class HomePage extends StatefulWidget {
   @override
   _HomePage createState() => _HomePage();
 }
 
-final double AnguloLateral = 8.2;
-final double AnguloFrontal = 3.7;
+// final double AnguloLateral = 8.2;
+// final double AnguloFrontal = 3.7;
 
 class _HomePage extends State<HomePage> {
   int _selectedIndex = 0;
@@ -15,6 +21,40 @@ class _HomePage extends State<HomePage> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    const duration = Duration(milliseconds: 1);
+
+    Timer.periodic(duration, (Timer timer) {
+      setState(() {
+      });
+    });
+  }
+
+  void sendMessage(bool cmd) async{
+    String msgBT;
+
+    if(cmd == true){
+      msgBT = '{"comandoBascula":{"subir": 1,"descer": 0}}';
+    } else{
+      msgBT = '{"comandoBascula":{"subir": 0,"descer": 1}}';
+    }
+
+    if(connection == null){
+      print('Conexão Bluetooth não estabelecida!');
+      return;
+    }
+
+    try{
+      connection!.output.add(Uint8List.fromList(msgBT.codeUnits));
+      await connection!.output.allSent;
+      print('Mensagem enviada: $msgBT');
+    } catch(ex){
+      print('Erro ao enviar mensagem: $ex');
+    }
   }
 
   @override
@@ -54,13 +94,13 @@ class _HomePage extends State<HomePage> {
               height: 20,
             ),
             Text(
-              '$AnguloLateralº',
+              '$anguloLateralº',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 50,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Poppins',
-                color: AnguloLateral.abs() > 5.0 ? Colors.red : Colors.green,
+                color: anguloLateral.abs() > 5.0 ? Colors.red : Colors.green,
               ),
             ),
             const SizedBox(
@@ -82,10 +122,13 @@ class _HomePage extends State<HomePage> {
                 ],
               ),
               child: Center(
-                child: Image.asset(
-                  'assets/truck1.png',
-                  width: 100,
-                  height: 100,
+                child: Transform.rotate(
+                  angle: anguloLateral * (pi / 180),
+                  child: Image.asset(
+                    'assets/truck1.png',
+                    width: 100,
+                    height: 100,
+                  ),
                 ),
               ),
             ),
@@ -112,13 +155,13 @@ class _HomePage extends State<HomePage> {
               height: 10,
             ),
             Text(
-              '$AnguloFrontalº',
+              '$anguloFrontalº',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 50,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Poppins',
-                color: AnguloFrontal.abs() > 5.0 ? Colors.red : Colors.green,
+                color: anguloFrontal.abs() > 5.0 ? Colors.red : Colors.green,
               ),
             ),
             Container(
@@ -137,15 +180,34 @@ class _HomePage extends State<HomePage> {
                 ],
               ),
               child: Center(
-                child: Image.asset(
-                  'assets/truck2.png',
-                  width: 100,
-                  height: 100,
+                child: Transform.rotate(
+                  angle: anguloFrontal * (pi / 180),
+                  child: Image.asset(
+                    'assets/truck2.png',
+                    width: 100,
+                    height: 100,
+                  ),
                 ),
               ),
             ),
           ],
         ),
+      ),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          FloatingActionButton(
+            onPressed: () => sendMessage(true),
+            child: Icon(Icons.arrow_upward),
+            backgroundColor: const Color(0xFFF07300),
+          ),
+          SizedBox(height: 16), // Espaço entre os botões
+          FloatingActionButton(
+            onPressed: () => sendMessage(false),
+            child: Icon(Icons.arrow_downward),
+            backgroundColor: const Color(0xFFF07300),
+          ),
+        ],
       ),
     );
   }
