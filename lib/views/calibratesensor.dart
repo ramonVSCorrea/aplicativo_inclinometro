@@ -1,8 +1,11 @@
 import 'package:aplicativo_inclinometro/components/create_custom_container.dart';
 import 'package:aplicativo_inclinometro/components/custom_button.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
+import 'package:aplicativo_inclinometro/store/variables.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'dart:typed_data';
+import 'dart:async';
 
 class CalibrateSensorPage extends StatefulWidget {
   @override
@@ -10,8 +13,36 @@ class CalibrateSensorPage extends StatefulWidget {
 }
 
 class _CalibrateSensorPage extends State<CalibrateSensorPage> {
-  double calibracaoLateral = 3.5;
-  double calibracaoFrontal = 8.2;
+  @override
+  void initState() {
+    super.initState();
+    sendingMSG = true;
+  }
+
+  @override
+  void dispose() {
+    sendingMSG = false;
+    super.dispose();
+  }
+
+  void sendMessage(int cmd) async{
+    //sendingMSG = true;
+    String msgBT = '{"configuraCalib": $cmd}';
+
+    if(connection == null){
+      print('Conexão Bluetooth não estabelecida!');
+      return;
+    }
+
+    try{
+      connection!.output.add(Uint8List.fromList(msgBT.codeUnits));
+      await connection!.output.allSent;
+      print('Mensagem enviada: $msgBT');
+    } catch(ex){
+      print('Erro ao enviar mensagem: $ex');
+    }
+    //sendingMSG = false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,6 +172,7 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
             CustomButton(
               label: "Calibrar",
               onPressed: () {
+                sendMessage(1);
                 setState(() {
                   if (calibracaoLateral == 0 && calibracaoFrontal == 0) {
                     showDialog(
@@ -160,8 +192,8 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
                       },
                     );
                   } else {
-                    calibracaoLateral = 0;
-                    calibracaoFrontal = 0;
+                    calibracaoLateral = anguloLateral;
+                    calibracaoFrontal = anguloFrontal;
                   }
                 });
               },
@@ -172,6 +204,7 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
             CustomButton(
               label: "Limpar",
               onPressed: () {
+                sendMessage(0);
                 setState(() {
                   if (calibracaoLateral == 0 && calibracaoFrontal == 0) {
                     showDialog(

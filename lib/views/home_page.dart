@@ -1,10 +1,10 @@
 import 'dart:typed_data';
+import 'dart:async';
+import 'dart:math';
 
 import 'package:aplicativo_inclinometro/store/variables.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
-import 'dart:math';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+
 
 class HomePage extends StatefulWidget {
   @override
@@ -94,13 +94,13 @@ class _HomePage extends State<HomePage> {
               height: 20,
             ),
             Text(
-              '$anguloLateralº',
+              connection == null ? '---' : '${anguloLateral.abs()}',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 50,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Poppins',
-                color: anguloLateral.abs() > 5.0 ? Colors.red : Colors.green,
+                color: anguloLateral.abs() > bloqueioLateral ? Colors.red : Colors.green,
               ),
             ),
             const SizedBox(
@@ -155,13 +155,13 @@ class _HomePage extends State<HomePage> {
               height: 10,
             ),
             Text(
-              '$anguloFrontalº',
+              connection == null ? '---' : '${anguloFrontal.abs()}',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 50,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Poppins',
-                color: anguloFrontal.abs() > 5.0 ? Colors.red : Colors.green,
+                color: anguloFrontal.abs() > bloqueioFrontal ? Colors.red : Colors.green,
               ),
             ),
             Container(
