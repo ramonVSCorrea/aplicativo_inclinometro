@@ -1,3 +1,4 @@
+import 'package:aplicativo_inclinometro/components/nav.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/components/name_field.dart';
 import 'package:aplicativo_inclinometro/components/email_field.dart';
@@ -123,7 +124,10 @@ class _SignupState extends State<SignupPage> {
             ),
             CustomButton(
               label: "Continue",
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushReplacement(
+                    context, MaterialPageRoute(builder: (context) => Nav()));
+              },
             ),
             const SizedBox(
               height: 20,
