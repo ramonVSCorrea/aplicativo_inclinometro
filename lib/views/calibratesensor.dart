@@ -89,14 +89,14 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
               height: 5,
             ),
             Text(
-              '$calibracaoLateralº',
+              '${calibracaoLateral.toStringAsFixed(2)}º',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 50,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Poppins',
-                color:
-                    calibracaoLateral.abs() < 5.0 ? Colors.red : Colors.green,
+                // color:
+                //     calibracaoLateral.abs() < 5.0 ? Colors.red : Colors.green,
               ),
             ),
             Row(
@@ -143,14 +143,14 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
               height: 20,
             ),
             Text(
-              '$calibracaoFrontalº',
+              '${calibracaoFrontal.toStringAsFixed(2)}º',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 50,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Poppins',
-                color:
-                    calibracaoFrontal.abs() > 5.0 ? Colors.red : Colors.green,
+                // color:
+                //     calibracaoFrontal.abs() > 5.0 ? Colors.red : Colors.green,
               ),
             ),
             Row(
