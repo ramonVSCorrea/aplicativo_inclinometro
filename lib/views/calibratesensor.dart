@@ -173,13 +173,14 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
               label: "Calibrar",
               onPressed: () {
                 sendMessage(1);
+                calibracaoLateral = anguloLateral;
+                calibracaoFrontal = anguloFrontal;
                 setState(() {
-                  if (calibracaoLateral == 0 && calibracaoFrontal == 0) {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: Text("Seu item já está calibrado"),
+                          title: Text("Seu sensor foi calibrado!"),
                           actions: <Widget>[
                             ElevatedButton(
                               child: Text("Fechar"),
@@ -191,10 +192,6 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
                         );
                       },
                     );
-                  } else {
-                    calibracaoLateral = anguloLateral;
-                    calibracaoFrontal = anguloFrontal;
-                  }
                 });
               },
               buttonWidth: 10,
@@ -205,8 +202,10 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
               label: "Limpar",
               onPressed: () {
                 sendMessage(0);
+                calibracaoLateral = 0;
+                calibracaoFrontal = 0;
                 setState(() {
-                  if (calibracaoLateral == 0 && calibracaoFrontal == 0) {
+                  //if (calibracaoLateral == 0 && calibracaoFrontal == 0) {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) {
@@ -223,10 +222,9 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
                         );
                       },
                     );
-                  } else {
-                    calibracaoLateral = 0;
-                    calibracaoFrontal = 0;
-                  }
+                  //} else {
+
+                  //}
                 });
               },
               buttonWidth: 20,
