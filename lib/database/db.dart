@@ -34,21 +34,22 @@ class DB {
   String get _user => '''
     CREATE TABLE user (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username varchar(50) NOT NULL,
-      lastname varchar(50) NOT NULL,
-      email varchar(50) NOT NULL,
-      password varchar(50) NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      username TEXT NOT NULL,
+      lastname TEXT NOT NULL,
+      email TEXT NOT NULL,
+      password TEXT NOT NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
     );
   ''';
 
   String get _trucks => '''
     CREATE TABLE trucks (
       id INTEGER PRIMARY KEY,
-      title varchar(50) NOT NULL,
+      title TEXT NOT NULL,
       user_id INTEGER NOT NULL,
-      status varchar(50) NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      status TEXT NOT NULL,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     );
   ''';
 
