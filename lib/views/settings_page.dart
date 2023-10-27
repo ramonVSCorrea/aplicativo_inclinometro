@@ -4,6 +4,9 @@ import 'package:aplicativo_inclinometro/views/events_page.dart';
 import 'package:aplicativo_inclinometro/views/lockangle_page.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
+import 'dart:async';
+
+import 'package:permission_handler/permission_handler.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -50,11 +53,20 @@ class _SettingsPage extends State<SettingsPage> {
             leading: Icon(Icons.adjust, color: Color(0xFFF07300)),
             title: Text('Calibrar Sensor'),
             subtitle: Text('Calibre o sensor para melhor ajuste'),
-            onTap: () {
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => CalibrateSensorPage()));
+            onTap: () async{
+              // final statusConnect = await Permission.bluetoothConnect.request();
+              // final statusScan = await Permission.bluetoothScan.request();
+              // final statusBlue = await Permission.bluetooth.request();
+              // final statusAdver = await Permission.bluetoothAdvertise.request();
+              // final statusLocation = await Permission.location.request();
+
+              //if(statusConnect.isGranted && statusScan.isGranted && statusBlue.isGranted && statusAdver.isGranted && statusLocation.isGranted)  {
+                //print('permissões aceitas');
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CalibrateSensorPage()));
+              //}
             },
           ),
           ListTile(

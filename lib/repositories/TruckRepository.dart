@@ -8,7 +8,7 @@ class TruckRepository {
   static final TruckRepository instance = TruckRepository._();
   static Database? _database;
 
-  Future<Database> get database async {
+  Future<Database?> get database async {
     if (_database != null) return _database;
 
     return await _initDatabase();
@@ -28,23 +28,23 @@ class TruckRepository {
 
   Future<void> insertTruck(Map<String, dynamic> truckData) async {
     final db = await database;
-    await db.insert('trucks', truckData,
+    await db?.insert('trucks', truckData,
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<Map<String, dynamic>>> getTrucks() async {
     final db = await database;
-    return await db.query('trucks');
+    return await db!.query('trucks');
   }
 
   Future<void> updateTruck(Map<String, dynamic> truckData) async {
     final db = await database;
-    await db.update('trucks', truckData,
+    await db?.update('trucks', truckData,
         where: 'id = ?', whereArgs: [truckData['id']]);
   }
 
   Future<void> deleteTruck(int truckId) async {
     final db = await database;
-    await db.delete('trucks', where: 'id = ?', whereArgs: [truckId]);
-  }
+    await db?.delete('trucks', where: 'id = ?', whereArgs: [truckId]);
+}
 }

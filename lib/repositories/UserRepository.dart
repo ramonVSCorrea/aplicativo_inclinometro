@@ -7,7 +7,7 @@ class UserRepository {
   static final UserRepository instance = UserRepository._();
   static Database? _database;
 
-  Future<Database> get database async {
+  Future<Database?> get database async {
     if (_database != null) return _database;
 
     return await _initDatabase();
@@ -27,23 +27,23 @@ class UserRepository {
 
   Future<void> insertUser(Map<String, dynamic> userData) async {
     final db = await database;
-    await db.insert('user', userData,
+    await db?.insert('user', userData,
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<Map<String, dynamic>>> getUsers() async {
     final db = await database;
-    return await db.query('user');
+    return await db!.query('user');
   }
 
   Future<void> updateUser(Map<String, dynamic> userData) async {
     final db = await database;
-    await db.update('user', userData,
+    await db?.update('user', userData,
         where: 'id = ?', whereArgs: [userData['id']]);
   }
 
   Future<void> deleteUser(int userId) async {
     final db = await database;
-    await db.delete('user', where: 'id = ?', whereArgs: [userId]);
+    await db?.delete('user', where: 'id = ?', whereArgs: [userId]);
   }
 }

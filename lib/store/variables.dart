@@ -10,5 +10,7 @@ double calibracaoLateral = 0;
 double calibracaoFrontal = 0;
 
 bool sendingMSG = false;
+bool connected = false;
 
 BluetoothConnection? connection;
+BluetoothConnection? activeConnections;

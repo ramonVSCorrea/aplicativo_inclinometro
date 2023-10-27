@@ -41,6 +41,8 @@ dependencies:
   semicircle_indicator: ^1.1.1
   syncfusion_flutter_gauges: ^23.1.36
   flutter_bluetooth_serial: ^0.4.0
+  shared_preferences: ^2.2.2
+  permission_handler: ^11.0.1
 
 dev_dependencies:
   flutter_test:
@@ -51,7 +53,7 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/logo.png"
+  image_path: "assets/logo2.png"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -77,3 +79,4 @@ flutter:
     - assets/truck1.png
     - assets/truck2.png
     - assets/profile1.png
+    - assets/logo2.png

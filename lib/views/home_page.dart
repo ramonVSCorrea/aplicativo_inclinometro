@@ -100,7 +100,7 @@ class _HomePage extends State<HomePage> {
                 fontSize: 50,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Poppins',
-                color: anguloLateral.abs() > bloqueioLateral ? Colors.red : Colors.green,
+                color: (anguloLateral.abs() >= bloqueioLateral) ? Colors.red : (anguloLateral.abs() >= bloqueioLateral*0.7) && (anguloLateral.abs() < bloqueioLateral)? Colors.orange : Colors.green,
               ),
             ),
             const SizedBox(
@@ -161,7 +161,7 @@ class _HomePage extends State<HomePage> {
                 fontSize: 50,
                 fontWeight: FontWeight.bold,
                 fontFamily: 'Poppins',
-                color: anguloFrontal.abs() > bloqueioFrontal ? Colors.red : Colors.green,
+                color: (anguloFrontal.abs() >= bloqueioFrontal) ? Colors.red : (anguloFrontal.abs() >= bloqueioFrontal*0.7) && (anguloFrontal.abs() < bloqueioFrontal)? Colors.orange : Colors.green,
               ),
             ),
             Container(
