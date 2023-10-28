@@ -53,7 +53,7 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/logo2.png"
+  image_path: "assets/inclimaxLogo.png"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -80,3 +80,4 @@ flutter:
     - assets/truck2.png
     - assets/profile1.png
     - assets/logo2.png
+    - assets/inclimaxLogo.png

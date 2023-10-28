@@ -14,6 +14,29 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPage extends State<SettingsPage> {
+
+  Future<void> requestBluetoothPermissions() async {
+    final Map<Permission, PermissionStatus> status = await [
+      Permission.bluetooth,
+      Permission.bluetoothScan,
+      Permission.bluetoothConnect,
+      Permission.bluetoothAdvertise
+    ].request();
+
+    if(status[Permission.bluetooth]!.isGranted){
+      print('bluetooth permitido');
+      if(status[Permission.bluetoothConnect]!.isGranted){
+        print('bluetoothConnect permitido');
+        if(status[Permission.bluetoothScan]!.isGranted){
+          print('bluetoothScan permitido');
+          if(status[Permission.bluetoothAdvertise]!.isGranted){
+            print('bluetoothAdvertise permitido');
+          }
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,6 +57,7 @@ class _SettingsPage extends State<SettingsPage> {
             title: Text('Conectar Sensor'),
             subtitle: Text('Faça conexão de algum sensor via Bluetooth'),
             onTap: () {
+              requestBluetoothPermissions();
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => ConnectPage()),
@@ -53,20 +77,12 @@ class _SettingsPage extends State<SettingsPage> {
             leading: Icon(Icons.adjust, color: Color(0xFFF07300)),
             title: Text('Calibrar Sensor'),
             subtitle: Text('Calibre o sensor para melhor ajuste'),
-            onTap: () async{
-              // final statusConnect = await Permission.bluetoothConnect.request();
-              // final statusScan = await Permission.bluetoothScan.request();
-              // final statusBlue = await Permission.bluetooth.request();
-              // final statusAdver = await Permission.bluetoothAdvertise.request();
-              // final statusLocation = await Permission.location.request();
-
-              //if(statusConnect.isGranted && statusScan.isGranted && statusBlue.isGranted && statusAdver.isGranted && statusLocation.isGranted)  {
-                //print('permissões aceitas');
+            onTap: (){
+              //requestBluetoothPermissions();
                 Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                         builder: (context) => CalibrateSensorPage()));
-              //}
             },
           ),
           ListTile(

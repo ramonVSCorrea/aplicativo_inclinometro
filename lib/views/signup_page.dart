@@ -28,7 +28,7 @@ class _SignupState extends State<SignupPage> {
             SizedBox(
               width: 128,
               height: 128,
-              child: Image.asset('assets/logo.png'),
+              child: Image.asset('assets/inclimaxLogo.png'),
             ),
             const SizedBox(
               height: 10,
