@@ -55,33 +55,31 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            CircleAvatar(
-              backgroundColor: Colors.white,
-              backgroundImage: AssetImage('assets/profile1.png'),
-              radius: 75,
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Usuário',
-              style: TextStyle(
+      body:  SingleChildScrollView(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              CircleAvatar(
+                backgroundColor: Colors.white,
+                backgroundImage: AssetImage('assets/profile1.png'),
+                radius: 75,
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Usuário',
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFFF07300)),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'email@example.com',
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 200),
-            const SizedBox(
-              height: 20,
-            ),
-          ],
+                  color: const Color(0xFFF07300),
+                ),
+              ),
+              Text(
+                'email@example.com',
+                style: TextStyle(fontSize: 18),
+              ),
+            ],
+          ),
         ),
       ),
     );
