@@ -1,4 +1,6 @@
 import 'package:aplicativo_inclinometro/components/nav.dart';
+import 'package:aplicativo_inclinometro/database/db.dart';
+import 'package:aplicativo_inclinometro/repositories/user_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/components/name_field.dart';
 import 'package:aplicativo_inclinometro/components/email_field.dart';
@@ -11,6 +13,11 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupState extends State<SignupPage> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _lastnameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   bool acceptedTerms = false;
 
   @override
@@ -55,7 +62,9 @@ class _SignupState extends State<SignupPage> {
                 color: Color(0xFFA59AFF),
               ),
             ),
-            NameField(),
+            NameField(
+              controller: _nameController,
+            ),
             const SizedBox(
               height: 10,
             ),
@@ -68,7 +77,9 @@ class _SignupState extends State<SignupPage> {
                 color: Color(0xFFA59AFF),
               ),
             ),
-            NameField(),
+            NameField(
+              controller: _lastnameController,
+            ),
             const SizedBox(
               height: 10,
             ),
@@ -81,7 +92,7 @@ class _SignupState extends State<SignupPage> {
                 color: Color(0xFFA59AFF),
               ),
             ),
-            EmailField(),
+            EmailField(controller: _emailController),
             const SizedBox(
               height: 10,
             ),
@@ -94,7 +105,7 @@ class _SignupState extends State<SignupPage> {
                 color: Color(0xFFA59AFF),
               ),
             ),
-            PasswordField(),
+            PasswordField(controller: _passwordController),
             const SizedBox(
               height: 10,
             ),
@@ -124,9 +135,43 @@ class _SignupState extends State<SignupPage> {
             ),
             CustomButton(
               label: "Continue",
-              onPressed: () {
-                Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (context) => Nav()));
+              onPressed: () async {
+                if (!acceptedTerms) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Aceite os termos de uso')),
+                  );
+                  return;
+                }
+
+                final email = _emailController.text;
+                final isRegistered =
+                    await UserRepository.instance.isEmailRegistered(email);
+
+                if (isRegistered) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Este email já está registrado')),
+                  );
+                } else {
+                  await DB.instance.database;
+
+                  print('Dados do usuário:');
+                  print('Username: ${_nameController.text}');
+                  print('Lastname: ${_lastnameController.text}');
+                  print('Email: $email');
+                  print('Password: ${_passwordController.text}');
+
+                  Map<String, dynamic> userData = {
+                    'username': _nameController.text,
+                    'lastname': _lastnameController.text,
+                    'email': email,
+                    'password': _passwordController.text,
+                  };
+
+                  UserRepository.instance.insertUser(userData);
+
+                  Navigator.pushReplacement(
+                      context, MaterialPageRoute(builder: (context) => Nav()));
+                }
               },
             ),
             const SizedBox(

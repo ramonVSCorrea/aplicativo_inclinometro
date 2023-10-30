@@ -29,19 +29,20 @@ class _LockAnglePageState extends State<LockAnglePage> {
   double BloqueioLateral = bloqueioLateral;
   double BloqueioFrontal = bloqueioFrontal;
 
-  void sendMessage() async{
-    String msgBT = '{"configuracoesBLQ":{"bloqueioLateral": ${bloqueioLateral.toStringAsFixed(2)},"bloqueioFrontal": ${bloqueioFrontal.toStringAsFixed(2)}}}';
+  void sendMessage() async {
+    String msgBT =
+        '{"configuracoesBLQ":{"bloqueioLateral": ${bloqueioLateral.toStringAsFixed(2)},"bloqueioFrontal": ${bloqueioFrontal.toStringAsFixed(2)}}}';
 
-    if(connection == null){
+    if (connection == null) {
       print('Conexão Bluetooth não estabelecida!');
       return;
     }
 
-    try{
+    try {
       connection!.output.add(Uint8List.fromList(msgBT.codeUnits));
       await connection!.output.allSent;
       print('Mensagem enviada: $msgBT');
-    } catch(ex){
+    } catch (ex) {
       print('Erro ao enviar mensagem: $ex');
     }
   }
@@ -97,7 +98,6 @@ class _LockAnglePageState extends State<LockAnglePage> {
             const SizedBox(
               height: 10,
             ),
-
             Text(
               '${BloqueioLateral.toStringAsFixed(2)}º',
               textAlign: TextAlign.center,
@@ -108,14 +108,13 @@ class _LockAnglePageState extends State<LockAnglePage> {
                 //color: BloqueioLateral.abs() < 5.0 ? Colors.red : Colors.green,
               ),
             ),
-
             Slider(
               min: 0.0,
               max: 8.0,
               activeColor: const Color(0xFFF07300),
               inactiveColor: const Color(0x67F07300),
               value: BloqueioLateral,
-              onChanged: (value){
+              onChanged: (value) {
                 setState(() {
                   BloqueioLateral = value;
                 });
@@ -183,7 +182,7 @@ class _LockAnglePageState extends State<LockAnglePage> {
               activeColor: const Color(0xFFF07300),
               inactiveColor: const Color(0x67F07300),
               value: BloqueioFrontal,
-              onChanged: (value){
+              onChanged: (value) {
                 setState(() {
                   BloqueioFrontal = value;
                 });
@@ -224,11 +223,13 @@ class _LockAnglePageState extends State<LockAnglePage> {
                         children: <Widget>[
                           ListTile(
                             leading: Icon(Icons.lock),
-                            title: Text("Bloqueio Lateral: ${bloqueioLateral.toStringAsFixed(2)}º"),
+                            title: Text(
+                                "Bloqueio Lateral: ${bloqueioLateral.toStringAsFixed(2)}º"),
                           ),
                           ListTile(
                             leading: Icon(Icons.lock),
-                            title: Text("Bloqueio Frontal: ${bloqueioFrontal.toStringAsFixed(2)}º"),
+                            title: Text(
+                                "Bloqueio Frontal: ${bloqueioFrontal.toStringAsFixed(2)}º"),
                           ),
                         ],
                       ),

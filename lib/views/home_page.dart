@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element
+
 import 'dart:typed_data';
 import 'dart:async';
 import 'dart:math';
@@ -25,7 +27,7 @@ class _HomePage extends State<HomePage> {
     const duration = Duration(milliseconds: 1);
 
     Timer.periodic(duration, (Timer timer) {
-      setState(() {});
+      // setState(() {});
     });
   }
 
@@ -96,7 +98,8 @@ class _HomePage extends State<HomePage> {
                 connection == null ? '---' : '${anguloLateral.abs()}',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: screenWidth < 400 ? 30 : 50, // Ajuste de tamanho de fonte
+                  fontSize:
+                      screenWidth < 400 ? 30 : 50, // Ajuste de tamanho de fonte
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Poppins',
                   color: (anguloLateral.abs() >= bloqueioLateral)
@@ -149,7 +152,7 @@ class _HomePage extends State<HomePage> {
                 "Ângulo Frontal",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize:30, // Ajuste de tamanho de fonte
+                  fontSize: 30, // Ajuste de tamanho de fonte
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Poppins',
                   color: Color.fromARGB(255, 0, 0, 0),
@@ -183,7 +186,7 @@ class _HomePage extends State<HomePage> {
                     BoxShadow(
                       color: Colors.black.withOpacity(0.5),
                       spreadRadius: 5,
-                      blurRadius:10,
+                      blurRadius: 10,
                       offset: Offset(0, 3),
                     ),
                   ],
