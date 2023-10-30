@@ -15,13 +15,14 @@ class UserRepository {
 
   Future<Database> _initDatabase() async {
     return await openDatabase(
-      join(await getDatabasesPath(), 'user_db.db'),
+      join(await getDatabasesPath(), 'inclinometro.db'),
       version: 1,
     );
   }
 
   Future<void> _initRepository() async {
     final db = await database;
+
     // Realize as operações de inicialização necessárias, se houver
   }
 
@@ -31,9 +32,16 @@ class UserRepository {
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<List<Map<String, dynamic>>> getUsers() async {
+  Future<Map<String, dynamic>?> getUser(int userId) async {
     final db = await database;
-    return await db!.query('user');
+    final List<Map<String, dynamic>> users =
+        await db!.query('user', where: 'id = ?', whereArgs: [userId]);
+
+    if (users.isNotEmpty) {
+      return users[0];
+    } else {
+      return null;
+    }
   }
 
   Future<void> updateUser(Map<String, dynamic> userData) async {
@@ -45,5 +53,29 @@ class UserRepository {
   Future<void> deleteUser(int userId) async {
     final db = await database;
     await db?.delete('user', where: 'id = ?', whereArgs: [userId]);
+  }
+
+  Future<bool> isEmailRegistered(String email) async {
+    final db = await database;
+
+    final List<Map<String, dynamic>> users =
+        await db!.query('user', where: 'email = ?', whereArgs: [email]);
+
+    return users.isNotEmpty;
+  }
+
+  Future<int?> authenticateUser(String email, String password) async {
+    final db = await database;
+    final List<Map<String, dynamic>> users = await db!.query('user',
+        where: 'email = ? AND password = ?', whereArgs: [email, password]);
+    if (users.isNotEmpty) {
+      return users[0]['id'];
+    }
+    return null;
+  }
+
+  Future<List<Map<String, dynamic>>> getAllUsers() async {
+    final db = await database;
+    return await db!.query('user');
   }
 }

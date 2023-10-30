@@ -1,8 +1,10 @@
+import 'package:aplicativo_inclinometro/views/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/components/email_field.dart';
 import 'package:aplicativo_inclinometro/components/password_field.dart';
 import 'package:aplicativo_inclinometro/components/custom_button.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
+import 'package:aplicativo_inclinometro/repositories/user_repository.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -10,7 +12,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool rememberMe = false; // Estado para rastrear a opção de lembrar
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool rememberMe = false;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +61,9 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(
               height: 10,
             ),
-            EmailField(), // Utilizando o componente de e-mail
+            EmailField(
+              controller: _emailController,
+            ),
             const SizedBox(
               height: 20,
             ),
@@ -73,7 +79,9 @@ class _LoginPageState extends State<LoginPage> {
             const SizedBox(
               height: 10,
             ),
-            PasswordField(), // Utilizando o componente de senha
+            PasswordField(
+              controller: _passwordController,
+            ),
             const SizedBox(
               height: 10,
             ),
@@ -116,8 +124,25 @@ class _LoginPageState extends State<LoginPage> {
             ),
             CustomButton(
               label: "Entrar",
-              onPressed: () {
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Nav()));
+              onPressed: () async {
+                final isAuthenticated =
+                    await UserRepository.instance.authenticateUser(
+                  _emailController.text,
+                  _passwordController.text,
+                );
+
+                if (isAuthenticated != null) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Nav(),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('Usuário ou senha inválidos'),
+                  ));
+                }
               },
             ),
             const SizedBox(

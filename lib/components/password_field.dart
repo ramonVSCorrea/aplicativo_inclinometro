@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 class PasswordField extends StatelessWidget {
+  final TextEditingController controller;
+
+  PasswordField({required this.controller});
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
@@ -27,6 +31,7 @@ class PasswordField extends StatelessWidget {
       style: const TextStyle(
         fontSize: 16,
       ),
+      controller: controller,
     );
   }
 }
