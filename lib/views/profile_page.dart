@@ -1,7 +1,7 @@
-import 'package:aplicativo_inclinometro/views/home_page.dart';
+import 'package:aplicativo_inclinometro/components/nav.dart';
 import 'package:flutter/material.dart';
-import 'package:aplicativo_inclinometro/views/login_page.dart';
 import 'package:aplicativo_inclinometro/repositories/user_repository.dart';
+import 'package:aplicativo_inclinometro/views/edit_profile_page.dart';
 
 class ProfilePage extends StatefulWidget {
   final int userId;
@@ -40,7 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pushReplacement(
-                context, MaterialPageRoute(builder: (context) => HomePage()));
+                context, MaterialPageRoute(builder: (context) => Nav()));
           },
         ),
       ),
@@ -61,16 +61,19 @@ class _ProfilePageState extends State<ProfilePage> {
               leading: Icon(Icons.edit),
               title: Text('Editar perfil'),
               onTap: () {
-                // EDIÇÃO SERÁ AQUI
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        EditProfilePage(userId: widget.userId),
+                  ),
+                );
               },
             ),
             ListTile(
               leading: Icon(Icons.logout),
               title: Text('Sair'),
-              onTap: () {
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => LoginPage()));
-              },
+              onTap: () {},
             ),
           ],
         ),

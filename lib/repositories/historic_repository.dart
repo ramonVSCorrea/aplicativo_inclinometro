@@ -1,7 +1,6 @@
-// ignore_for_file: unused_element
+// ignore_for_file: unused_element, unused_local_variable
 
 import 'package:sqflite/sqflite.dart';
-import 'package:sqflite/sqlite_api.dart';
 import 'package:path/path.dart';
 
 class HistoricRepository {

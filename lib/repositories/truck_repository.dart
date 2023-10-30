@@ -1,7 +1,7 @@
-import 'package:sqflite/sqflite.dart';
-import 'package:sqflite/sqlite_api.dart';
-import 'package:path/path.dart';
+// ignore_for_file: unused_local_variable
 
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 
 class TruckRepository {
   TruckRepository._();
@@ -23,7 +23,6 @@ class TruckRepository {
 
   Future<void> _initRepository() async {
     final db = await database;
-    // Realize as operações de inicialização necessárias, se houver
   }
 
   Future<void> insertTruck(Map<String, dynamic> truckData) async {
@@ -46,5 +45,5 @@ class TruckRepository {
   Future<void> deleteTruck(int truckId) async {
     final db = await database;
     await db?.delete('trucks', where: 'id = ?', whereArgs: [truckId]);
-}
+  }
 }
