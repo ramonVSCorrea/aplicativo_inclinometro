@@ -6,6 +6,8 @@ import 'package:aplicativo_inclinometro/store/variables.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:aplicativo_inclinometro/components/bluetooth_functions.dart';
+
 
 class ConnectPage extends StatefulWidget {
   @override
@@ -13,19 +15,13 @@ class ConnectPage extends StatefulWidget {
 }
 
 class _ConnectPage extends State<ConnectPage> {
-  List<BluetoothDiscoveryResult> discoveryResults = [];
-  bool isDiscovering = false;
-  bool requestCfg = false;
-  bool requestLeitura = false;
-  late bool _isRunning;
-  int cont = 0;
-  BluetoothDevice? connectedDevice;
+
 
   @override
   void initState() {
     super.initState();
-    //_getBondedDevices();
-    _loadConnectedDevice();
+    _getBondedDevices();
+    //loadConnectedDevice();
   }
 
   Future<void> _getBondedDevices() async {
@@ -68,7 +64,7 @@ class _ConnectPage extends State<ConnectPage> {
         connectedDevice = device;
         connected = true;
       });
-      _isRunning = true;
+      isRunning = true;
       comunicBluetooth();
       saveConnectedDevice(device);
       //listenBluetooth();
@@ -84,106 +80,7 @@ class _ConnectPage extends State<ConnectPage> {
     prefs.setString('connectedDeviceAddress', device.address);
   }
 
-  Future<void> _loadConnectedDevice() async {
-    final prefs = await SharedPreferences.getInstance();
-    final deviceName = prefs.getString('connectedDeviceName');
-    final deviceAddress = prefs.getString('connectedDeviceAddress');
 
-    print('name: $deviceName - address: $deviceAddress');
-
-    if(deviceName != null && deviceAddress != null && !connected){
-      connection = await BluetoothConnection.toAddress(deviceAddress);
-      setState(() {
-        connectedDevice = BluetoothDevice(name: deviceName, address: deviceAddress);
-        connected = true;
-      });
-      _isRunning = true;
-      comunicBluetooth();
-    } else {
-      _getBondedDevices();
-    }
-  }
-
-  void listenBluetooth() async {
-    connection?.input?.listen((Uint8List data) {
-      final msgBT = String.fromCharCodes(data);
-
-      if (msgBT.isNotEmpty) {
-        try {
-          print('Received message: $msgBT');
-          final jsonData = jsonDecode(msgBT);
-
-          if (jsonData.containsKey('configuracoes')) {
-            final configs = jsonData['configuracoes'];
-
-            if (configs.containsKey('bloqueioLateral') &&
-                configs.containsKey('bloqueioFrontal')) {
-              bloqueioLateral = configs['bloqueioLateral'].toDouble();
-              bloqueioFrontal = configs['bloqueioFrontal'].toDouble();
-              calibracaoLateral = configs['calibracaoLateral'].toDouble();
-              calibracaoFrontal = configs['calibracaoFrontal'].toDouble();
-              print('mensagem recebida com sucesso!');
-              requestCfg = true;
-              requestLeitura = true;
-              cont = 0;
-            }
-          } else if (jsonData.containsKey('leituras')) {
-            final leituras = jsonData['leituras'];
-
-            if (leituras.containsKey('anguloLateral') &&
-                leituras.containsKey('anguloFrontal')) {
-              anguloLateral = leituras['anguloLateral'];
-              anguloFrontal = leituras['anguloFrontal'];
-              print('mensagem de leitura recebida com sucesso!');
-              requestLeitura = true;
-              cont = 0;
-            }
-          }
-        } catch (e) {
-          print('Erro ao fazer parse do JSON: $e');
-        }
-      }
-    });
-  }
-
-  void comunicBluetooth() async {
-    listenBluetooth();
-    while (_isRunning) {
-      if (!sendingMSG) {
-        if (!requestCfg) {
-          String msgBT = '{"requisitaCfg": 1}';
-
-          try {
-            connection!.output.add(Uint8List.fromList(msgBT.codeUnits));
-            await connection!.output.allSent;
-            print('Mensagem enviada: $msgBT');
-          } catch (ex) {
-            print('Erro ao enviar mensagem: $ex');
-          }
-        } else if (requestLeitura) {
-          String msgBT = '{"requisicaoLeitura": 1}';
-
-          try {
-            connection!.output.add(Uint8List.fromList(msgBT.codeUnits));
-            await connection!.output.allSent;
-            print('Mensagem enviada: $msgBT');
-          } catch (ex) {
-            print('Erro ao enviar mensagem: $ex');
-          }
-          requestLeitura = false;
-        }
-
-        if (cont >= 10) {
-          cont = 0;
-          requestLeitura = true;
-        } else {
-          cont++;
-        }
-      }
-      // Aguarde um período de tempo (por exemplo, 1 segundo) antes de enviar a próxima mensagem.
-      await Future.delayed(Duration(seconds: 1));
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
