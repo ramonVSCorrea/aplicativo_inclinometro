@@ -1,8 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:aplicativo_inclinometro/views/profile_page.dart';
 import 'package:aplicativo_inclinometro/views/home_page.dart';
 import 'package:aplicativo_inclinometro/views/settings_page.dart';
 import 'package:aplicativo_inclinometro/views/lockangle_page.dart';
-import 'package:flutter/material.dart';
+import 'package:aplicativo_inclinometro/repositories/user_repository.dart';
 
 class Nav extends StatefulWidget {
   @override
@@ -10,18 +13,31 @@ class Nav extends StatefulWidget {
 }
 
 class _NavState extends State<Nav> {
+  int? userId;
   int _indiceAtual = 0;
   final List<Widget> _telas = [];
 
   @override
   void initState() {
     super.initState();
-    _telas.addAll([
-      HomePage(),
-      ProfilePage(userId: 1), //SETADO COMO PADRÃO ATÉ SEGUNDA ORDEM
-      SettingsPage(),
-      LockAnglePage(),
-    ]);
+    _loadUserId();
+  }
+
+  Future<void> _loadUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    userId = prefs.getInt('userId');
+    _setupScreens();
+  }
+
+  void _setupScreens() {
+    setState(() {
+      _telas.addAll([
+        HomePage(),
+        if (userId != null) ProfilePage(userId: userId!),
+        SettingsPage(),
+        LockAnglePage(),
+      ]);
+    });
   }
 
   void onTabTapped(int index) {
@@ -33,7 +49,9 @@ class _NavState extends State<Nav> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _telas[_indiceAtual],
+      body: _telas.isNotEmpty
+          ? (_indiceAtual < _telas.length ? _telas[_indiceAtual] : _telas[0])
+          : Container(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _indiceAtual,
         selectedItemColor: const Color(0xFFF07300),
@@ -44,9 +62,15 @@ class _NavState extends State<Nav> {
         onTap: onTabTapped,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Inicio"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Perfil"),
+          if (userId != null)
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: "Perfil",
+            ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: "Configurações"),
+            icon: Icon(Icons.settings),
+            label: "Configurações",
+          ),
         ],
       ),
     );

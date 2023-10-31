@@ -22,14 +22,13 @@ class UserRepository {
 
   Future<void> _initRepository() async {
     final db = await database;
-
-    // Realize as operações de inicialização necessárias, se houver
   }
 
-  Future<void> insertUser(Map<String, dynamic> userData) async {
+  Future<int?> insertUser(Map<String, dynamic> userData) async {
     final db = await database;
-    await db?.insert('user', userData,
+    final id = await db?.insert('user', userData,
         conflictAlgorithm: ConflictAlgorithm.replace);
+    return id;
   }
 
   Future<Map<String, dynamic>?> getUser(int userId) async {

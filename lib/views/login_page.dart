@@ -1,10 +1,10 @@
-import 'package:aplicativo_inclinometro/views/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/components/email_field.dart';
 import 'package:aplicativo_inclinometro/components/password_field.dart';
 import 'package:aplicativo_inclinometro/components/custom_button.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
 import 'package:aplicativo_inclinometro/repositories/user_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -132,6 +132,8 @@ class _LoginPageState extends State<LoginPage> {
                 );
 
                 if (isAuthenticated != null) {
+                  final pref = await SharedPreferences.getInstance();
+                  pref.setInt('userId', isAuthenticated);
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
