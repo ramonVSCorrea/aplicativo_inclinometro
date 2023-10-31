@@ -1,17 +1,36 @@
-import 'package:aplicativo_inclinometro/components/custom_button.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
-import 'package:aplicativo_inclinometro/views/home_page.dart';
 import 'package:aplicativo_inclinometro/views/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:aplicativo_inclinometro/repositories/user_repository.dart';
+import 'package:aplicativo_inclinometro/views/edit_profile_page.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  final int userId;
+
+  const ProfilePage({Key? key, required this.userId}) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  Map<String, dynamic> userData = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final user = await UserRepository.instance.getUser(widget.userId);
+    if (user != null) {
+      setState(() {
+        userData = user;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,8 +50,8 @@ class _ProfilePageState extends State<ProfilePage> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             UserAccountsDrawerHeader(
-              accountName: Text('Usuário'),
-              accountEmail: Text('email@example.com'),
+              accountName: Text(userData['username'] ?? 'Usuário'),
+              accountEmail: Text(userData['email'] ?? 'email@example.com'),
               currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.white,
                 backgroundImage: AssetImage('assets/profile1.png'),
@@ -42,20 +61,31 @@ class _ProfilePageState extends State<ProfilePage> {
             ListTile(
               leading: Icon(Icons.edit),
               title: Text('Editar perfil'),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        EditProfilePage(userId: widget.userId),
+                  ),
+                );
+              },
             ),
             ListTile(
               leading: Icon(Icons.logout),
               title: Text('Sair'),
               onTap: () {
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => LoginPage()));
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginPage(),
+                    ));
               },
             ),
           ],
         ),
       ),
-      body:  SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -67,15 +97,16 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               SizedBox(height: 20),
               Text(
-                'Usuário',
+                userData['username'] ?? 'Usuário',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: const Color(0xFFF07300),
                 ),
               ),
+              SizedBox(height: 10),
               Text(
-                'email@example.com',
+                userData['email'] ?? 'email@example.com',
                 style: TextStyle(fontSize: 18),
               ),
             ],

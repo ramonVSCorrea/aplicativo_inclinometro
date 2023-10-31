@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
 
-class PasswordField extends StatelessWidget {
+class PasswordField extends StatefulWidget {
+  final TextEditingController controller;
+
+  PasswordField({required this.controller});
+
+  @override
+  _PasswordFieldState createState() => _PasswordFieldState();
+}
+
+class _PasswordFieldState extends State<PasswordField> {
+  bool _obscureText = true;
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       keyboardType: TextInputType.text,
-      obscureText: true,
+      obscureText: _obscureText,
       decoration: InputDecoration(
         hintText: 'Digite sua senha',
         border: const OutlineInputBorder(
@@ -19,6 +30,14 @@ class PasswordField extends StatelessWidget {
           fontSize: 14,
         ),
         prefixIcon: Image.asset('assets/lock.png'),
+        suffixIcon: IconButton(
+          icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off),
+          onPressed: () {
+            setState(() {
+              _obscureText = !_obscureText;
+            });
+          },
+        ),
         contentPadding: const EdgeInsets.symmetric(
           vertical: 10,
           horizontal: 20,
@@ -27,6 +46,7 @@ class PasswordField extends StatelessWidget {
       style: const TextStyle(
         fontSize: 16,
       ),
+      controller: widget.controller,
     );
   }
 }

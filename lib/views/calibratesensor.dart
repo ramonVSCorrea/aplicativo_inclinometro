@@ -25,20 +25,20 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
     super.dispose();
   }
 
-  void sendMessage(int cmd) async{
+  void sendMessage(int cmd) async {
     //sendingMSG = true;
     String msgBT = '{"configuraCalib": $cmd}';
 
-    if(connection == null){
+    if (connection == null) {
       print('Conexão Bluetooth não estabelecida!');
       return;
     }
 
-    try{
+    try {
       connection!.output.add(Uint8List.fromList(msgBT.codeUnits));
       await connection!.output.allSent;
       print('Mensagem enviada: $msgBT');
-    } catch(ex){
+    } catch (ex) {
       print('Erro ao enviar mensagem: $ex');
     }
     //sendingMSG = false;
@@ -176,22 +176,22 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
                 calibracaoLateral = anguloLateral;
                 calibracaoFrontal = anguloFrontal;
                 setState(() {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text("Seu sensor foi calibrado!"),
-                          actions: <Widget>[
-                            ElevatedButton(
-                              child: Text("Fechar"),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Seu sensor foi calibrado!"),
+                        actions: <Widget>[
+                          ElevatedButton(
+                            child: Text("Fechar"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 });
               },
               buttonWidth: 10,
@@ -206,22 +206,22 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
                 calibracaoFrontal = 0;
                 setState(() {
                   //if (calibracaoLateral == 0 && calibracaoFrontal == 0) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text("Seu item já foi limpado"),
-                          actions: <Widget>[
-                            ElevatedButton(
-                              child: Text("Fechar"),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Seu item já foi limpado"),
+                        actions: <Widget>[
+                          ElevatedButton(
+                            child: Text("Fechar"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
                   //} else {
 
                   //}
