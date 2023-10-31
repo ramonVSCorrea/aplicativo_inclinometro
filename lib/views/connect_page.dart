@@ -1,6 +1,11 @@
+import 'dart:typed_data';
+import 'dart:convert';
+import 'dart:async';
+
+import 'package:aplicativo_inclinometro/store/variables.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
-import 'device_screen.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ConnectPage extends StatefulWidget {
   @override
@@ -8,84 +13,176 @@ class ConnectPage extends StatefulWidget {
 }
 
 class _ConnectPage extends State<ConnectPage> {
-  FlutterBlue flutterBlue = FlutterBlue.instance;
-  List<ScanResult> scanResultList = [];
-  bool _isScanning = false;
+  List<BluetoothDiscoveryResult> discoveryResults = [];
+  bool isDiscovering = false;
+  bool requestCfg = false;
+  bool requestLeitura = false;
+  late bool _isRunning;
+  int cont = 0;
+  BluetoothDevice? connectedDevice;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    initBle();
+    //_getBondedDevices();
+    _loadConnectedDevice();
   }
 
-  void initBle() {
-    flutterBlue.isScanning.listen((isScanning) {
-      _isScanning = isScanning;
-      setState(() {});
+  Future<void> _getBondedDevices() async {
+    List<BluetoothDevice> bondedDevices =
+        await FlutterBluetoothSerial.instance.getBondedDevices();
+    setState(() {
+      discoveryResults = bondedDevices.map((device) {
+        return BluetoothDiscoveryResult(
+          device: device,
+          rssi: -55,
+        );
+      }).toList();
     });
   }
 
-  scan() async {
-    if (!_isScanning) {
-      scanResultList.clear();
-      flutterBlue.startScan(timeout: Duration(seconds: 4));
-      flutterBlue.scanResults.listen((results) {
-        scanResultList = results;
-        setState(() {});
+  Future<void> _startDiscovery() async {
+    setState(() {
+      isDiscovering = true;
+      discoveryResults = [];
+    });
+
+    FlutterBluetoothSerial.instance.startDiscovery().listen((result) {
+      setState(() {
+        discoveryResults.add(result);
       });
-    } else {
-      flutterBlue.stopScan();
+    });
+
+    await Future.delayed(Duration(seconds: 10));
+    FlutterBluetoothSerial.instance.cancelDiscovery();
+    setState(() {
+      isDiscovering = false;
+    });
+  }
+
+  Future<void> _connectToDevice(BluetoothDevice device) async {
+    //BluetoothConnection connection;
+    try {
+      connection = await BluetoothConnection.toAddress(device.address);
+      setState(() {
+        connectedDevice = device;
+        connected = true;
+      });
+      _isRunning = true;
+      comunicBluetooth();
+      saveConnectedDevice(device);
+      //listenBluetooth();
+      // Realize ações de comunicação com o dispositivo aqui
+    } catch (error) {
+      print('Erro de conexão: $error');
     }
   }
 
-  Widget deviceSignal(ScanResult r) {
-    return Text(r.rssi.toString());
+  void saveConnectedDevice(BluetoothDevice device) async{
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('connectedDeviceName', device.name ?? '');
+    prefs.setString('connectedDeviceAddress', device.address);
   }
 
-  Widget deviceMacAddress(ScanResult r) {
-    return Text(r.device.id.id);
-  }
+  Future<void> _loadConnectedDevice() async {
+    final prefs = await SharedPreferences.getInstance();
+    final deviceName = prefs.getString('connectedDeviceName');
+    final deviceAddress = prefs.getString('connectedDeviceAddress');
 
-  Widget deviceName(ScanResult r) {
-    String name = '';
+    print('name: $deviceName - address: $deviceAddress');
 
-    if (r.device.name.isNotEmpty) {
-      name = r.device.name;
-    } else if (r.advertisementData.localName.isNotEmpty) {
-      name = r.advertisementData.localName;
+    if(deviceName != null && deviceAddress != null && !connected){
+      connection = await BluetoothConnection.toAddress(deviceAddress);
+      setState(() {
+        connectedDevice = BluetoothDevice(name: deviceName, address: deviceAddress);
+        connected = true;
+      });
+      _isRunning = true;
+      comunicBluetooth();
     } else {
-      name = 'N/A';
+      _getBondedDevices();
     }
-    return Text(name);
   }
 
-  Widget leading(ScanResult r) {
-    return CircleAvatar(
-      child: Icon(
-        Icons.bluetooth,
-        color: Colors.white,
-      ),
-      backgroundColor: const Color(0xFFF07300),
-    );
+  void listenBluetooth() async {
+    connection?.input?.listen((Uint8List data) {
+      final msgBT = String.fromCharCodes(data);
+
+      if (msgBT.isNotEmpty) {
+        try {
+          print('Received message: $msgBT');
+          final jsonData = jsonDecode(msgBT);
+
+          if (jsonData.containsKey('configuracoes')) {
+            final configs = jsonData['configuracoes'];
+
+            if (configs.containsKey('bloqueioLateral') &&
+                configs.containsKey('bloqueioFrontal')) {
+              bloqueioLateral = configs['bloqueioLateral'].toDouble();
+              bloqueioFrontal = configs['bloqueioFrontal'].toDouble();
+              calibracaoLateral = configs['calibracaoLateral'].toDouble();
+              calibracaoFrontal = configs['calibracaoFrontal'].toDouble();
+              print('mensagem recebida com sucesso!');
+              requestCfg = true;
+              requestLeitura = true;
+              cont = 0;
+            }
+          } else if (jsonData.containsKey('leituras')) {
+            final leituras = jsonData['leituras'];
+
+            if (leituras.containsKey('anguloLateral') &&
+                leituras.containsKey('anguloFrontal')) {
+              anguloLateral = leituras['anguloLateral'];
+              anguloFrontal = leituras['anguloFrontal'];
+              print('mensagem de leitura recebida com sucesso!');
+              requestLeitura = true;
+              cont = 0;
+            }
+          }
+        } catch (e) {
+          print('Erro ao fazer parse do JSON: $e');
+        }
+      }
+    });
   }
 
-  void onTap(ScanResult r) {
-    print('${r.device.name}');
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => DeviceScreen(device: r.device)),
-    );
-  }
+  void comunicBluetooth() async {
+    listenBluetooth();
+    while (_isRunning) {
+      if (!sendingMSG) {
+        if (!requestCfg) {
+          String msgBT = '{"requisitaCfg": 1}';
 
-  Widget listItem(ScanResult r) {
-    return ListTile(
-      onTap: () => onTap(r),
-      leading: leading(r),
-      title: deviceName(r),
-      subtitle: deviceMacAddress(r),
-      trailing: deviceSignal(r),
-    );
+          try {
+            connection!.output.add(Uint8List.fromList(msgBT.codeUnits));
+            await connection!.output.allSent;
+            print('Mensagem enviada: $msgBT');
+          } catch (ex) {
+            print('Erro ao enviar mensagem: $ex');
+          }
+        } else if (requestLeitura) {
+          String msgBT = '{"requisicaoLeitura": 1}';
+
+          try {
+            connection!.output.add(Uint8List.fromList(msgBT.codeUnits));
+            await connection!.output.allSent;
+            print('Mensagem enviada: $msgBT');
+          } catch (ex) {
+            print('Erro ao enviar mensagem: $ex');
+          }
+          requestLeitura = false;
+        }
+
+        if (cont >= 10) {
+          cont = 0;
+          requestLeitura = true;
+        } else {
+          cont++;
+        }
+      }
+      // Aguarde um período de tempo (por exemplo, 1 segundo) antes de enviar a próxima mensagem.
+      await Future.delayed(Duration(seconds: 1));
+    }
   }
 
   @override
@@ -95,21 +192,39 @@ class _ConnectPage extends State<ConnectPage> {
         title: Text('Conectar Sensor'),
         backgroundColor: Color.fromARGB(255, 43, 43, 43),
       ),
-      body: Center(
-        child: ListView.separated(
-          itemCount: scanResultList.length,
-          itemBuilder: (context, index) {
-            return listItem(scanResultList[index]);
-          },
-          separatorBuilder: (BuildContext context, int index) {
-            return Divider();
-          },
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: scan,
-        child: Icon(_isScanning ? Icons.stop : Icons.search),
-        backgroundColor: const Color(0xFFF07300),
+      body: Column(
+        children: <Widget>[
+          if (connectedDevice != null)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text("Conectado a: ${connectedDevice!.name}"),
+            ),
+          ElevatedButton(
+            onPressed: isDiscovering ? null : _startDiscovery,
+            child: Text('Buscar Novos Dispositivos'),
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all<Color>(
+                  Color(0xFFF07300)), // Altere a cor aqui
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: discoveryResults.length,
+              itemBuilder: (context, index) {
+                final result = discoveryResults[index];
+                final device = result.device;
+                return ListTile(
+                  title: Text(device.name ?? 'Nome Desconhecido'),
+                  subtitle: Text(device.address),
+                  onTap: () {
+                    // Conecte-se ao dispositivo quando o usuário tocar no item da lista
+                    _connectToDevice(device);
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

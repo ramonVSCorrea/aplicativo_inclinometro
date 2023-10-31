@@ -1,8 +1,11 @@
 import 'package:aplicativo_inclinometro/components/create_custom_container.dart';
 import 'package:aplicativo_inclinometro/components/custom_button.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
+import 'package:aplicativo_inclinometro/store/variables.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'dart:typed_data';
+import 'dart:async';
 
 class CalibrateSensorPage extends StatefulWidget {
   @override
@@ -10,8 +13,36 @@ class CalibrateSensorPage extends StatefulWidget {
 }
 
 class _CalibrateSensorPage extends State<CalibrateSensorPage> {
-  double calibracaoLateral = 3.5;
-  double calibracaoFrontal = 8.2;
+  @override
+  void initState() {
+    super.initState();
+    sendingMSG = true;
+  }
+
+  @override
+  void dispose() {
+    sendingMSG = false;
+    super.dispose();
+  }
+
+  void sendMessage(int cmd) async {
+    //sendingMSG = true;
+    String msgBT = '{"configuraCalib": $cmd}';
+
+    if (connection == null) {
+      print('Conexão Bluetooth não estabelecida!');
+      return;
+    }
+
+    try {
+      connection!.output.add(Uint8List.fromList(msgBT.codeUnits));
+      await connection!.output.allSent;
+      print('Mensagem enviada: $msgBT');
+    } catch (ex) {
+      print('Erro ao enviar mensagem: $ex');
+    }
+    //sendingMSG = false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,14 +89,14 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
               height: 5,
             ),
             Text(
-              '$calibracaoLateralº',
+              '${calibracaoLateral.toStringAsFixed(2)}º',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 50,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Poppins',
-                color:
-                    calibracaoLateral.abs() < 5.0 ? Colors.red : Colors.green,
+                // color:
+                //     calibracaoLateral.abs() < 5.0 ? Colors.red : Colors.green,
               ),
             ),
             Row(
@@ -112,14 +143,14 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
               height: 20,
             ),
             Text(
-              '$calibracaoFrontalº',
+              '${calibracaoFrontal.toStringAsFixed(2)}º',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 50,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Poppins',
-                color:
-                    calibracaoFrontal.abs() > 5.0 ? Colors.red : Colors.green,
+                // color:
+                //     calibracaoFrontal.abs() > 5.0 ? Colors.red : Colors.green,
               ),
             ),
             Row(
@@ -141,28 +172,26 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
             CustomButton(
               label: "Calibrar",
               onPressed: () {
+                sendMessage(1);
+                calibracaoLateral = anguloLateral;
+                calibracaoFrontal = anguloFrontal;
                 setState(() {
-                  if (calibracaoLateral == 0 && calibracaoFrontal == 0) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text("Seu item já está calibrado"),
-                          actions: <Widget>[
-                            ElevatedButton(
-                              child: Text("Fechar"),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } else {
-                    calibracaoLateral = 0;
-                    calibracaoFrontal = 0;
-                  }
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Seu sensor foi calibrado!"),
+                        actions: <Widget>[
+                          ElevatedButton(
+                            child: Text("Fechar"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 });
               },
               buttonWidth: 10,
@@ -172,28 +201,30 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
             CustomButton(
               label: "Limpar",
               onPressed: () {
+                sendMessage(0);
+                calibracaoLateral = 0;
+                calibracaoFrontal = 0;
                 setState(() {
-                  if (calibracaoLateral == 0 && calibracaoFrontal == 0) {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text("Seu item já foi limpado"),
-                          actions: <Widget>[
-                            ElevatedButton(
-                              child: Text("Fechar"),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  } else {
-                    calibracaoLateral = 0;
-                    calibracaoFrontal = 0;
-                  }
+                  //if (calibracaoLateral == 0 && calibracaoFrontal == 0) {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Seu item já foi limpado"),
+                        actions: <Widget>[
+                          ElevatedButton(
+                            child: Text("Fechar"),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                  //} else {
+
+                  //}
                 });
               },
               buttonWidth: 20,

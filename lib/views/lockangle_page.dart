@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:aplicativo_inclinometro/components/create_custom_container.dart';
 import 'package:aplicativo_inclinometro/components/custom_button.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
+import 'package:aplicativo_inclinometro/store/variables.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
@@ -10,13 +13,41 @@ class LockAnglePage extends StatefulWidget {
 }
 
 class _LockAnglePageState extends State<LockAnglePage> {
-  double BloqueioLateral = 0;
-  double BloqueioFrontal = 0;
+  @override
+  void initState() {
+    super.initState();
+    sendingMSG = true;
+  }
+
+  @override
+  void dispose() {
+    sendingMSG = false;
+    super.dispose();
+  }
+
+  double BloqueioLateral = bloqueioLateral;
+  double BloqueioFrontal = bloqueioFrontal;
+
+  void sendMessage() async {
+    String msgBT =
+        '{"configuracoesBLQ":{"bloqueioLateral": ${bloqueioLateral.toStringAsFixed(2)},"bloqueioFrontal": ${bloqueioFrontal.toStringAsFixed(2)}}}';
+
+    if (connection == null) {
+      print('Conexão Bluetooth não estabelecida!');
+      return;
+    }
+
+    try {
+      connection!.output.add(Uint8List.fromList(msgBT.codeUnits));
+      await connection!.output.allSent;
+      print('Mensagem enviada: $msgBT');
+    } catch (ex) {
+      print('Erro ao enviar mensagem: $ex');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width; // Largura da tela
-
     return Scaffold(
       appBar: AppBar(
         title: Center(
@@ -65,14 +96,26 @@ class _LockAnglePageState extends State<LockAnglePage> {
               height: 10,
             ),
             Text(
-              '$BloqueioLateralº',
+              '${BloqueioLateral.toStringAsFixed(2)}º',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 50,
+                fontSize: 30,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Poppins',
-                color: BloqueioLateral.abs() < 5.0 ? Colors.red : Colors.green,
+                //color: BloqueioLateral.abs() < 5.0 ? Colors.red : Colors.green,
               ),
+            ),
+            Slider(
+              min: 0.0,
+              max: 8.0,
+              activeColor: const Color(0xFFF07300),
+              inactiveColor: const Color(0x67F07300),
+              value: BloqueioLateral,
+              onChanged: (value) {
+                setState(() {
+                  BloqueioLateral = value;
+                });
+              },
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -86,32 +129,6 @@ class _LockAnglePageState extends State<LockAnglePage> {
                       height: 100,
                     ),
                   ),
-                ),
-                SizedBox(width: 25),
-                Column(
-                  children: <Widget>[
-                    FloatingActionButton(
-                      onPressed: () {
-                        setState(() {
-                          BloqueioLateral++;
-                        });
-                      },
-                      child: Icon(Icons.add, size: 10),
-                      mini: true,
-                      backgroundColor: Colors.blue,
-                    ),
-                    SizedBox(height: 10),
-                    FloatingActionButton(
-                      onPressed: () {
-                        setState(() {
-                          BloqueioLateral--;
-                        });
-                      },
-                      child: Icon(Icons.remove, size: 10),
-                      mini: true,
-                      backgroundColor: Colors.red,
-                    ),
-                  ],
                 ),
               ],
             ),
@@ -147,14 +164,26 @@ class _LockAnglePageState extends State<LockAnglePage> {
               height: 20,
             ),
             Text(
-              '$BloqueioFrontalº',
+              '${BloqueioFrontal.toStringAsFixed(2)}º',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 50,
+                fontSize: 30,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Poppins',
-                color: BloqueioFrontal.abs() > 5.0 ? Colors.red : Colors.green,
+                //color: bloqueio.abs() > 5.0 ? Colors.red : Colors.green,
               ),
+            ),
+            Slider(
+              min: 0.0,
+              max: 10.0,
+              activeColor: const Color(0xFFF07300),
+              inactiveColor: const Color(0x67F07300),
+              value: BloqueioFrontal,
+              onChanged: (value) {
+                setState(() {
+                  BloqueioFrontal = value;
+                });
+              },
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -169,34 +198,6 @@ class _LockAnglePageState extends State<LockAnglePage> {
                     ),
                   ),
                 ),
-                SizedBox(width: 25),
-                Column(
-                  children: <Widget>[
-                    FloatingActionButton(
-                      onPressed: () {
-                        setState(() {
-                          BloqueioFrontal++;
-                        });
-                      },
-                      child: Icon(Icons.add, size: 10),
-                      mini: true,
-                      backgroundColor: Colors.blue,
-                    ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    FloatingActionButton(
-                      onPressed: () {
-                        setState(() {
-                          BloqueioFrontal--;
-                        });
-                      },
-                      child: Icon(Icons.remove, size: 10),
-                      mini: true,
-                      backgroundColor: Colors.red,
-                    ),
-                  ],
-                ),
               ],
             ),
             const SizedBox(
@@ -205,6 +206,9 @@ class _LockAnglePageState extends State<LockAnglePage> {
             CustomButton(
               label: "Salvar",
               onPressed: () {
+                bloqueioLateral = BloqueioLateral;
+                bloqueioFrontal = BloqueioFrontal;
+                sendMessage();
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
@@ -216,11 +220,13 @@ class _LockAnglePageState extends State<LockAnglePage> {
                         children: <Widget>[
                           ListTile(
                             leading: Icon(Icons.lock),
-                            title: Text("Bloqueio Lateral: $BloqueioLateralº"),
+                            title: Text(
+                                "Bloqueio Lateral: ${bloqueioLateral.toStringAsFixed(2)}º"),
                           ),
                           ListTile(
                             leading: Icon(Icons.lock),
-                            title: Text("Bloqueio Frontal: $BloqueioFrontalº"),
+                            title: Text(
+                                "Bloqueio Frontal: ${bloqueioFrontal.toStringAsFixed(2)}º"),
                           ),
                         ],
                       ),
