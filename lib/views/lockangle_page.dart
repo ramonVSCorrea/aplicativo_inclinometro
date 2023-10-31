@@ -6,7 +6,6 @@ import 'package:aplicativo_inclinometro/components/nav.dart';
 import 'package:aplicativo_inclinometro/store/variables.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
-import 'dart:async';
 
 class LockAnglePage extends StatefulWidget {
   @override
@@ -49,8 +48,6 @@ class _LockAnglePageState extends State<LockAnglePage> {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width; // Largura da tela
-
     return Scaffold(
       appBar: AppBar(
         title: Center(
