@@ -1,18 +1,20 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'dart:async';
 import 'dart:math';
 
+import 'package:aplicativo_inclinometro/components/bluetooth_functions.dart';
 import 'package:aplicativo_inclinometro/store/variables.dart';
 import 'package:flutter/material.dart';
+import 'package:aplicativo_inclinometro/views/connect_page.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class HomePage extends StatefulWidget {
   @override
   _HomePage createState() => _HomePage();
 }
-
-// final double AnguloLateral = 8.2;
-// final double AnguloFrontal = 3.7;
 
 class _HomePage extends State<HomePage> {
   int _selectedIndex = 0;
@@ -27,7 +29,7 @@ class _HomePage extends State<HomePage> {
   void initState() {
     super.initState();
     const duration = Duration(milliseconds: 1);
-
+    loadConnectedDevice();
     Timer.periodic(duration, (Timer timer) {
       setState(() {
       });
@@ -69,6 +71,27 @@ class _HomePage extends State<HomePage> {
             color: Colors.white,
           ),
         ),
+        actions: <Widget>[
+          Row(
+            children: <Widget>[
+              IconButton(
+                icon: connected ? Icon(Icons.bluetooth_connected) : Icon(Icons.bluetooth_disabled),
+                onPressed: () {
+                  print('Icone Clicado');
+                },
+              ),
+              Text(
+                connected ? 'Conectado' : 'Desconectado',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: Colors.white,
+                  ),
+              ),
+            ],
+          ),
+        ],
+
         backgroundColor: Color.fromARGB(255, 43, 43, 43),
         elevation: 0,
       ),
@@ -212,3 +235,4 @@ class _HomePage extends State<HomePage> {
     );
   }
 }
+
