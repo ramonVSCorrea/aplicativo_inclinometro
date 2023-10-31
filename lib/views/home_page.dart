@@ -31,7 +31,7 @@ class _HomePage extends State<HomePage> {
     const duration = Duration(milliseconds: 1);
     loadConnectedDevice();
     Timer.periodic(duration, (Timer timer) {
-      // setState(() {});
+      setState(() {});
     });
   }
 
