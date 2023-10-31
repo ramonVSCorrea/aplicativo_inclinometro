@@ -1,11 +1,15 @@
 // ignore_for_file: unused_element
-
+import 'dart:io';
 import 'dart:typed_data';
 import 'dart:async';
 import 'dart:math';
 
+import 'package:aplicativo_inclinometro/components/bluetooth_functions.dart';
 import 'package:aplicativo_inclinometro/store/variables.dart';
 import 'package:flutter/material.dart';
+import 'package:aplicativo_inclinometro/views/connect_page.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -25,7 +29,7 @@ class _HomePage extends State<HomePage> {
   void initState() {
     super.initState();
     const duration = Duration(milliseconds: 1);
-
+    loadConnectedDevice();
     Timer.periodic(duration, (Timer timer) {
       // setState(() {});
     });
@@ -69,6 +73,27 @@ class _HomePage extends State<HomePage> {
             color: Colors.white,
           ),
         ),
+        actions: <Widget>[
+          Row(
+            children: <Widget>[
+              IconButton(
+                icon: connected ? Icon(Icons.bluetooth_connected) : Icon(Icons.bluetooth_disabled),
+                onPressed: () {
+                  print('Icone Clicado');
+                },
+              ),
+              Text(
+                connected ? 'Conectado' : 'Desconectado',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: Colors.white,
+                  ),
+              ),
+            ],
+          ),
+        ],
+
         backgroundColor: Color.fromARGB(255, 43, 43, 43),
         elevation: 0,
       ),
@@ -214,7 +239,7 @@ class _HomePage extends State<HomePage> {
             child: Icon(Icons.arrow_upward),
             backgroundColor: const Color(0xFFF07300),
           ),
-          SizedBox(height: 16), // Espaço entre os botões
+          SizedBox(height: 16), 
           FloatingActionButton(
             onPressed: () => sendMessage(false),
             child: Icon(Icons.arrow_downward),
@@ -225,3 +250,4 @@ class _HomePage extends State<HomePage> {
     );
   }
 }
+
