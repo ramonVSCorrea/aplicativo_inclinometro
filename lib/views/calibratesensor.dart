@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:aplicativo_inclinometro/components/create_custom_container.dart';
 import 'package:aplicativo_inclinometro/components/custom_button.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
@@ -5,7 +7,6 @@ import 'package:aplicativo_inclinometro/store/variables.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:async';
 
 class CalibrateSensorPage extends StatefulWidget {
   @override
