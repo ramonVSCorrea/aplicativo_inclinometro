@@ -26,7 +26,6 @@ class DB {
 
   _onCreate(db, versao) async {
     await db.execute(_user);
-    await db.execute(_trucks);
     await db.execute(_historic);
   }
 
@@ -37,16 +36,6 @@ class DB {
       lastname TEXT NOT NULL,
       email TEXT NOT NULL,
       password TEXT NOT NULL,
-      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-  ''';
-
-  String get _trucks => '''
-    CREATE TABLE trucks (
-      id INTEGER PRIMARY KEY,
-      title TEXT NOT NULL,
-      user_id INTEGER NOT NULL,
-      status TEXT NOT NULL,
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
   ''';

@@ -5,6 +5,8 @@ import 'package:aplicativo_inclinometro/components/custom_button.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
 import 'package:aplicativo_inclinometro/repositories/user_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -14,7 +16,14 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
   bool rememberMe = false;
+
+  String hashPassword(String password) {
+    final bytes = utf8.encode(password);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -125,10 +134,13 @@ class _LoginPageState extends State<LoginPage> {
             CustomButton(
               label: "Entrar",
               onPressed: () async {
+                final providedPassword = _passwordController.text;
+                final hashedPassword = hashPassword(providedPassword);
+
                 final isAuthenticated =
                     await UserRepository.instance.authenticateUser(
                   _emailController.text,
-                  _passwordController.text,
+                  hashedPassword,
                 );
 
                 if (isAuthenticated != null) {

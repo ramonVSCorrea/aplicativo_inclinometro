@@ -36,10 +36,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         _passwordController.text = user['password'];
       });
     }
-    print(_usernameController.text);
-    print(_lastnameController.text);
-    print(_emailController.text);
-    print(_passwordController.text);
   }
 
   Future<void> _updateProfile() async {

@@ -77,23 +77,24 @@ class _HomePage extends State<HomePage> {
           Row(
             children: <Widget>[
               IconButton(
-                icon: connected ? Icon(Icons.bluetooth_connected) : Icon(Icons.bluetooth_disabled),
+                icon: connected
+                    ? Icon(Icons.bluetooth_connected)
+                    : Icon(Icons.bluetooth_disabled),
                 onPressed: () {
                   print('Icone Clicado');
                 },
               ),
               Text(
                 connected ? 'Conectado' : 'Desconectado',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    color: Colors.white,
-                  ),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  color: Colors.white,
+                ),
               ),
             ],
           ),
         ],
-
         backgroundColor: Color.fromARGB(255, 43, 43, 43),
         elevation: 0,
       ),
@@ -104,7 +105,7 @@ class _HomePage extends State<HomePage> {
           child: Column(
             children: <Widget>[
               const SizedBox(
-                height: 30,
+                height: 20,
               ),
               const Text(
                 "Ângulo Lateral",
@@ -201,6 +202,9 @@ class _HomePage extends State<HomePage> {
                           : Colors.green,
                 ),
               ),
+              const SizedBox(
+                height: 10,
+              ),
               Container(
                 width: 140,
                 height: 140,
@@ -239,7 +243,7 @@ class _HomePage extends State<HomePage> {
             child: Icon(Icons.arrow_upward),
             backgroundColor: const Color(0xFFF07300),
           ),
-          SizedBox(height: 16), 
+          SizedBox(height: 16),
           FloatingActionButton(
             onPressed: () => sendMessage(false),
             child: Icon(Icons.arrow_downward),
@@ -250,4 +254,3 @@ class _HomePage extends State<HomePage> {
     );
   }
 }
-
