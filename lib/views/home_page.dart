@@ -31,7 +31,7 @@ class _HomePage extends State<HomePage> {
     const duration = Duration(milliseconds: 1);
     loadConnectedDevice();
     Timer.periodic(duration, (Timer timer) {
-      setState(() {});
+      // setState(() {});
     });
   }
 
@@ -191,7 +191,8 @@ class _HomePage extends State<HomePage> {
                 connection == null ? '---' : '${anguloFrontal.abs()}',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 30, // Ajuste de tamanho de fonte
+                  fontSize:
+                      screenWidth < 400 ? 30 : 50, // Ajuste de tamanho de fonte
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Poppins',
                   color: (anguloFrontal.abs() >= bloqueioFrontal)
