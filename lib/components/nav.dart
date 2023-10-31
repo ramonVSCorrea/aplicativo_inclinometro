@@ -5,7 +5,6 @@ import 'package:aplicativo_inclinometro/views/profile_page.dart';
 import 'package:aplicativo_inclinometro/views/home_page.dart';
 import 'package:aplicativo_inclinometro/views/settings_page.dart';
 import 'package:aplicativo_inclinometro/views/lockangle_page.dart';
-import 'package:aplicativo_inclinometro/repositories/user_repository.dart';
 
 class Nav extends StatefulWidget {
   @override
