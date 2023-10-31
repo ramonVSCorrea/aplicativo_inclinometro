@@ -8,7 +8,7 @@ import 'package:aplicativo_inclinometro/views/login_page.dart';
 import 'package:aplicativo_inclinometro/views/signup_page.dart';
 import 'package:aplicativo_inclinometro/views/home_page.dart';
 import 'package:aplicativo_inclinometro/views/settings_page.dart';
-// import 'package:aplicativo_inclinometro/views/alluser.dart';
+import 'package:aplicativo_inclinometro/views/allusers_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
         '/nav': (context) => Nav(),
         '/lockangle': (context) => LockAnglePage(),
         '/calibratesensor': (context) => CalibrateSensorPage(),
-        // '/alluser': (context) => AllUsersPage(),
+        '/alluser': (context) => AllUsersPage(),
       },
     );
   }

@@ -6,6 +6,8 @@ import 'package:aplicativo_inclinometro/components/name_field.dart';
 import 'package:aplicativo_inclinometro/components/email_field.dart';
 import 'package:aplicativo_inclinometro/components/password_field.dart';
 import 'package:aplicativo_inclinometro/components/custom_button.dart';
+import 'package:aplicativo_inclinometro/components/terms_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignupPage extends StatefulWidget {
   @override
@@ -25,7 +27,7 @@ class _SignupState extends State<SignupPage> {
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.only(
-          top: 60,
+          top: 40,
           left: 40,
           right: 40,
         ),
@@ -33,8 +35,8 @@ class _SignupState extends State<SignupPage> {
         child: ListView(
           children: <Widget>[
             SizedBox(
-              width: 128,
-              height: 128,
+              width: 118,
+              height: 118,
               child: Image.asset('assets/inclimaxLogo.png'),
             ),
             const SizedBox(
@@ -44,7 +46,7 @@ class _SignupState extends State<SignupPage> {
               "Registro",
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.w600,
                 fontFamily: 'Poppins',
                 color: Color.fromARGB(255, 0, 0, 0),
@@ -56,11 +58,14 @@ class _SignupState extends State<SignupPage> {
             const Text(
               "Primeiro nome",
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.w900,
                 fontFamily: 'Poppins',
                 color: Color(0xFFA59AFF),
               ),
+            ),
+            const SizedBox(
+              height: 10,
             ),
             NameField(
               controller: _nameController,
@@ -71,11 +76,14 @@ class _SignupState extends State<SignupPage> {
             const Text(
               "Último nome",
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.w900,
                 fontFamily: 'Poppins',
                 color: Color(0xFFA59AFF),
               ),
+            ),
+            const SizedBox(
+              height: 10,
             ),
             NameField(
               controller: _lastnameController,
@@ -86,11 +94,14 @@ class _SignupState extends State<SignupPage> {
             const Text(
               "E-mail",
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.w900,
                 fontFamily: 'Poppins',
                 color: Color(0xFFA59AFF),
               ),
+            ),
+            const SizedBox(
+              height: 10,
             ),
             EmailField(controller: _emailController),
             const SizedBox(
@@ -99,15 +110,34 @@ class _SignupState extends State<SignupPage> {
             const Text(
               "Senha",
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.w900,
                 fontFamily: 'Poppins',
                 color: Color(0xFFA59AFF),
               ),
             ),
-            PasswordField(controller: _passwordController),
             const SizedBox(
               height: 10,
+            ),
+            PasswordField(controller: _passwordController),
+            TextButton(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return TermsDialog();
+                  },
+                );
+              },
+              child: Text(
+                "Termos de Uso",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'Poppins',
+                  color: Color(0xFFA59AFF),
+                  decoration: TextDecoration.underline,
+                ),
+              ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -120,7 +150,7 @@ class _SignupState extends State<SignupPage> {
                     });
                   },
                 ),
-                const Text(
+                Text(
                   "Aceito os Termos de Uso",
                   style: TextStyle(
                     fontSize: 14,
@@ -129,9 +159,6 @@ class _SignupState extends State<SignupPage> {
                   ),
                 ),
               ],
-            ),
-            const SizedBox(
-              height: 30,
             ),
             CustomButton(
               label: "Continue",
@@ -154,12 +181,6 @@ class _SignupState extends State<SignupPage> {
                 } else {
                   await DB.instance.database;
 
-                  print('Dados do usuário:');
-                  print('Username: ${_nameController.text}');
-                  print('Lastname: ${_lastnameController.text}');
-                  print('Email: $email');
-                  print('Password: ${_passwordController.text}');
-
                   Map<String, dynamic> userData = {
                     'username': _nameController.text,
                     'lastname': _lastnameController.text,
@@ -167,15 +188,30 @@ class _SignupState extends State<SignupPage> {
                     'password': _passwordController.text,
                   };
 
-                  UserRepository.instance.insertUser(userData);
+                  final createdUserId =
+                      await UserRepository.instance.insertUser(userData);
 
-                  Navigator.pushReplacement(
-                      context, MaterialPageRoute(builder: (context) => Nav()));
+                  if (createdUserId != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Conta criada com sucesso')),
+                    );
+
+                    final pref = await SharedPreferences.getInstance();
+                    pref.setInt('userId', createdUserId);
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Nav(),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Erro ao criar conta')),
+                    );
+                  }
                 }
               },
-            ),
-            const SizedBox(
-              height: 20,
             ),
           ],
         ),

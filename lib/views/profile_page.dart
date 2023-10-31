@@ -1,4 +1,5 @@
 import 'package:aplicativo_inclinometro/components/nav.dart';
+import 'package:aplicativo_inclinometro/views/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/repositories/user_repository.dart';
 import 'package:aplicativo_inclinometro/views/edit_profile_page.dart';
@@ -73,7 +74,13 @@ class _ProfilePageState extends State<ProfilePage> {
             ListTile(
               leading: Icon(Icons.logout),
               title: Text('Sair'),
-              onTap: () {},
+              onTap: () {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginPage(),
+                    ));
+              },
             ),
           ],
         ),
@@ -97,6 +104,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   color: const Color(0xFFF07300),
                 ),
               ),
+              SizedBox(height: 10),
               Text(
                 userData['email'] ?? 'email@example.com',
                 style: TextStyle(fontSize: 18),
