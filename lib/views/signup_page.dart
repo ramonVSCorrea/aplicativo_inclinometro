@@ -8,6 +8,8 @@ import 'package:aplicativo_inclinometro/components/password_field.dart';
 import 'package:aplicativo_inclinometro/components/custom_button.dart';
 import 'package:aplicativo_inclinometro/components/terms_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 class SignupPage extends StatefulWidget {
   @override
@@ -21,6 +23,12 @@ class _SignupState extends State<SignupPage> {
   final TextEditingController _passwordController = TextEditingController();
 
   bool acceptedTerms = false;
+
+  String hashPassword(String password) {
+    final bytes = utf8.encode(password);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +193,7 @@ class _SignupState extends State<SignupPage> {
                     'username': _nameController.text,
                     'lastname': _lastnameController.text,
                     'email': email,
-                    'password': _passwordController.text,
+                    'password': hashPassword(_passwordController.text),
                   };
 
                   final createdUserId =

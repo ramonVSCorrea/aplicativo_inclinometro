@@ -8,15 +8,12 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aplicativo_inclinometro/components/bluetooth_functions.dart';
 
-
 class ConnectPage extends StatefulWidget {
   @override
   _ConnectPage createState() => _ConnectPage();
 }
 
 class _ConnectPage extends State<ConnectPage> {
-
-
   @override
   void initState() {
     super.initState();
@@ -74,13 +71,11 @@ class _ConnectPage extends State<ConnectPage> {
     }
   }
 
-  void saveConnectedDevice(BluetoothDevice device) async{
+  void saveConnectedDevice(BluetoothDevice device) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('connectedDeviceName', device.name ?? '');
     prefs.setString('connectedDeviceAddress', device.address);
   }
-
-
 
   @override
   Widget build(BuildContext context) {
