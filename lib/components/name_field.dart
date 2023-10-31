@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 class NameField extends StatelessWidget {
+  final TextEditingController controller;
+
+  NameField({required this.controller});
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
@@ -26,6 +30,7 @@ class NameField extends StatelessWidget {
       style: const TextStyle(
         fontSize: 16,
       ),
+      controller: controller,
     );
   }
 }

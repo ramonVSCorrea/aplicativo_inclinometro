@@ -1,5 +1,6 @@
+// ignore_for_file: unused_element, unused_local_variable
+
 import 'package:sqflite/sqflite.dart';
-import 'package:sqflite/sqlite_api.dart';
 import 'package:path/path.dart';
 
 class HistoricRepository {
@@ -22,7 +23,6 @@ class HistoricRepository {
 
   Future<void> _initRepository() async {
     final db = await database;
-    // Realize as operações de inicialização necessárias, se houver
   }
 
   Future<void> insertHistoric(Map<String, dynamic> historicData) async {
@@ -44,5 +44,6 @@ class HistoricRepository {
 
   Future<void> deleteHistoric(int historicId) async {
     final db = await database;
-    await db?.delete('historic', where: 'id = ?', whereArgs: [historicId]);}
+    await db?.delete('historic', where: 'id = ?', whereArgs: [historicId]);
+  }
 }

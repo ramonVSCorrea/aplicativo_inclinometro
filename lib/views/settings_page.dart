@@ -14,7 +14,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPage extends State<SettingsPage> {
-
   Future<void> requestBluetoothPermissions() async {
     final Map<Permission, PermissionStatus> status = await [
       Permission.bluetooth,
@@ -23,13 +22,13 @@ class _SettingsPage extends State<SettingsPage> {
       Permission.bluetoothAdvertise
     ].request();
 
-    if(status[Permission.bluetooth]!.isGranted){
+    if (status[Permission.bluetooth]!.isGranted) {
       print('bluetooth permitido');
-      if(status[Permission.bluetoothConnect]!.isGranted){
+      if (status[Permission.bluetoothConnect]!.isGranted) {
         print('bluetoothConnect permitido');
-        if(status[Permission.bluetoothScan]!.isGranted){
+        if (status[Permission.bluetoothScan]!.isGranted) {
           print('bluetoothScan permitido');
-          if(status[Permission.bluetoothAdvertise]!.isGranted){
+          if (status[Permission.bluetoothAdvertise]!.isGranted) {
             print('bluetoothAdvertise permitido');
           }
         }
@@ -77,12 +76,12 @@ class _SettingsPage extends State<SettingsPage> {
             leading: Icon(Icons.adjust, color: Color(0xFFF07300)),
             title: Text('Calibrar Sensor'),
             subtitle: Text('Calibre o sensor para melhor ajuste'),
-            onTap: (){
+            onTap: () {
               //requestBluetoothPermissions();
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => CalibrateSensorPage()));
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CalibrateSensorPage()));
             },
           ),
           ListTile(
