@@ -58,13 +58,13 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
           ),
         ),
         backgroundColor: Color.fromARGB(255, 43, 43, 43),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushReplacement(
-                context, MaterialPageRoute(builder: (context) => Nav()));
-          },
-        ),
+        // leading: IconButton(
+        //   icon: Icon(Icons.arrow_back),
+        //   onPressed: () {
+        //     Navigator.pushReplacement(
+        //         context, MaterialPageRoute(builder: (context) => Nav()));
+        //   },
+        // ),
       ),
       body: Container(
         padding: EdgeInsets.symmetric(

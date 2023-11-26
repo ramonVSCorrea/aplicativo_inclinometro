@@ -1,8 +1,18 @@
+import 'package:aplicativo_inclinometro/store/variables.dart';
 import 'package:aplicativo_inclinometro/views/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:math';
 import 'package:influxdb_client/api.dart';
+import 'package:intl/intl.dart';
+
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:async';
+import 'dart:math';
+
+import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
 
 class EventsPage extends StatefulWidget {
   const EventsPage({Key? key}) : super(key: key);
@@ -12,229 +22,177 @@ class EventsPage extends StatefulWidget {
 }
 
 class _EventsPageState extends State<EventsPage> {
-
-    // void fetchData() async{
-    //   var client = InfluxDBClient(
-    //     url: 'https://us-east-1-1.aws.cloud2.influxdata.com',
-    //     token: 'X0zO3ujnfr20JXsm3HnCaatkWWW0xtf_VG9XRuj33as8Kb-zG1CGRPpfczL0xyNwmXZ2UaS2m65PITWf1ePskA==',
-    //     org: '9f389c7f82a02efa',
-    //     bucket: 'IncliMax',
-    //   );
-    //
-    //   var queryService = client.getQueryService();
-    //   //var fluxQuery = 'from(bucket: "IncliMax") |> range(start: -30d) |> filter(fn: (r) => r["_measurement"] == "Angulos" and (r["AnguloFrontal"] != null or r["AnguloLateral"] != null) and r["device"] == "ESP32")';
-    //   var fluxQuery = '''
-    //         from(bucket: "IncliMax")
-    //           |> range(start: -30d)
-    //           |> filter(fn: (r) => r["_measurement"] == "Angulos" and (r["_field"] == "AnguloFrontal" or r["_field"] == "AnguloLateral"))
-    //           |> filter(fn: (r) => r["device"] == "ESP32")
-    //         ''';
-    //
-    //   print('\n\n---------------------------------- Query ---------------------------------\n');
-    //   var recordStream = await queryService.query(fluxQuery);
-    //
-    //   print('\n\n------------------------------ Query result ------------------------------\n');
-    //
-    //   await recordStream.forEach((record) {
-    //     if (record['_field'] == 'AnguloLateral') {
-    //       print('AnguloLateral: ${record['_value']}');
-    //     } else if (record['_field'] == 'AnguloFrontal') {
-    //       print('AnguloFrontal: ${record['_value']}');
-    //     }
-    //   });
-    //   client.close();
-    // }
-
-  Map<DateTime, Map<String, dynamic>> data = {};
-
   @override
-  void initState() {
+  void initState(){
     super.initState();
-    fetchData();
+    getEvents();
+    const duration = Duration(milliseconds: 1);
+    Timer.periodic(duration, (Timer timer) {
+      setState(() {});
+    });
   }
 
-  void fetchData() async {
-    var client = InfluxDBClient(
-      url: 'https://us-east-1-1.aws.cloud2.influxdata.com',
-      token: 'X0zO3ujnfr20JXsm3HnCaatkWWW0xtf_VG9XRuj33as8Kb-zG1CGRPpfczL0xyNwmXZ2UaS2m65PITWf1ePskA==',
-      org: '9f389c7f82a02efa',
-      bucket: 'IncliMax',
-    );
+  void sendMessage() async {
+    String msgBT;
 
-    var queryService = client.getQueryService();
-    var fluxQuery = '''
-      from(bucket: "IncliMax")
-        |> range(start: -30d)
-        |> filter(fn: (r) => r["_measurement"] == "Angulos" and (r["_field"] == "AnguloFrontal" or r["_field"] == "AnguloLateral"))
-        |> filter(fn: (r) => r["device"] == "ESP32")
-      ''';
+    msgBT = '{"totalEventos": 1}';
 
-    var recordStream = await queryService.query(fluxQuery);
+    if(connection == null){
+      print('Conexão Bluetooth não estabelecida');
+      return;
+    }
 
-    await recordStream.forEach((record) {
-      var time = DateTime.parse(record['_time']);
-      var field = record['_field'];
-      var value = record['_value'];
+    try {
+      connection!.output.add(Uint8List.fromList(msgBT.codeUnits));
+      await connection!.output.allSent;
+      print('Mensagem enviada: $msgBT');
+    } catch (ex) {
+      print('Erro ao enviar mensagem: $ex');
+    }
+  }
 
-      if (data[time] == null) {
-        data[time] = {};
+  void sendMessageLerEvento(int numEvento) async {
+    String msgBT;
+
+    msgBT = '{"numEvento": $numEvento}\n';
+
+    if(connection == null){
+      print('Conexão Bluetooth não estabelecida');
+      return;
+    }
+
+    try {
+      connection!.output.add(Uint8List.fromList(msgBT.codeUnits));
+      await connection!.output.allSent;
+      print('Mensagem enviada: $msgBT');
+    } catch (ex) {
+      print('Erro ao enviar mensagem: $ex');
+    }
+
+  }
+
+  void lerEvento(int numEvento) async{
+    int tentativas = 0;
+    bool flagMsg = true;
+    int cont = 0;
+
+    while(flagMsg && tentativas < 500){
+      sendMessageLerEvento(numEvento);
+      while(true){
+        if(requestLerEvento){
+          flagMsg = false;
+          requestLerEvento = false;
+          break;
+        }
+        await Future.delayed(Duration(milliseconds: 100));
+        cont++;
+        if(cont == 300){
+          cont = 0;
+          break;
+        }
+      }
+      tentativas++;
+    }
+  }
+
+
+  void getEvents() async{
+      int tentativas = 0;
+      bool flagMsg = true;
+      int cont = 0;
+      requestLeitura = false;
+
+      while(flagMsg && tentativas < 500){
+        sendMessage();
+        while(true){
+          if(requestTotalEventos){
+            flagMsg = false;
+            requestTotalEventos = false;
+            break;
+          }
+          await Future.delayed(Duration(milliseconds: 100));
+          cont++;
+          if(cont == 300){
+            cont = 0;
+            break;
+          }
+        }
+        tentativas++;
+      }
+      print('Total eventos: $totalEventos');
+
+
+      for(int i = totalEventos - eventos.length; i > 1; i--){
+        if(i == 0)
+          break;
+        print('Enviando evt $i');
+        lerEvento(i);
+        await Future.delayed(Duration(milliseconds: 500));
       }
 
-      data[time]?[field] = value;
-    });
+      //print('Total eventos: $totalEventos');
 
-    setState(() {});
-
-    client.close();
+      requestLeitura = true;
   }
 
+  Future<void> salvarEventosEmCSV() async {
+    String csvContent = 'Data,Hora,TipoEvento,AngLat,AngFront\n';
 
+    for (Evento evento in eventos) {
+      csvContent +=
+      '${evento.data},${evento.hora},${evento.tipoEvento},${evento.angLat},${evento.angFront}\n';
+    }
 
+    String? directoryPath = await FilePicker.platform.getDirectoryPath();
+    if (directoryPath != null) {
+      final Directory directory = Directory(directoryPath);
+      final String fileName = 'eventos.csv';
+      final String filePath = '${directory.path}/$fileName';
+
+      File file = File(filePath);
+      await file.writeAsString(csvContent);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Eventos salvos em $filePath'),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Nenhum diretório selecionado'),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Angulos'),
+        title: Text('Eventos'),
+        backgroundColor: Color.fromARGB(255, 43, 43, 43),
       ),
       body: ListView.builder(
-        itemCount: data.length,
-        itemBuilder: (context, index) {
-          var time = data.keys.elementAt(index);
-          var values = data[time];
+        itemCount: eventos.length,
+        itemBuilder: (context, index){
           return ListTile(
-            title: Text('Time: $time'),
-            subtitle: Text('AnguloLateral: ${values?['AnguloLateral']}, AnguloFrontal: ${values?['AnguloFrontal']}'),
+            title: Text(eventos[index].tipoEvento),
+            subtitle: Text(
+              'Data: ${eventos[index].data}\nHora: ${eventos[index].hora}\nÂngulo Lateral: ${eventos[index].angLat}\nÂngulo Frontal: ${eventos[index].angFront}',
+            ),
           );
         },
+        // Seu conteúdo ListView aqui
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          salvarEventosEmCSV();
+        },
+        tooltip: 'Salvar Eventos em CSV',
+        child: Icon(Icons.download),
+        backgroundColor: const Color(0xFFF07300),
       ),
     );
   }
-
-  // String _data = '';
-  // String _hora = '';
-  // Timer? _timer;
-  //
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   fetchData();
-  //   _timer = Timer.periodic(Duration(seconds: 1), (Timer t) => _getDataHora());
-  // }
-  //
-  // @override
-  // void dispose() {
-  //   _timer?.cancel();
-  //   super.dispose();
-  // }
-  //
-  // void _getDataHora() {
-  //   final dataHora = DateTime.now();
-  //   final data = "${dataHora.day}/${dataHora.month}/${dataHora.year}";
-  //   final hora = "${dataHora.hour}:${dataHora.minute}:${dataHora.second}";
-  //
-  //   setState(() {
-  //     _data = 'Data: $data';
-  //     _hora = 'Hora: $hora';
-  //   });
-  // }
-  //
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       title: Text('Tela de Eventos'),
-  //       backgroundColor: Color.fromARGB(255, 43, 43, 43),
-  //       leading: IconButton(
-  //         icon: Icon(Icons.arrow_back),
-  //         onPressed: () {
-  //           Navigator.pushReplacement(context,
-  //               MaterialPageRoute(builder: (context) => SettingsPage()));
-  //         },
-  //       ),
-  //     ),
-  //     body: Center(
-  //       child: Column(
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         children: <Widget>[
-  //           Text(
-  //             'Eventos',
-  //             style: TextStyle(
-  //               fontSize: 24,
-  //               fontWeight: FontWeight.bold,
-  //               color: Color(0xFFF07300),
-  //             ),
-  //           ),
-  //           SizedBox(height: 20),
-  //           Text(
-  //             _data,
-  //             style: TextStyle(
-  //               fontSize: 18,
-  //               color: Colors.black,
-  //             ),
-  //           ),
-  //           Text(
-  //             _hora,
-  //             style: TextStyle(
-  //               fontSize: 18,
-  //               color: Colors.black,
-  //             ),
-  //           ),
-  //           SizedBox(height: 20),
-  //           Container(
-  //             width: 200,
-  //             padding: EdgeInsets.all(10),
-  //             decoration: BoxDecoration(
-  //               color: Color.fromARGB(255, 240, 0, 0),
-  //               borderRadius: BorderRadius.circular(10),
-  //             ),
-  //             child: Text(
-  //               'Evento: BLOQUEIO',
-  //               style: TextStyle(
-  //                 fontSize: 18,
-  //                 color: Colors.white,
-  //               ),
-  //               textAlign: TextAlign.center,
-  //             ),
-  //           ),
-  //           SizedBox(height: 10),
-  //           Container(
-  //             width: 200,
-  //             padding: EdgeInsets.all(10),
-  //             decoration: BoxDecoration(
-  //               color: Color(0xFFF07300),
-  //               borderRadius: BorderRadius.circular(10),
-  //             ),
-  //             child: Text(
-  //               'Ângulo Lateral: 2,5°',
-  //               style: TextStyle(
-  //                 fontSize: 18,
-  //                 color: Colors.white,
-  //               ),
-  //               textAlign: TextAlign.center,
-  //             ),
-  //           ),
-  //           SizedBox(height: 10),
-  //           Container(
-  //             width: 200,
-  //             padding: EdgeInsets.all(10),
-  //             decoration: BoxDecoration(
-  //               color: Color(0xFFF07300),
-  //               borderRadius: BorderRadius.circular(10),
-  //             ),
-  //             child: Text(
-  //               'Ângulo Frontal: 8,2°',
-  //               style: TextStyle(
-  //                 fontSize: 18,
-  //                 color: Colors.white,
-  //               ),
-  //               textAlign: TextAlign.center,
-  //             ),
-  //           ),
-  //           SizedBox(height: 20),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 }
