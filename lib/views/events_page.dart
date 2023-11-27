@@ -100,7 +100,8 @@ class _EventsPageState extends State<EventsPage> {
       int tentativas = 0;
       bool flagMsg = true;
       int cont = 0;
-      requestLeitura = false;
+      sendingMSG = true;
+      //requestLeitura = false;
 
       while(flagMsg && tentativas < 500){
         sendMessage();
@@ -122,17 +123,18 @@ class _EventsPageState extends State<EventsPage> {
       print('Total eventos: $totalEventos');
 
 
-      for(int i = totalEventos - eventos.length; i > 1; i--){
+      for(int i = totalEventos - eventos.length; i > 0; i--){
         if(i == 0)
           break;
         print('Enviando evt $i');
         lerEvento(i);
-        await Future.delayed(Duration(milliseconds: 500));
+        await Future.delayed(Duration(milliseconds: 100));
       }
 
       //print('Total eventos: $totalEventos');
 
-      requestLeitura = true;
+      //requestLeitura = true;
+    sendingMSG = false;
   }
 
   Future<void> salvarEventosEmCSV() async {
