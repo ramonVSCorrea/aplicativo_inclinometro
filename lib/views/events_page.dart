@@ -14,6 +14,8 @@ import 'dart:math';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 
+bool lendoEventos = false;
+
 class EventsPage extends StatefulWidget {
   const EventsPage({Key? key}) : super(key: key);
 
@@ -25,11 +27,19 @@ class _EventsPageState extends State<EventsPage> {
   @override
   void initState(){
     super.initState();
+    //flagParaLeitura = true;
     getEvents();
     const duration = Duration(milliseconds: 1);
     Timer.periodic(duration, (Timer timer) {
       setState(() {});
     });
+  }
+
+  @override
+  void dispose() {
+    //sendingMSG = false;
+    //flagParaLeitura = false;
+    super.dispose();
   }
 
   void sendMessage() async {
@@ -124,6 +134,7 @@ class _EventsPageState extends State<EventsPage> {
 
 
       for(int i = totalEventos - eventos.length; i > 0; i--){
+        lendoEventos = true;
         if(i == 0)
           break;
         print('Enviando evt $i');
@@ -134,36 +145,132 @@ class _EventsPageState extends State<EventsPage> {
       //print('Total eventos: $totalEventos');
 
       //requestLeitura = true;
+      lendoEventos = false;
     sendingMSG = false;
   }
 
+  // Future<void> salvarEventosEmCSV() async {
+  //   String csvContent = 'Data,Hora,TipoEvento,AngLat,AngFront\n';
+  //
+  //   for (Evento evento in eventos) {
+  //     csvContent +=
+  //     '${evento.data},${evento.hora},${evento.tipoEvento},${evento.angLat},${evento.angFront}\n';
+  //   }
+  //
+  //   String? directoryPath = await FilePicker.platform.getDirectoryPath();
+  //   if (directoryPath != null) {
+  //     final Directory directory = Directory(directoryPath);
+  //     final String fileName = 'eventos.csv';
+  //     final String filePath = '${directory.path}/$fileName';
+  //
+  //     File file = File(filePath);
+  //     await file.writeAsString(csvContent);
+  //
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Eventos salvos em $filePath'),
+  //       ),
+  //     );
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Nenhum diretório selecionado'),
+  //       ),
+  //     );
+  //   }
+  // }
+
   Future<void> salvarEventosEmCSV() async {
-    String csvContent = 'Data,Hora,TipoEvento,AngLat,AngFront\n';
+    if(!lendoEventos) {
+      String csvContent = 'Data,Hora,TipoEvento,AngLat,AngFront\n';
 
-    for (Evento evento in eventos) {
-      csvContent +=
-      '${evento.data},${evento.hora},${evento.tipoEvento},${evento.angLat},${evento.angFront}\n';
-    }
+      for (Evento evento in eventos) {
+        csvContent +=
+        '${evento.data},${evento.hora},${evento.tipoEvento},${evento
+            .angLat},${evento.angFront}\n';
+      }
 
-    String? directoryPath = await FilePicker.platform.getDirectoryPath();
-    if (directoryPath != null) {
-      final Directory directory = Directory(directoryPath);
-      final String fileName = 'eventos.csv';
-      final String filePath = '${directory.path}/$fileName';
+      String? directoryPath = await FilePicker.platform.getDirectoryPath();
+      if (directoryPath != null) {
+        final Directory directory = Directory(directoryPath);
 
-      File file = File(filePath);
-      await file.writeAsString(csvContent);
+        // Obtém a data e hora atual
+        String formattedDate = DateFormat('dd_MM_yy_HH_mm').format(
+            DateTime.now());
+        final String fileName = 'Eventos_$formattedDate.csv';
+        final String filePath = '${directory.path}/$fileName';
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Eventos salvos em $filePath'),
-        ),
-      );
+        File file = File(filePath);
+
+        if (await file.exists()) {
+          // O arquivo já existe, perguntar ao usuário se ele deseja substituir
+          bool replaceFile = await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Arquivo já existe'),
+                content: Text('Deseja substituir o arquivo existente?'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(true); // Substituir o arquivo
+                    },
+                    child: Text('Sim'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(
+                          false); // Não substituir o arquivo
+                    },
+                    child: Text('Não'),
+                  ),
+                ],
+              );
+            },
+          );
+
+          if (replaceFile != null && !replaceFile) {
+            // O usuário optou por não substituir o arquivo
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Arquivo não substituído'),
+              ),
+            );
+            return;
+          }
+        }
+
+        await file.writeAsString(csvContent);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Eventos salvos em $filePath'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Nenhum diretório selecionado'),
+          ),
+        );
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Nenhum diretório selecionado'),
-        ),
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Alerta'),
+            content: Text('A leitura dos eventos ainda não foi finalizada. Aguarde!'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Fecha o diálogo
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
       );
     }
   }
@@ -187,7 +294,8 @@ class _EventsPageState extends State<EventsPage> {
         },
         // Seu conteúdo ListView aqui
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton:
+      FloatingActionButton(
         onPressed: () {
           salvarEventosEmCSV();
         },
