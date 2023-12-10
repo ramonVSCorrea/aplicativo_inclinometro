@@ -9,12 +9,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 List<BluetoothDiscoveryResult> discoveryResults = [];
 bool isDiscovering = false;
 bool requestCfg = false;
+bool sendDate = false;
 //bool requestLeitura = false;
 late bool isRunning;
 int cont = 0;
 BluetoothDevice? connectedDevice;
 
+
+
+
 void listenBluetooth() async {
+  // if(connection == null){
+  //   connected = false;
+  // }
     connection?.input?.listen((Uint8List data) {
       final msgBT = String.fromCharCodes(data);
 
@@ -86,7 +93,31 @@ void comunicBluetooth() async {
   listenBluetooth();
   while (isRunning) {
     if (!sendingMSG) {
-      if (!requestCfg) {
+      if(!sendDate){
+        Map<String, dynamic> jsonData = {
+          "alteraData": {
+            "dia": DateTime.now().day,
+            "mes": DateTime.now().month,
+            "ano": DateTime.now().year,
+            "hora": DateTime.now().hour,
+            "minuto": DateTime.now().minute,
+          }
+        };
+
+        String msgBT = jsonEncode(jsonData);
+
+        try {
+          connection!.output.add(Uint8List.fromList(msgBT.codeUnits));
+          await connection!.output.allSent;
+          print('Mensagem enviada: $msgBT');
+          sendDate = true;
+        } catch (ex) {
+          print('Erro ao enviar mensagem: $ex');
+          connected = false;
+          loadConnectedDevice();
+        }
+      }
+      else if (!requestCfg) {
         String msgBT = '{"requisitaCfg": 1}\n';
 
         try {
@@ -95,6 +126,8 @@ void comunicBluetooth() async {
           print('Mensagem enviada: $msgBT');
         } catch (ex) {
           print('Erro ao enviar mensagem: $ex');
+          connected = false;
+          loadConnectedDevice();
         }
       } else if (requestLeitura && !requestTotalEventos && !requestLerEvento) {
         String msgBT = '{"requisicaoLeitura": 1}\n';
@@ -105,6 +138,8 @@ void comunicBluetooth() async {
           print('Mensagem enviada: $msgBT');
         } catch (ex) {
           print('Erro ao enviar mensagem: $ex');
+          connected = false;
+          loadConnectedDevice();
         }
         requestLeitura = false;
       }

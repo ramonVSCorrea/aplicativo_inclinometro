@@ -149,37 +149,6 @@ class _EventsPageState extends State<EventsPage> {
     sendingMSG = false;
   }
 
-  // Future<void> salvarEventosEmCSV() async {
-  //   String csvContent = 'Data,Hora,TipoEvento,AngLat,AngFront\n';
-  //
-  //   for (Evento evento in eventos) {
-  //     csvContent +=
-  //     '${evento.data},${evento.hora},${evento.tipoEvento},${evento.angLat},${evento.angFront}\n';
-  //   }
-  //
-  //   String? directoryPath = await FilePicker.platform.getDirectoryPath();
-  //   if (directoryPath != null) {
-  //     final Directory directory = Directory(directoryPath);
-  //     final String fileName = 'eventos.csv';
-  //     final String filePath = '${directory.path}/$fileName';
-  //
-  //     File file = File(filePath);
-  //     await file.writeAsString(csvContent);
-  //
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: Text('Eventos salvos em $filePath'),
-  //       ),
-  //     );
-  //   } else {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: Text('Nenhum diretório selecionado'),
-  //       ),
-  //     );
-  //   }
-  // }
-
   Future<void> salvarEventosEmCSV() async {
     if(!lendoEventos) {
       String csvContent = 'Data,Hora,TipoEvento,AngLat,AngFront\n';
