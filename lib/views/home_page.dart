@@ -1,4 +1,4 @@
-// ignore_for_file: unused_element
+// ignore_for_file: unused_element, unused_field, unused_import, unused_local_variable
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:async';
@@ -31,17 +31,42 @@ class _HomePage extends State<HomePage> {
     const duration = Duration(milliseconds: 1);
     loadConnectedDevice();
     Timer.periodic(duration, (Timer timer) {
-      // setState(() {});
+       setState(() {});
     });
   }
 
+  void enviaMovimentaBascula(bool cmd) async{
+    int tentativas = 0;
+    bool flagMsg = true;
+    int cont = 0;
+
+    while(flagMsg && tentativas < 500){
+      sendMessage(cmd);
+      while(true){
+        if(requestMovimentaBascula){
+          flagMsg = false;
+          requestMovimentaBascula = false;
+          break;
+        }
+        await Future.delayed(Duration(milliseconds: 100));
+        cont++;
+        if(cont == 300){
+          cont = 0;
+          break;
+        }
+      }
+      tentativas++;
+    }
+  }
+
   void sendMessage(bool cmd) async {
+    //sendingMSG = true;
     String msgBT;
 
     if (cmd == true) {
-      msgBT = '{"comandoBascula":{"subir": 1,"descer": 0}}';
+      msgBT = '{"comandoBascula":{"subir": 1,"descer": 0}}\n';
     } else {
-      msgBT = '{"comandoBascula":{"subir": 0,"descer": 1}}';
+      msgBT = '{"comandoBascula":{"subir": 0,"descer": 1}}\n';
     }
 
     if (connection == null) {
@@ -56,6 +81,8 @@ class _HomePage extends State<HomePage> {
     } catch (ex) {
       print('Erro ao enviar mensagem: $ex');
     }
+
+    //sendingMSG = false;
   }
 
   @override
@@ -191,7 +218,8 @@ class _HomePage extends State<HomePage> {
                 connection == null ? '---' : '${anguloFrontal.abs()}',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 30, // Ajuste de tamanho de fonte
+                  fontSize:
+                      screenWidth < 400 ? 30 : 50, // Ajuste de tamanho de fonte
                   fontWeight: FontWeight.bold,
                   fontFamily: 'Poppins',
                   color: (anguloFrontal.abs() >= bloqueioFrontal)
@@ -239,13 +267,17 @@ class _HomePage extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
           FloatingActionButton(
-            onPressed: () => sendMessage(true),
+
+            //onPressed: () => sendMessage(true),
+            onPressed: () => enviaMovimentaBascula(true),
             child: Icon(Icons.arrow_upward),
             backgroundColor: const Color(0xFFF07300),
+
           ),
           SizedBox(height: 16),
           FloatingActionButton(
-            onPressed: () => sendMessage(false),
+            //onPressed: () => sendMessage(false),
+            onPressed: () => enviaMovimentaBascula(false),
             child: Icon(Icons.arrow_downward),
             backgroundColor: const Color(0xFFF07300),
           ),

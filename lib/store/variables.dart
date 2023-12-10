@@ -14,3 +14,32 @@ bool connected = false;
 
 BluetoothConnection? connection;
 BluetoothConnection? activeConnections;
+
+bool requestLeitura = false;
+bool requestTotalEventos = false;
+
+int totalEventos = 0;
+
+bool requestLerEvento = false;
+bool requestMovimentaBascula = false;
+bool flagParaLeitura = false;
+
+
+class Evento {
+  String data;
+  String hora;
+  String tipoEvento;
+  String angLat;
+  String angFront;
+
+  Evento({
+    required this.data,
+    required this.hora,
+    required this.tipoEvento,
+    required this.angLat,
+    required this.angFront,
+  });
+}
+
+List<Evento> eventos = [];
+

@@ -1,3 +1,5 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:aplicativo_inclinometro/components/create_custom_container.dart';
 import 'package:aplicativo_inclinometro/components/custom_button.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
@@ -5,7 +7,6 @@ import 'package:aplicativo_inclinometro/store/variables.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:async';
 
 class CalibrateSensorPage extends StatefulWidget {
   @override
@@ -57,13 +58,13 @@ class _CalibrateSensorPage extends State<CalibrateSensorPage> {
           ),
         ),
         backgroundColor: Color.fromARGB(255, 43, 43, 43),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushReplacement(
-                context, MaterialPageRoute(builder: (context) => Nav()));
-          },
-        ),
+        // leading: IconButton(
+        //   icon: Icon(Icons.arrow_back),
+        //   onPressed: () {
+        //     Navigator.pushReplacement(
+        //         context, MaterialPageRoute(builder: (context) => Nav()));
+        //   },
+        // ),
       ),
       body: Container(
         padding: EdgeInsets.symmetric(

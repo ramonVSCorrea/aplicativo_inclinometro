@@ -44,6 +44,9 @@ dependencies:
   flutter_bluetooth_serial: ^0.4.0
   shared_preferences: ^2.2.2
   permission_handler: ^11.0.1
+  influxdb_client: ^2.9.0
+  path_provider: ^2.1.1
+  file_picker: ^6.1.1
 
 dev_dependencies:
   flutter_test:
