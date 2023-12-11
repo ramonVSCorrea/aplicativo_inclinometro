@@ -19,7 +19,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    //_loadUserData();
   }
 
   Future<void> _loadUserData() async {

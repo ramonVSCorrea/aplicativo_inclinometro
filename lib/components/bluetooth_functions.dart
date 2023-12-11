@@ -15,13 +15,7 @@ late bool isRunning;
 int cont = 0;
 BluetoothDevice? connectedDevice;
 
-
-
-
 void listenBluetooth() async {
-  // if(connection == null){
-  //   connected = false;
-  // }
     connection?.input?.listen((Uint8List data) {
       final msgBT = String.fromCharCodes(data);
 

@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/views/connect_page.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:aplicativo_inclinometro/components/sideBar.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -117,6 +118,7 @@ class _HomePage extends State<HomePage> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      drawer: SideBar(),
       appBar: AppBar(
         title: Text(
           'Início',
