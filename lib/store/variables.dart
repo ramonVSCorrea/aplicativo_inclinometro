@@ -43,3 +43,5 @@ class Evento {
 
 List<Evento> eventos = [];
 
+String? errorSignUp;
+

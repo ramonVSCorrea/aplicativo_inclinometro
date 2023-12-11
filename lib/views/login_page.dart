@@ -8,6 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
+import '../firebase_auth_implementation/firebase_auth_services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -17,6 +20,8 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  final FirebaseAuthService _auth = FirebaseAuthService();
+
   bool rememberMe = false;
 
   String hashPassword(String password) {
@@ -24,6 +29,15 @@ class _LoginPageState extends State<LoginPage> {
     final digest = sha256.convert(bytes);
     return digest.toString();
   }
+
+  @override
+  void dispose(){
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -134,29 +148,30 @@ class _LoginPageState extends State<LoginPage> {
             CustomButton(
               label: "Entrar",
               onPressed: () async {
-                final providedPassword = _passwordController.text;
-                final hashedPassword = hashPassword(providedPassword);
-
-                final isAuthenticated =
-                    await UserRepository.instance.authenticateUser(
-                  _emailController.text,
-                  hashedPassword,
-                );
-
-                if (isAuthenticated != null) {
-                  final pref = await SharedPreferences.getInstance();
-                  pref.setInt('userId', isAuthenticated);
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => Nav(),
-                    ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text('Usuário ou senha inválidos'),
-                  ));
-                }
+                _signIn();
+                // final providedPassword = _passwordController.text;
+                // final hashedPassword = hashPassword(providedPassword);
+                //
+                // final isAuthenticated =
+                //     await UserRepository.instance.authenticateUser(
+                //   _emailController.text,
+                //   hashedPassword,
+                // );
+                //
+                // if (isAuthenticated != null) {
+                //   final pref = await SharedPreferences.getInstance();
+                //   pref.setInt('userId', isAuthenticated);
+                //   Navigator.pushReplacement(
+                //     context,
+                //     MaterialPageRoute(
+                //       builder: (context) => Nav(),
+                //     ),
+                //   );
+                // } else {
+                //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                //     content: Text('Usuário ou senha inválidos'),
+                //   ));
+                // }
               },
             ),
             const SizedBox(
@@ -199,5 +214,24 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  void _signIn() async {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    User? user = await _auth.signInWithEmailAndPassword(email, password);
+
+    if(user != null){
+      print("User is successfully signedIn");
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Nav(),
+          ),
+        );
+    } else {
+      print("Some error happend");
+    }
   }
 }

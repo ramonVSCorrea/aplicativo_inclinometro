@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/views/connect_page.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:aplicativo_inclinometro/components/sideBar.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -18,6 +19,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePage extends State<HomePage> {
   int _selectedIndex = 0;
+  FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -30,9 +32,34 @@ class _HomePage extends State<HomePage> {
     super.initState();
     const duration = Duration(milliseconds: 1);
     loadConnectedDevice();
+    if(connected)
+      _checkBluetoothConnection();
     Timer.periodic(duration, (Timer timer) {
        setState(() {});
     });
+  }
+
+  Future<void> _checkBluetoothConnection() async{
+    try {
+      List<BluetoothDevice> bondedDevices = await _bluetooth.getBondedDevices();
+
+      if (bondedDevices.isNotEmpty) {
+        setState(() {
+          connected = true;
+        });
+        print('Estou aqui');
+      } else {
+        setState(() {
+          connected = false;
+        });
+        print('Estou aqui');
+      }
+    } catch(error){
+      print('Erro ao verificar a conexão bluetooth: $error');
+      setState(() {
+        connected = false;
+      });
+    }
   }
 
   void enviaMovimentaBascula(bool cmd) async{
@@ -91,6 +118,7 @@ class _HomePage extends State<HomePage> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      drawer: SideBar(),
       appBar: AppBar(
         title: Text(
           'Início',
@@ -148,7 +176,7 @@ class _HomePage extends State<HomePage> {
                 height: 20,
               ),
               Text(
-                connection == null ? '---' : '${anguloLateral.abs()}',
+                connected == false ? '---' : '${anguloLateral.abs()}°',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize:
@@ -215,7 +243,7 @@ class _HomePage extends State<HomePage> {
                 height: 10,
               ),
               Text(
-                connection == null ? '---' : '${anguloFrontal.abs()}',
+                connected == false ? '---' : '${anguloFrontal.abs()}°',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize:

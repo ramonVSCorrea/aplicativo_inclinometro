@@ -47,6 +47,8 @@ dependencies:
   influxdb_client: ^2.9.0
   path_provider: ^2.1.1
   file_picker: ^6.1.1
+  firebase_auth: ^4.15.2
+  firebase_core: ^2.24.2
 
 dev_dependencies:
   flutter_test:
