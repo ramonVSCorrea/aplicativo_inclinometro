@@ -21,14 +21,15 @@ class SideBar extends StatelessWidget {
               accountName: Text('${user?.displayName}'),
               accountEmail: Text('${user?.email}'),
               currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
                 child: ClipOval(child: Image.asset('assets/profile1.png'))
               ),
             decoration: BoxDecoration(
-              color: const Color(0xFFF07300),
+              color: Color.fromARGB(255, 43, 43, 43),
             ),
           ),
           ListTile(
-            leading: Icon(Icons.person),
+            leading: Icon(Icons.person, color: Color(0xFFF07300)),
             title: Text('Editar Perfil'),
             onTap: () {
               Navigator.push(context,
@@ -47,7 +48,7 @@ class SideBar extends StatelessWidget {
           // ),
 
           ListTile(
-            leading: Icon(Icons.logout),
+            leading: Icon(Icons.logout, color: Color(0xFFF07300)),
             title: Text('Logout'),
             onTap: (){
               Navigator.push(context,

@@ -18,15 +18,34 @@ class _FirebaseEditProfilePageState extends State<FirebaseEditProfilePage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  @override
+  void initState(){
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    String? nomeUsuario = user?.displayName;
+    List<String>? partes = nomeUsuario?.split(" ");
+
+    if(user != null){
+      setState(() {
+        _usernameController.text = partes![0];
+        _lastnameController.text = partes![1];
+      });
+    }
+  }
+
   Future<void> _updateProfile() async {
     User? user = FirebaseAuth.instance.currentUser;
-
+    String _nomeUsuario = _usernameController.text + " " + _lastnameController.text;
 
     if (user != null) {
       try {
-        // if (_emailController.text.isNotEmpty) {
-        //   await user.updateEmail(_emailController.text);
-        // }
+        if(_nomeUsuario.isNotEmpty){
+          await user.updateDisplayName(_nomeUsuario);
+        }
         if (_passwordController.text.isNotEmpty) {
           await user.updatePassword(_passwordController.text);
         }

@@ -252,11 +252,11 @@ class _SignupState extends State<SignupPage> {
   }
 
   void _signUp() async {
-    String username = _nameController.text;
+    String username = _nameController.text + " " + _lastnameController.text;
     String email = _emailController.text;
     String password = _passwordController.text;
 
-    User? user = await _auth.signUpWithEmailAndPassword(email, password);
+    User? user = await _auth.signUpWithEmailAndPassword(email, password, username);
 
     if(user != null){
       print("User is successfully created");
