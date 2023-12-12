@@ -3,6 +3,7 @@ import 'package:aplicativo_inclinometro/database/db.dart';
 import 'package:aplicativo_inclinometro/views/LockAngle_page.dart';
 import 'package:aplicativo_inclinometro/views/calibratesensor.dart';
 import 'package:aplicativo_inclinometro/views/connect_page.dart';
+import 'package:aplicativo_inclinometro/views/forget_password_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/views/login_page.dart';
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
         '/nav': (context) => Nav(),
         '/lockangle': (context) => LockAnglePage(),
         '/calibratesensor': (context) => CalibrateSensorPage(),
+        '/resetPassword': (context) => ForgetPasswordPage(),
         // '/alluser': (context) => AllUsersPage(),
       },
     );

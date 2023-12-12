@@ -1,3 +1,4 @@
+import 'package:aplicativo_inclinometro/store/variables.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/components/email_field.dart';
 import 'package:aplicativo_inclinometro/components/password_field.dart';
@@ -111,33 +112,44 @@ class _LoginPageState extends State<LoginPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Checkbox(
-                      value: rememberMe,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          rememberMe = value!;
-                        });
-                      },
+                // Row(
+                //   children: <Widget>[
+                //     Checkbox(
+                //       value: rememberMe,
+                //       onChanged: (bool? value) {
+                //         setState(() {
+                //           rememberMe = value!;
+                //         });
+                //       },
+                //     ),
+                //     const Text(
+                //       "Lembrar",
+                //       style: TextStyle(
+                //         fontFamily: 'Poppins',
+                //         fontSize: 14,
+                //         fontWeight: FontWeight.w400,
+                //       ),
+                //     ),
+                //   ],
+                // ),
+                GestureDetector(
+                  onTap: (){
+                    Navigator.pushNamed(context, '/resetPassword');
+                  },
+                  child: Container(
+                    child: const Row(
+                      children: [
+                        const Text(
+                          "Esqueceu sua senha?",
+                          style: TextStyle(
+                            color: Color(0xFF2805FF),
+                            fontFamily: 'Poppins',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
                     ),
-                    const Text(
-                      "Lembrar",
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ),
-                const Text(
-                  "Esqueceu senha?",
-                  style: TextStyle(
-                    color: Color(0xFF2805FF),
-                    fontFamily: 'Poppins',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ],
@@ -149,6 +161,9 @@ class _LoginPageState extends State<LoginPage> {
               label: "Entrar",
               onPressed: () async {
                 _signIn();
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('$errorSignUp'),
+                  ));
                 // final providedPassword = _passwordController.text;
                 // final hashedPassword = hashPassword(providedPassword);
                 //
