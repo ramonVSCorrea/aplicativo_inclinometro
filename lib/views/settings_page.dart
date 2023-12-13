@@ -42,12 +42,12 @@ class _SettingsPage extends State<SettingsPage> {
       appBar: AppBar(
         title: Text('Configurações'),
         backgroundColor: Color.fromARGB(255, 43, 43, 43),
-        leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.pushReplacement(
-                  context, MaterialPageRoute(builder: (context) => Nav()));
-            }),
+        // leading: IconButton(
+        //     icon: Icon(Icons.arrow_back),
+        //     onPressed: () {
+        //       Navigator.pushReplacement(
+        //           context, MaterialPageRoute(builder: (context) => Nav()));
+        //     }),
       ),
       body: ListView(
         children: <Widget>[
@@ -68,7 +68,7 @@ class _SettingsPage extends State<SettingsPage> {
             title: Text('Ângulos de Bloqueio'),
             subtitle: Text('Ajuste dos ângulos de bloqueio'),
             onTap: () {
-              Navigator.pushReplacement(context,
+              Navigator.push(context,
                   MaterialPageRoute(builder: (context) => LockAnglePage()));
             },
           ),
@@ -78,7 +78,7 @@ class _SettingsPage extends State<SettingsPage> {
             subtitle: Text('Calibre o sensor para melhor ajuste'),
             onTap: () {
               //requestBluetoothPermissions();
-              Navigator.pushReplacement(
+              Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (context) => CalibrateSensorPage()));
@@ -89,7 +89,7 @@ class _SettingsPage extends State<SettingsPage> {
             title: Text('Eventos'),
             subtitle: Text('Lista de eventos registrados'),
             onTap: () {
-              Navigator.pushReplacement(context,
+              Navigator.push(context,
                   MaterialPageRoute(builder: (context) => EventsPage()));
             },
           ),

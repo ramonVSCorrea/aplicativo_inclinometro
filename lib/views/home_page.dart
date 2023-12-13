@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/views/connect_page.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:aplicativo_inclinometro/components/sideBar.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -18,6 +19,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePage extends State<HomePage> {
   int _selectedIndex = 0;
+  FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -30,18 +32,68 @@ class _HomePage extends State<HomePage> {
     super.initState();
     const duration = Duration(milliseconds: 1);
     loadConnectedDevice();
+    if(connected)
+      _checkBluetoothConnection();
     Timer.periodic(duration, (Timer timer) {
-      // setState(() {});
+       setState(() {});
     });
   }
 
+  Future<void> _checkBluetoothConnection() async{
+    try {
+      List<BluetoothDevice> bondedDevices = await _bluetooth.getBondedDevices();
+
+      if (bondedDevices.isNotEmpty) {
+        setState(() {
+          connected = true;
+        });
+        print('Estou aqui');
+      } else {
+        setState(() {
+          connected = false;
+        });
+        print('Estou aqui');
+      }
+    } catch(error){
+      print('Erro ao verificar a conexão bluetooth: $error');
+      setState(() {
+        connected = false;
+      });
+    }
+  }
+
+  void enviaMovimentaBascula(bool cmd) async{
+    int tentativas = 0;
+    bool flagMsg = true;
+    int cont = 0;
+
+    while(flagMsg && tentativas < 500){
+      sendMessage(cmd);
+      while(true){
+        if(requestMovimentaBascula){
+          flagMsg = false;
+          requestMovimentaBascula = false;
+          break;
+        }
+        await Future.delayed(Duration(milliseconds: 100));
+        cont++;
+        if(cont == 300){
+          cont = 0;
+          break;
+        }
+      }
+      tentativas++;
+    }
+  }
+
   void sendMessage(bool cmd) async {
+    //sendingMSG = true;
     String msgBT;
 
     if (cmd == true) {
-      msgBT = '{"comandoBascula":{"subir": 1,"descer": 0}}';
+      msgBT = '{"comandoBascula":{"subir": 1,"descer": 0}}\n';
     } else {
-      msgBT = '{"comandoBascula":{"subir": 0,"descer": 1}}';
+      msgBT = '{"comandoBascula":{"subir": 0,"descer": 1}}\n';
     }
 
     if (connection == null) {
@@ -56,6 +108,8 @@ class _HomePage extends State<HomePage> {
     } catch (ex) {
       print('Erro ao enviar mensagem: $ex');
     }
+
+    //sendingMSG = false;
   }
 
   @override
@@ -64,6 +118,7 @@ class _HomePage extends State<HomePage> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      drawer: SideBar(),
       appBar: AppBar(
         title: Text(
           'Início',
@@ -121,7 +176,7 @@ class _HomePage extends State<HomePage> {
                 height: 20,
               ),
               Text(
-                connection == null ? '---' : '${anguloLateral.abs()}',
+                connected == false ? '---' : '${anguloLateral.abs()}°',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize:
@@ -188,7 +243,7 @@ class _HomePage extends State<HomePage> {
                 height: 10,
               ),
               Text(
-                connection == null ? '---' : '${anguloFrontal.abs()}',
+                connected == false ? '---' : '${anguloFrontal.abs()}°',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize:
@@ -240,13 +295,17 @@ class _HomePage extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
           FloatingActionButton(
-            onPressed: () => sendMessage(true),
+
+            //onPressed: () => sendMessage(true),
+            onPressed: () => enviaMovimentaBascula(true),
             child: Icon(Icons.arrow_upward),
             backgroundColor: const Color(0xFFF07300),
+
           ),
           SizedBox(height: 16),
           FloatingActionButton(
-            onPressed: () => sendMessage(false),
+            //onPressed: () => sendMessage(false),
+            onPressed: () => enviaMovimentaBascula(false),
             child: Icon(Icons.arrow_downward),
             backgroundColor: const Color(0xFFF07300),
           ),

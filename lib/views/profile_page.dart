@@ -19,7 +19,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+    //_loadUserData();
   }
 
   Future<void> _loadUserData() async {
@@ -37,13 +37,13 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: AppBar(
         title: Text('Perfil'),
         backgroundColor: Color.fromARGB(255, 43, 43, 43),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pushReplacement(
-                context, MaterialPageRoute(builder: (context) => Nav()));
-          },
-        ),
+        // leading: IconButton(
+        //   icon: Icon(Icons.arrow_back),
+        //   onPressed: () {
+        //     Navigator.pushReplacement(
+        //         context, MaterialPageRoute(builder: (context) => Nav()));
+        //   },
+        // ),
       ),
       endDrawer: Drawer(
         child: ListView(

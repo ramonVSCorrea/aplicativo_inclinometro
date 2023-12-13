@@ -1,6 +1,8 @@
 import 'package:aplicativo_inclinometro/components/nav.dart';
 import 'package:aplicativo_inclinometro/database/db.dart';
+import 'package:aplicativo_inclinometro/firebase_auth_implementation/firebase_auth_services.dart';
 import 'package:aplicativo_inclinometro/repositories/user_repository.dart';
+import 'package:aplicativo_inclinometro/store/variables.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/components/name_field.dart';
 import 'package:aplicativo_inclinometro/components/email_field.dart';
@@ -10,6 +12,8 @@ import 'package:aplicativo_inclinometro/components/terms_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 class SignupPage extends StatefulWidget {
   @override
@@ -22,12 +26,22 @@ class _SignupState extends State<SignupPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  final FirebaseAuthService _auth = FirebaseAuthService();
+
   bool acceptedTerms = false;
 
   String hashPassword(String password) {
     final bytes = utf8.encode(password);
     final digest = sha256.convert(bytes);
     return digest.toString();
+  }
+
+  @override
+  void dispose(){
+    _nameController.dispose;
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 
   @override
@@ -177,53 +191,83 @@ class _SignupState extends State<SignupPage> {
                   );
                   return;
                 }
-
-                final email = _emailController.text;
-                final isRegistered =
-                    await UserRepository.instance.isEmailRegistered(email);
-
-                if (isRegistered) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Este email já está registrado')),
-                  );
-                } else {
-                  await DB.instance.database;
-
-                  Map<String, dynamic> userData = {
-                    'username': _nameController.text,
-                    'lastname': _lastnameController.text,
-                    'email': email,
-                    'password': hashPassword(_passwordController.text),
-                  };
-
-                  final createdUserId =
-                      await UserRepository.instance.insertUser(userData);
-
-                  if (createdUserId != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Conta criada com sucesso')),
-                    );
-
-                    final pref = await SharedPreferences.getInstance();
-                    pref.setInt('userId', createdUserId);
-
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Nav(),
-                      ),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Erro ao criar conta')),
-                    );
-                  }
-                }
+                _signUp();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('$errorSignUp')),
+                );
+                // if (!acceptedTerms) {
+                //   ScaffoldMessenger.of(context).showSnackBar(
+                //     SnackBar(content: Text('Aceite os termos de uso')),
+                //   );
+                //   return;
+                // }
+                //
+                // final email = _emailController.text;
+                // final isRegistered =
+                //     await UserRepository.instance.isEmailRegistered(email);
+                //
+                // if (isRegistered) {
+                //   ScaffoldMessenger.of(context).showSnackBar(
+                //     SnackBar(content: Text('Este email já está registrado')),
+                //   );
+                // } else {
+                //   await DB.instance.database;
+                //
+                //   Map<String, dynamic> userData = {
+                //     'username': _nameController.text,
+                //     'lastname': _lastnameController.text,
+                //     'email': email,
+                //     'password': hashPassword(_passwordController.text),
+                //   };
+                //
+                //   final createdUserId =
+                //       await UserRepository.instance.insertUser(userData);
+                //
+                //   if (createdUserId != null) {
+                //     ScaffoldMessenger.of(context).showSnackBar(
+                //       SnackBar(content: Text('Conta criada com sucesso')),
+                //     );
+                //
+                //     final pref = await SharedPreferences.getInstance();
+                //     pref.setInt('userId', createdUserId);
+                //
+                //     Navigator.pushReplacement(
+                //       context,
+                //       MaterialPageRoute(
+                //         builder: (context) => Nav(),
+                //       ),
+                //     );
+                //   } else {
+                //     ScaffoldMessenger.of(context).showSnackBar(
+                //       SnackBar(content: Text('Erro ao criar conta')),
+                //     );
+                //   }
+                // }
               },
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _signUp() async {
+    String username = _nameController.text + " " + _lastnameController.text;
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    User? user = await _auth.signUpWithEmailAndPassword(email, password, username);
+
+    if(user != null){
+      print("User is successfully created");
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Nav(),
+          ),
+        );
+    } else {
+      print("Some error happend");
+    }
   }
 }
