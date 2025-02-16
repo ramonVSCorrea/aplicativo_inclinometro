@@ -32,17 +32,23 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
-  void dispose() {
+  void dispose(){
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        padding: const EdgeInsets.only(top: 60, left: 40, right: 40),
+        padding: const EdgeInsets.only(
+          top: 60,
+          left: 40,
+          right: 40,
+        ),
         color: const Color(0xFFFFFEFE),
         child: ListView(
           children: <Widget>[
@@ -51,7 +57,9 @@ class _LoginPageState extends State<LoginPage> {
               height: 128,
               child: Image.asset('assets/inclimaxLogo.png'),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(
+              height: 10,
+            ),
             const Text(
               "Login",
               textAlign: TextAlign.center,
@@ -62,7 +70,9 @@ class _LoginPageState extends State<LoginPage> {
                 color: Color.fromARGB(255, 0, 0, 0),
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(
+              height: 10,
+            ),
             const Text(
               "E-mail",
               style: TextStyle(
@@ -72,9 +82,15 @@ class _LoginPageState extends State<LoginPage> {
                 color: Color(0xFFA59AFF),
               ),
             ),
-            const SizedBox(height: 10),
-            EmailField(controller: _emailController),
-            const SizedBox(height: 20),
+            const SizedBox(
+              height: 10,
+            ),
+            EmailField(
+              controller: _emailController,
+            ),
+            const SizedBox(
+              height: 20,
+            ),
             const Text(
               "Senha",
               style: TextStyle(
@@ -84,9 +100,15 @@ class _LoginPageState extends State<LoginPage> {
                 color: Color(0xFFA59AFF),
               ),
             ),
-            const SizedBox(height: 10),
-            PasswordField(controller: _passwordController),
-            const SizedBox(height: 10),
+            const SizedBox(
+              height: 10,
+            ),
+            PasswordField(
+              controller: _passwordController,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -111,7 +133,7 @@ class _LoginPageState extends State<LoginPage> {
                 //   ],
                 // ),
                 GestureDetector(
-                  onTap: () {
+                  onTap: (){
                     Navigator.pushNamed(context, '/resetPassword');
                   },
                   child: Container(
@@ -132,14 +154,16 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 5),
+            const SizedBox(
+              height: 5,
+            ),
             CustomButton(
               label: "Entrar",
               onPressed: () async {
                 _signIn();
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text('$errorSignUp')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('$errorSignUp'),
+                  ));
                 // final providedPassword = _passwordController.text;
                 // final hashedPassword = hashPassword(providedPassword);
                 //
@@ -165,7 +189,9 @@ class _LoginPageState extends State<LoginPage> {
                 // }
               },
             ),
-            const SizedBox(height: 40),
+            const SizedBox(
+              height: 40,
+            ),
             GestureDetector(
               onTap: () {
                 Navigator.pushNamed(context, '/register');
@@ -211,12 +237,14 @@ class _LoginPageState extends State<LoginPage> {
 
     User? user = await _auth.signInWithEmailAndPassword(email, password);
 
-    if (user != null) {
+    if(user != null){
       print("User is successfully signedIn");
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Nav()),
-      );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Nav(),
+          ),
+        );
     } else {
       print("Some error happend");
     }
