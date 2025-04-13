@@ -1,7 +1,4 @@
-import 'package:aplicativo_inclinometro/components/nav.dart';
-import 'package:aplicativo_inclinometro/database/db.dart';
 import 'package:aplicativo_inclinometro/firebase_auth_implementation/firebase_auth_services.dart';
-import 'package:aplicativo_inclinometro/repositories/user_repository.dart';
 import 'package:aplicativo_inclinometro/store/variables.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/components/name_field.dart';
@@ -9,11 +6,7 @@ import 'package:aplicativo_inclinometro/components/email_field.dart';
 import 'package:aplicativo_inclinometro/components/password_field.dart';
 import 'package:aplicativo_inclinometro/components/custom_button.dart';
 import 'package:aplicativo_inclinometro/components/terms_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 class SignupPage extends StatefulWidget {
   @override
@@ -25,22 +18,20 @@ class _SignupState extends State<SignupPage> {
   final TextEditingController _lastnameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _companyController = TextEditingController();
 
   final FirebaseAuthService _auth = FirebaseAuthService();
 
   bool acceptedTerms = false;
 
-  String hashPassword(String password) {
-    final bytes = utf8.encode(password);
-    final digest = sha256.convert(bytes);
-    return digest.toString();
-  }
+  bool isLoading = false;
 
   @override
   void dispose(){
     _nameController.dispose;
     _emailController.dispose();
     _passwordController.dispose();
+    _companyController.dispose();
     super.dispose();
   }
 
@@ -130,6 +121,38 @@ class _SignupState extends State<SignupPage> {
               height: 10,
             ),
             const Text(
+              "Empresa",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w900,
+                fontFamily: 'Poppins',
+                color: Color(0xFFA59AFF),
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            TextFormField(
+              controller: _companyController,
+              decoration: InputDecoration(
+                hintText: 'Nome da empresa',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(10),
+                  ),
+                ),
+                prefixIcon: Icon(Icons.business),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 20,
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+
+            const Text(
               "Senha",
               style: TextStyle(
                 fontSize: 18,
@@ -182,7 +205,25 @@ class _SignupState extends State<SignupPage> {
                 ),
               ],
             ),
-            CustomButton(
+            // CustomButton(
+            //   label: "Continue",
+            //   onPressed: () async {
+            //     if (!acceptedTerms) {
+            //       ScaffoldMessenger.of(context).showSnackBar(
+            //         SnackBar(content: Text('Aceite os termos de uso')),
+            //       );
+            //       return;
+            //     }
+            //     _signUp();
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //       SnackBar(content: Text('$errorSignUp')),
+            //     );
+            //   },
+            // ),
+
+            isLoading
+                ? Center(child: CircularProgressIndicator(color: Color(0xFFA59AFF)))
+                : CustomButton(
               label: "Continue",
               onPressed: () async {
                 if (!acceptedTerms) {
@@ -192,57 +233,6 @@ class _SignupState extends State<SignupPage> {
                   return;
                 }
                 _signUp();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('$errorSignUp')),
-                );
-                // if (!acceptedTerms) {
-                //   ScaffoldMessenger.of(context).showSnackBar(
-                //     SnackBar(content: Text('Aceite os termos de uso')),
-                //   );
-                //   return;
-                // }
-                //
-                // final email = _emailController.text;
-                // final isRegistered =
-                //     await UserRepository.instance.isEmailRegistered(email);
-                //
-                // if (isRegistered) {
-                //   ScaffoldMessenger.of(context).showSnackBar(
-                //     SnackBar(content: Text('Este email já está registrado')),
-                //   );
-                // } else {
-                //   await DB.instance.database;
-                //
-                //   Map<String, dynamic> userData = {
-                //     'username': _nameController.text,
-                //     'lastname': _lastnameController.text,
-                //     'email': email,
-                //     'password': hashPassword(_passwordController.text),
-                //   };
-                //
-                //   final createdUserId =
-                //       await UserRepository.instance.insertUser(userData);
-                //
-                //   if (createdUserId != null) {
-                //     ScaffoldMessenger.of(context).showSnackBar(
-                //       SnackBar(content: Text('Conta criada com sucesso')),
-                //     );
-                //
-                //     final pref = await SharedPreferences.getInstance();
-                //     pref.setInt('userId', createdUserId);
-                //
-                //     Navigator.pushReplacement(
-                //       context,
-                //       MaterialPageRoute(
-                //         builder: (context) => Nav(),
-                //       ),
-                //     );
-                //   } else {
-                //     ScaffoldMessenger.of(context).showSnackBar(
-                //       SnackBar(content: Text('Erro ao criar conta')),
-                //     );
-                //   }
-                // }
               },
             ),
           ],
@@ -252,22 +242,139 @@ class _SignupState extends State<SignupPage> {
   }
 
   void _signUp() async {
-    String username = _nameController.text + " " + _lastnameController.text;
+    setState(() {
+      isLoading = true;
+    });
+
+    String username = _nameController.text;
     String email = _emailController.text;
     String password = _passwordController.text;
+    String company = _companyController.text;
 
-    User? user = await _auth.signUpWithEmailAndPassword(email, password, username);
+    try {
+      User? user = await _auth.signUpWithEmailAndPassword(
+          email,
+          password,
+          username,
+          company
+      );
 
-    if(user != null){
-      print("User is successfully created");
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Nav(),
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false;
+      });
+
+      if (user != null) {
+        _showSuccessDialog("Usuário cadastrado com sucesso!");
+      } else {
+        _showErrorDialog(errorSignUp ?? "Erro ao cadastrar");
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+      });
+      _showErrorDialog("Erro no cadastro: $e");
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    // Simplificar a mensagem de erro
+    String simplifiedMessage = message;
+    if (message.contains("Erro no cadastro:")) {
+      simplifiedMessage = "Falha ao processar o cadastro. Verifique suas informações e tente novamente.";
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 15),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.red[50],
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.close,
+                  color: Colors.red,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(height: 15),
+              Text(
+                "Erro",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                  color: Colors.red[700],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                simplifiedMessage,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'Poppins',
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: Color(0xFFA59AFF),
+                  minimumSize: Size(double.infinity, 40),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  "OK",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
           ),
         );
-    } else {
-      print("Some error happend");
-    }
+      },
+    );
+  }
+
+  void _showSuccessDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Sucesso"),
+          content: Text(message),
+          actions: [
+            TextButton(
+              child: Text("Ir para login"),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pushReplacementNamed(context, '/login');
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
