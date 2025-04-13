@@ -17,10 +17,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: FirebaseOptions(
-        apiKey: "AIzaSyB_nQb49r7Z-U1rFXwVXs5_MB1AdeSP3L8",
-        appId: "1:102427336976:android:b6afa5ac92a3f0a8df4595",
-        messagingSenderId: "102427336976",
-        projectId: "inclimax-55c91"),
+      apiKey: "AIzaSyB_nQb49r7Z-U1rFXwVXs5_MB1AdeSP3L8",
+      appId: "1:102427336976:android:b6afa5ac92a3f0a8df4595",
+      messagingSenderId: "102427336976",
+      projectId: "inclimax-55c91",
+    ),
   );
 
   await DB.instance.database;

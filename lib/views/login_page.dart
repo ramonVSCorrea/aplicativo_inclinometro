@@ -12,6 +12,8 @@ import 'package:crypto/crypto.dart';
 import '../firebase_auth_implementation/firebase_auth_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'admindashboard_page.dart';
+
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -25,6 +27,8 @@ class _LoginPageState extends State<LoginPage> {
 
   bool rememberMe = false;
 
+  bool isLoading = false;
+
   String hashPassword(String password) {
     final bytes = utf8.encode(password);
     final digest = sha256.convert(bytes);
@@ -32,23 +36,17 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
-  void dispose(){
+  void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        padding: const EdgeInsets.only(
-          top: 60,
-          left: 40,
-          right: 40,
-        ),
+        padding: const EdgeInsets.only(top: 60, left: 40, right: 40),
         color: const Color(0xFFFFFEFE),
         child: ListView(
           children: <Widget>[
@@ -57,9 +55,7 @@ class _LoginPageState extends State<LoginPage> {
               height: 128,
               child: Image.asset('assets/inclimaxLogo.png'),
             ),
-            const SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 10),
             const Text(
               "Login",
               textAlign: TextAlign.center,
@@ -70,70 +66,36 @@ class _LoginPageState extends State<LoginPage> {
                 color: Color.fromARGB(255, 0, 0, 0),
               ),
             ),
-            const SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 10),
             const Text(
               "E-mail",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w900,
                 fontFamily: 'Poppins',
-                color: Color(0xFFA59AFF),
+                color: Color(0xFFFF4200),
               ),
             ),
-            const SizedBox(
-              height: 10,
-            ),
-            EmailField(
-              controller: _emailController,
-            ),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 10),
+            EmailField(controller: _emailController),
+            const SizedBox(height: 20),
             const Text(
               "Senha",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w900,
                 fontFamily: 'Poppins',
-                color: Color(0xFFA59AFF),
+                color: Color(0xFFFF4200),
               ),
             ),
-            const SizedBox(
-              height: 10,
-            ),
-            PasswordField(
-              controller: _passwordController,
-            ),
-            const SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 10),
+            PasswordField(controller: _passwordController),
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                // Row(
-                //   children: <Widget>[
-                //     Checkbox(
-                //       value: rememberMe,
-                //       onChanged: (bool? value) {
-                //         setState(() {
-                //           rememberMe = value!;
-                //         });
-                //       },
-                //     ),
-                //     const Text(
-                //       "Lembrar",
-                //       style: TextStyle(
-                //         fontFamily: 'Poppins',
-                //         fontSize: 14,
-                //         fontWeight: FontWeight.w400,
-                //       ),
-                //     ),
-                //   ],
-                // ),
                 GestureDetector(
-                  onTap: (){
+                  onTap: () {
                     Navigator.pushNamed(context, '/resetPassword');
                   },
                   child: Container(
@@ -154,44 +116,23 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ],
             ),
-            const SizedBox(
-              height: 5,
-            ),
-            CustomButton(
+            const SizedBox(height: 5),
+            isLoading
+                ? Center(child: CircularProgressIndicator(color: Color(0xFFFF4200)))
+                : CustomButton(
               label: "Entrar",
-              onPressed: () async {
-                _signIn();
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text('$errorSignUp'),
-                  ));
-                // final providedPassword = _passwordController.text;
-                // final hashedPassword = hashPassword(providedPassword);
-                //
-                // final isAuthenticated =
-                //     await UserRepository.instance.authenticateUser(
-                //   _emailController.text,
-                //   hashedPassword,
-                // );
-                //
-                // if (isAuthenticated != null) {
-                //   final pref = await SharedPreferences.getInstance();
-                //   pref.setInt('userId', isAuthenticated);
-                //   Navigator.pushReplacement(
-                //     context,
-                //     MaterialPageRoute(
-                //       builder: (context) => Nav(),
-                //     ),
-                //   );
-                // } else {
-                //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                //     content: Text('Usuário ou senha inválidos'),
-                //   ));
-                // }
-              },
+              onPressed: _signIn,
             ),
-            const SizedBox(
-              height: 40,
-            ),
+            // CustomButton(
+            //   label: "Entrar",
+            //   onPressed: () async {
+            //     _signIn();
+            //     ScaffoldMessenger.of(
+            //       context,
+            //     ).showSnackBar(SnackBar(content: Text('$errorSignUp')));
+            //   },
+            // ),
+            const SizedBox(height: 40),
             GestureDetector(
               onTap: () {
                 Navigator.pushNamed(context, '/register');
@@ -232,21 +173,126 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _signIn() async {
+    setState(() {
+      isLoading = true; // Ativa o indicador de carregamento
+    });
+
     String email = _emailController.text;
     String password = _passwordController.text;
 
-    User? user = await _auth.signInWithEmailAndPassword(email, password);
+    try {
+      User? user = await _auth.signInWithEmailAndPassword(email, password);
 
-    if(user != null){
-      print("User is successfully signedIn");
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Nav(),
+      // Verifica se o widget ainda está montado
+      if (!mounted) return;
+
+      setState(() {
+        isLoading = false; // Desativa o indicador de carregamento
+      });
+
+      if (user != null) {
+        print("Usuário conectado com sucesso");
+
+        // Verificar o tipo de usuário e direcionar
+        if (_auth.isAdmin()) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AdminDashboard()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => Nav()),
+          );
+        }
+      } else {
+        // Mostra erro em um diálogo em vez de SnackBar
+        _showErrorDialog(errorSignUp ?? "Erro ao fazer login");
+      }
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        isLoading = false;
+      });
+      _showErrorDialog("Erro ao fazer login: $e");
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    // Simplificar a mensagem de erro
+    String simplifiedMessage = message;
+    if (message.contains("Erro ao fazer login:")) {
+      simplifiedMessage = "Falha ao processar o login. Verifique suas informações e tente novamente.";
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 15),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.red[50],
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.close,
+                  color: Colors.red,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(height: 15),
+              Text(
+                "Erro",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                  color: Colors.red[700],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                simplifiedMessage,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'Poppins',
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: Color(0xFFFF4200),
+                  minimumSize: Size(double.infinity, 40),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  "OK",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
           ),
         );
-    } else {
-      print("Some error happend");
-    }
+      },
+    );
   }
 }
