@@ -100,6 +100,112 @@ class FirebaseAuthService{
     }
   }
 
+  Future<User?> createOperatorUser({
+    required String email,
+    required String password,
+    required String name,
+    required String matricula,
+    required String company,
+    required List<String> sensoresIDs,
+  }) async {
+    try {
+      UserCredential credential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      if (credential.user != null) {
+        // Atualizar o displayName
+        await credential.user!.updateDisplayName(name);
+
+        // Salvar informações adicionais no Firestore
+        await FirebaseFirestore.instance.collection('users').doc(credential.user!.uid).set({
+          'userName': name,
+          'email': email,
+          'operatorId': matricula,
+          'sensorId': sensoresIDs,
+          'userType': 'operator',
+          'company': company,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+
+        return credential.user;
+      }
+      return null;
+    } on FirebaseAuthException catch (e) {
+      //errorSignUp = _handleSignUpError(e.code);
+      return null;
+    } catch (e) {
+      errorSignUp = "Erro desconhecido ao criar operador: $e";
+      return null;
+    }
+  }
+
+  Future<User?> signInWithMatricula(String matricula, String password) async {
+    try {
+      // Primeiro faça login anônimo
+      UserCredential anonAuth = await _auth.signInAnonymously();
+
+      // Verifique se o login anônimo foi bem-sucedido
+      if (anonAuth.user == null) {
+        errorSignUp = "Falha na autenticação anônima";
+        return null;
+      }
+
+      print("Usuário anônimo autenticado: ${anonAuth.user!.uid}");
+
+      try {
+        // Aguarde um momento para garantir que a autenticação seja propagada
+        await Future.delayed(Duration(milliseconds: 500));
+
+        // Agora busque o usuário pela matrícula
+        final querySnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('operatorId', isEqualTo: matricula)
+            .limit(1)
+            .get();
+
+        // Depuração - verifique o que está sendo retornado
+        print("Documentos encontrados: ${querySnapshot.docs.length}");
+
+        if (querySnapshot.docs.isEmpty) {
+          await _auth.signOut();
+          errorSignUp = "Matrícula não encontrada";
+          return null;
+        }
+
+        // Obter o e-mail do documento
+        final String email = querySnapshot.docs.first.get('email');
+        print("Email encontrado: $email");
+
+        // Faça logout do usuário anônimo
+        await _auth.signOut();
+
+        // Faça login com email/senha
+        UserCredential credential = await _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+
+        // Definir tipo de usuário
+        _userType = querySnapshot.docs.first.get('userType') ?? 'operator';
+
+        return credential.user;
+      } catch (e) {
+        print("Erro detalhado na consulta: $e");
+        await _auth.signOut();
+        throw e;
+      }
+    } on FirebaseAuthException catch (authError) {
+      errorSignUp = "Erro de autenticação: ${authError.message}";
+      return null;
+    } catch (e) {
+      errorSignUp = "Erro ao buscar matrícula: $e";
+      print("Erro ao fazer login com matrícula: $e");
+      return null;
+    }
+  }
+
   bool isAdmin() {
     return _userType == 'admin';
   }
