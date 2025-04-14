@@ -20,24 +20,17 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _loginController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   final FirebaseAuthService _auth = FirebaseAuthService();
 
-  bool rememberMe = false;
-
   bool isLoading = false;
-
-  String hashPassword(String password) {
-    final bytes = utf8.encode(password);
-    final digest = sha256.convert(bytes);
-    return digest.toString();
-  }
+  bool _loginWithMatricula = true; // Definido como true para iniciar com matricula
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _loginController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -66,9 +59,75 @@ class _LoginPageState extends State<LoginPage> {
                 color: Color.fromARGB(255, 0, 0, 0),
               ),
             ),
-            const SizedBox(height: 10),
-            const Text(
-              "E-mail",
+            const SizedBox(height: 20),
+
+            // Opções de login (matrícula ou e-mail - invertido)
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        _loginWithMatricula = true;
+                        _loginController.clear();
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        color: _loginWithMatricula ? Color(0xFFFF4200) : Colors.grey.shade200,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            bottomLeft: Radius.circular(10)
+                        ),
+                      ),
+                      child: Text(
+                        "Operador",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: _loginWithMatricula ? Colors.white : Colors.black54,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      setState(() {
+                        _loginWithMatricula = false;
+                        _loginController.clear();
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        color: !_loginWithMatricula ? Color(0xFFFF4200) : Colors.grey.shade200,
+                        borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(10),
+                            bottomRight: Radius.circular(10)
+                        ),
+                      ),
+                      child: Text(
+                        "Administrador",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: !_loginWithMatricula ? Colors.white : Colors.black54,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 20),
+            Text(
+              _loginWithMatricula ? "Código de Operador" : "E-mail",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w900,
@@ -77,7 +136,12 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             const SizedBox(height: 10),
-            EmailField(controller: _emailController),
+
+            // Campo de entrada dinâmico (matrícula ou e-mail)
+            _loginWithMatricula ?
+            _buildMatriculaField() :
+            EmailField(controller: _loginController),
+
             const SizedBox(height: 20),
             const Text(
               "Senha",
@@ -101,7 +165,7 @@ class _LoginPageState extends State<LoginPage> {
                   child: Container(
                     child: const Row(
                       children: [
-                        const Text(
+                        Text(
                           "Esqueceu sua senha?",
                           style: TextStyle(
                             color: Color(0xFF2805FF),
@@ -123,22 +187,13 @@ class _LoginPageState extends State<LoginPage> {
               label: "Entrar",
               onPressed: _signIn,
             ),
-            // CustomButton(
-            //   label: "Entrar",
-            //   onPressed: () async {
-            //     _signIn();
-            //     ScaffoldMessenger.of(
-            //       context,
-            //     ).showSnackBar(SnackBar(content: Text('$errorSignUp')));
-            //   },
-            // ),
             const SizedBox(height: 40),
             GestureDetector(
               onTap: () {
                 Navigator.pushNamed(context, '/register');
               },
               child: Container(
-                height: 240,
+                height: 40,
                 alignment: Alignment.center,
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -172,22 +227,56 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  // Campo personalizado para matrícula
+  Widget _buildMatriculaField() {
+    return TextField(
+      controller: _loginController,
+      keyboardType: TextInputType.number,
+      maxLength: 7,
+      decoration: InputDecoration(
+        hintText: 'Código de operador',
+        counterText: '',
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(10)),
+        ),
+        prefixIcon: Icon(Icons.badge),
+        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      ),
+    );
+  }
+
   void _signIn() async {
     setState(() {
-      isLoading = true; // Ativa o indicador de carregamento
+      isLoading = true;
     });
 
-    String email = _emailController.text;
+    String login = _loginController.text;
     String password = _passwordController.text;
 
+    if (login.isEmpty || password.isEmpty) {
+      setState(() {
+        isLoading = false;
+      });
+      _showErrorDialog("Preencha todos os campos");
+      return;
+    }
+
     try {
-      User? user = await _auth.signInWithEmailAndPassword(email, password);
+      User? user;
+
+      if (_loginWithMatricula) {
+        // Login com matrícula
+        user = await _auth.signInWithMatricula(login, password);
+      } else {
+        // Login com e-mail
+        user = await _auth.signInWithEmailAndPassword(login, password);
+      }
 
       // Verifica se o widget ainda está montado
       if (!mounted) return;
 
       setState(() {
-        isLoading = false; // Desativa o indicador de carregamento
+        isLoading = false;
       });
 
       if (user != null) {
@@ -206,8 +295,10 @@ class _LoginPageState extends State<LoginPage> {
           );
         }
       } else {
-        // Mostra erro em um diálogo em vez de SnackBar
-        _showErrorDialog(errorSignUp ?? "Erro ao fazer login");
+        // Mostra erro em um diálogo
+        _showErrorDialog(_loginWithMatricula
+            ? "Matrícula ou senha incorreta"
+            : "E-mail ou senha incorreta");
       }
     } catch (e) {
       if (!mounted) return;

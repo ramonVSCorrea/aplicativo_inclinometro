@@ -12,7 +12,7 @@ class CustomButton extends StatelessWidget {
     required this.onPressed,
     this.buttonHeight = 40,
     this.buttonWidth = double.infinity,
-    this.backgroundColor = const Color(0xFFF07300),
+    this.backgroundColor = const Color(0xFFFF4200),
   });
 
   @override

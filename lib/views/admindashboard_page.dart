@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'operatordetails_page.dart';
 
 class AdminDashboard extends StatefulWidget {
   @override
@@ -44,27 +45,32 @@ class _AdminDashboardState extends State<AdminDashboard> {
     });
 
     try {
-      String adminUid = _auth.currentUser!.uid;
+      if (companyName.isEmpty) {
+        await _loadAdminData();
+      }
+
       QuerySnapshot querySnapshot = await _firestore
           .collection('users')
-          .where('createdBy', isEqualTo: adminUid)
+          .where('company', isEqualTo: companyName)
           .where('userType', isEqualTo: 'operator')
           .get();
 
       List<Map<String, dynamic>> tempList = [];
-      querySnapshot.docs.forEach((doc) {
+      for (var doc in querySnapshot.docs) {
+        print("Operador encontrado: ${doc['userName']} da empresa $companyName");
         tempList.add({
           'id': doc.id,
-          'username': doc['username'] ?? "Sem nome",
+          'username': doc['userName'] ?? doc['userName'] ?? "Sem nome",
           'email': doc['email'] ?? "Sem email",
           'createdAt': doc['createdAt'] ?? Timestamp.now(),
         });
-      });
+      }
 
       setState(() {
         operators = tempList;
         isLoading = false;
       });
+      print("Total de operadores encontrados: ${operators.length}");
     } catch (e) {
       print("Erro ao carregar operadores: $e");
       setState(() {
@@ -161,15 +167,47 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     margin: EdgeInsets.only(bottom: 10),
                     child: ListTile(
                       leading: CircleAvatar(
-                        child: Text(operators[index]['username'][0]),
+                        child: Text(operators[index]['username'].isNotEmpty
+                            ? operators[index]['username'][0]
+                            : "?"),
                         backgroundColor: Color(0xFFA59AFF),
                       ),
                       title: Text(operators[index]['username']),
                       subtitle: Text(operators[index]['email']),
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _deleteOperator(operators[index]['id']),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.info_outline, color: Colors.blue),
+                            tooltip: "Ver detalhes",
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => OperatorDetailsPage(
+                                    operatorId: operators[index]['id'],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            tooltip: "Excluir operador",
+                            onPressed: () => _deleteOperator(operators[index]['id']),
+                          ),
+                        ],
                       ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => OperatorDetailsPage(
+                              operatorId: operators[index]['id'],
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   );
                 },
