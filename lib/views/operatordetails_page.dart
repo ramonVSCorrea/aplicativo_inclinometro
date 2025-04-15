@@ -23,7 +23,7 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
     _loadOperatorData();
   }
 
-  Future<void> _loadOperatorData() async {
+  Future<void> _loadOperatorData([Function? onComplete]) async {
     try {
       DocumentSnapshot doc = await _firestore
           .collection('users')
@@ -35,6 +35,10 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
           operatorData = doc.data() as Map<String, dynamic>;
           isLoading = false;
         });
+
+        if (onComplete != null) {
+          onComplete();
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Operador não encontrado')),
@@ -64,6 +68,15 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
       appBar: AppBar(
         title: Text("Detalhes do Operador"),
         backgroundColor: Color(0xFFA59AFF),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.edit),
+            tooltip: "Editar operador",
+            onPressed: () {
+              _showEditDialog();
+            },
+          ),
+        ],
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
@@ -332,6 +345,203 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao enviar e-mail: $e')),
+      );
+    }
+  }
+
+  void _showEditDialog() {
+    final TextEditingController nameController = TextEditingController(
+        text: operatorData['userName'] ?? operatorData['username'] ?? "");
+    final TextEditingController matriculaController = TextEditingController(
+        text: operatorData['operatorId'] ?? operatorData['matricula'] ?? "");
+
+    // Controllers para os sensores
+    List<TextEditingController> sensorControllers = [];
+    List<String> sensores = _getSensorList();
+
+    // Adicionar controller para cada sensor
+    for (String sensor in sensores) {
+      sensorControllers.add(TextEditingController(text: sensor));
+    }
+
+    // Adicionar um campo vazio para novo sensor
+    sensorControllers.add(TextEditingController());
+
+    final _formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Editar Operador"),
+          content: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: nameController,
+                    decoration: InputDecoration(labelText: "Nome"),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Por favor, insira um nome";
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  TextFormField(
+                    controller: matriculaController,
+                    decoration: InputDecoration(labelText: "Matrícula"),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    "Sensores Associados",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[800],
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  // Lista de sensores
+                  ...List.generate(sensorControllers.length, (index) {
+                    return Padding(
+                      padding: EdgeInsets.only(bottom: 8.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: sensorControllers[index],
+                              decoration: InputDecoration(
+                                labelText: index < sensores.length
+                                    ? "Sensor ${index + 1}"
+                                    : "Novo sensor",
+                                hintText: "ID do sensor",
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.remove_circle, color: Colors.red),
+                            onPressed: () {
+                              // Remover apenas se não for o último (vazio)
+                              if (index < sensorControllers.length - 1) {
+                                sensorControllers.removeAt(index);
+                                Navigator.of(context).pop();
+                                _showEditDialog(); // Reabrir o diálogo
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                  TextButton.icon(
+                    icon: Icon(Icons.add),
+                    label: Text("Adicionar sensor"),
+                    onPressed: () {
+                      sensorControllers.add(TextEditingController());
+                      Navigator.of(context).pop();
+                      _showEditDialog(); // Reabrir o diálogo com o campo adicional
+                    },
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    "E-mail: ${operatorData['email']}",
+                    style: TextStyle(color: Colors.grey[700]),
+                  ),
+                  Text(
+                    "Empresa: ${operatorData['company']}",
+                    style: TextStyle(color: Colors.grey[700]),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text("Cancelar"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text("Salvar"),
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  // Filtrar sensores não vazios
+                  List<String> novosSensores = sensorControllers
+                      .map((controller) => controller.text.trim())
+                      .where((sensorId) => sensorId.isNotEmpty)
+                      .toList();
+
+                  _updateOperator(
+                    nameController.text,
+                    matriculaController.text,
+                    novosSensores,
+                  );
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _updateOperator(String name, String matricula, List<String> sensores) async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+
+      // Determine qual campo de nome usar com base no que está presente no documento
+      Map<String, dynamic> updateData = {};
+
+      if (operatorData.containsKey('userName')) {
+        updateData['userName'] = name;
+      } else {
+        updateData['username'] = name;
+      }
+
+      // Adiciona a matrícula apenas se não estiver vazia
+      if (matricula.isNotEmpty) {
+        if (operatorData.containsKey('operatorId')) {
+          updateData['operatorId'] = matricula;
+        } else {
+          updateData['matricula'] = matricula;
+        }
+      }
+
+      // Determinar qual campo de sensores usar
+      if (operatorData.containsKey('sensorId')) {
+        updateData['sensorId'] = sensores;
+      } else if (operatorData.containsKey('sensoresIDs')) {
+        updateData['sensoresIDs'] = sensores;
+      } else {
+        // Se não existir nenhum dos campos, usar sensorId como padrão
+        updateData['sensorId'] = sensores;
+      }
+
+      await _firestore
+          .collection('users')
+          .doc(widget.operatorId)
+          .update(updateData);
+
+      // Recarregar os dados atualizados
+      await _loadOperatorData();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Operador atualizado com sucesso')),
+      );
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao atualizar operador: $e')),
       );
     }
   }

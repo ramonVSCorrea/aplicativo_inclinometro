@@ -44,6 +44,8 @@ dependencies:
   firebase_auth: ^5.4.2
   file_picker: ^9.0.0
   cloud_firestore: ^5.6.6
+  url_launcher: ^6.3.1
+  google_maps_flutter: ^2.12.1
   
 
 dev_dependencies:
