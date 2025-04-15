@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:aplicativo_inclinometro/views/regiteroperator_page.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../datasources/http/tago/FetchTagoIOData.dart';
 import 'operatordetails_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -20,6 +23,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
   List<Map<String, dynamic>> operators = [];
   bool isLoading = true;
 
+  Timer? _updateTimer;
+
   @override
   void initState() {
     super.initState();
@@ -27,10 +32,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
     _loadOperators();
   }
 
+
+
   Future<void> _loadAdminData() async {
     try {
       String uid = _auth.currentUser!.uid;
-      DocumentSnapshot doc = await _firestore.collection('users').doc(uid).get();
+      DocumentSnapshot doc =
+          await _firestore.collection('users').doc(uid).get();
 
       setState(() {
         adminName = doc['username'] ?? "Admin";
@@ -51,15 +59,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
         await _loadAdminData();
       }
 
-      QuerySnapshot querySnapshot = await _firestore
-          .collection('users')
-          .where('company', isEqualTo: companyName)
-          .where('userType', isEqualTo: 'operator')
-          .get();
+      QuerySnapshot querySnapshot =
+          await _firestore
+              .collection('users')
+              .where('company', isEqualTo: companyName)
+              .where('userType', isEqualTo: 'operator')
+              .get();
 
       List<Map<String, dynamic>> tempList = [];
       for (var doc in querySnapshot.docs) {
-        print("Operador encontrado: ${doc['userName']} da empresa $companyName");
+        print(
+          "Operador encontrado: ${doc['userName']} da empresa $companyName",
+        );
         tempList.add({
           'id': doc.id,
           'username': doc['userName'] ?? doc['userName'] ?? "Sem nome",
@@ -119,10 +130,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     SizedBox(height: 8),
                     Text(
                       "Empresa: $companyName",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[700],
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                     ),
                   ],
                 ),
@@ -134,10 +142,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
               children: [
                 Text(
                   "Operadores Cadastrados",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 ElevatedButton.icon(
                   icon: Icon(Icons.add),
@@ -148,7 +153,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => RegisterOperatorPage()),
+                      MaterialPageRoute(
+                        builder: (context) => RegisterOperatorPage(),
+                      ),
                     ).then((_) {
                       _loadOperators(); // Recarregar lista após retornar
                     });
@@ -158,32 +165,35 @@ class _AdminDashboardState extends State<AdminDashboard> {
             ),
             SizedBox(height: 10),
             Expanded(
-              child: isLoading
-                  ? Center(child: CircularProgressIndicator())
-                  : operators.isEmpty
-                  ? Center(child: Text("Nenhum operador cadastrado"))
-                  : ListView.builder(
-                itemCount: operators.length,
-                itemBuilder: (context, index) {
-                  return OperatorExpansionCard(
-                    operator: operators[index],
-                    onDelete: () => _deleteOperator(operators[index]['id']),
-                    onDetails: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => OperatorDetailsPage(
-                            operatorId: operators[index]['id'],
-                          ),
-                        ),
-                      ).then((_) {
-                        _loadOperators();
-                      });
-                    },
-                    firestore: _firestore,
-                  );
-                },
-              ),
+              child:
+                  isLoading
+                      ? Center(child: CircularProgressIndicator())
+                      : operators.isEmpty
+                      ? Center(child: Text("Nenhum operador cadastrado"))
+                      : ListView.builder(
+                        itemCount: operators.length,
+                        itemBuilder: (context, index) {
+                          return OperatorExpansionCard(
+                            operator: operators[index],
+                            onDelete:
+                                () => _deleteOperator(operators[index]['id']),
+                            onDetails: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => OperatorDetailsPage(
+                                        operatorId: operators[index]['id'],
+                                      ),
+                                ),
+                              ).then((_) {
+                                _loadOperators();
+                              });
+                            },
+                            firestore: _firestore,
+                          );
+                        },
+                      ),
             ),
             SizedBox(height: 20),
             ElevatedButton(
@@ -212,17 +222,16 @@ class _AdminDashboardState extends State<AdminDashboard> {
       // Atualizar a lista após excluir
       _loadOperators();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Operador removido com sucesso')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Operador removido com sucesso')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao remover operador: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao remover operador: $e')));
     }
   }
 }
-
 
 class OperatorExpansionCard extends StatefulWidget {
   final Map<String, dynamic> operator;
@@ -245,6 +254,30 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
   bool _isExpanded = false;
   bool _isLoading = false;
   List<Map<String, dynamic>> _sensorsData = [];
+  Timer? _updateTimer;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void _startPeriodicUpdates() {
+    // Atualiza os dados a cada 30 segundos
+    _updateTimer = Timer.periodic(Duration(seconds: 30), (timer) {
+      if (_isExpanded) {
+        _loadSensorsData();
+      } else {
+        _updateTimer?.cancel();
+        _updateTimer = null;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _updateTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -254,9 +287,11 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
         children: [
           ListTile(
             leading: CircleAvatar(
-              child: Text(widget.operator['username'].isNotEmpty
-                  ? widget.operator['username'][0]
-                  : "?"),
+              child: Text(
+                widget.operator['username'].isNotEmpty
+                    ? widget.operator['username'][0]
+                    : "?",
+              ),
               backgroundColor: Color(0xFFA59AFF),
             ),
             title: Text(widget.operator['username']),
@@ -266,14 +301,20 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
               children: [
                 IconButton(
                   icon: Icon(
-                    _isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                    _isExpanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
                     color: Color(0xFFA59AFF),
                   ),
                   onPressed: () {
                     setState(() {
                       _isExpanded = !_isExpanded;
-                      if (_isExpanded && _sensorsData.isEmpty) {
+                      if (_isExpanded) {
                         _loadSensorsData();
+                        _startPeriodicUpdates();
+                      } else {
+                        _updateTimer?.cancel();
+                        _updateTimer = null;
                       }
                     });
                   },
@@ -302,9 +343,9 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
           if (_isExpanded)
             _isLoading
                 ? Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0),
-              child: Center(child: CircularProgressIndicator()),
-            )
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  child: Center(child: CircularProgressIndicator()),
+                )
                 : _buildSensorsInfo(),
         ],
       ),
@@ -323,16 +364,21 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
     }
 
     return Column(
-      children: _sensorsData.map((sensorData) {
-        return _buildSensorCard(sensorData);
-      }).toList(),
+      children:
+          _sensorsData.map((sensorData) {
+            return _buildSensorCard(sensorData);
+          }).toList(),
     );
   }
 
   Widget _buildSensorCard(Map<String, dynamic> sensorData) {
     String sensorId = sensorData['id'] ?? "Desconhecido";
-    double? anguloLateral = _getDoubleValue(sensorData['anguloLateral'] ?? sensorData['lateral_angle']);
-    double? anguloFrontal = _getDoubleValue(sensorData['anguloFrontal'] ?? sensorData['frontal_angle']);
+    double? anguloLateral = _getDoubleValue(
+      sensorData['anguloLateral'] ?? sensorData['lateral_angle'],
+    );
+    double? anguloFrontal = _getDoubleValue(
+      sensorData['anguloFrontal'] ?? sensorData['frontal_angle'],
+    );
     double? latitude = _getDoubleValue(sensorData['latitude']);
     double? longitude = _getDoubleValue(sensorData['longitude']);
 
@@ -425,6 +471,13 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
                         onPressed: () => _openMap(latitude, longitude),
                       ),
                     ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 4, bottom: 8),
+                      child: Text(
+                        "Última atualização: ${_formatLastUpdate(sensorData['lastUpdate'])}",
+                        style: TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: Colors.grey[600]),
+                      ),
+                    ),
                   ],
                 )
               else
@@ -442,6 +495,16 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
     );
   }
 
+  String _formatLastUpdate(String? dateTimeStr) {
+    if (dateTimeStr == null) return "Desconhecida";
+    try {
+      DateTime dateTime = DateTime.parse(dateTimeStr);
+      return "${dateTime.day}/${dateTime.month}/${dateTime.year} às ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}";
+    } catch (e) {
+      return "Formato inválido";
+    }
+  }
+
   Widget _buildAngleRow(String title, double? value) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -449,29 +512,29 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
         Text(title),
         value != null
             ? Row(
-          children: [
-            Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: _getAngleColor(value),
-              ),
-            ),
-            SizedBox(width: 4),
-            Text(
-              "${value.toStringAsFixed(1)}°",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: _getAngleColor(value),
-              ),
-            ),
-          ],
-        )
+              children: [
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: _getAngleColor(value),
+                  ),
+                ),
+                SizedBox(width: 4),
+                Text(
+                  "${value.toStringAsFixed(1)}°",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: _getAngleColor(value),
+                  ),
+                ),
+              ],
+            )
             : Text(
-          "N/A",
-          style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
-        ),
+              "N/A",
+              style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+            ),
       ],
     );
   }
@@ -485,43 +548,69 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
   }
 
   Future<void> _loadSensorsData() async {
+    if (_isLoading) return;
+
     setState(() {
       _isLoading = true;
     });
 
-    // Aguardar um breve período para simular o carregamento
-    await Future.delayed(Duration(milliseconds: 800));
+    try {
+      DocumentSnapshot operatorDoc =
+          await widget.firestore
+              .collection('users')
+              .doc(widget.operator['id'])
+              .get();
 
-    // Dados fictícios de sensores para demonstração
-    List<Map<String, dynamic>> demoSensors = [
-      {
-        'id': 'SENSOR123',
-        'anguloLateral': 3.2,
-        'anguloFrontal': 1.5,
-        'latitude': -23.550520,
-        'longitude': -46.633308,
-      },
-      {
-        'id': 'SENSOR456',
-        'anguloLateral': 7.8,
-        'anguloFrontal': 9.2,
-        'latitude': -23.551234,
-        'longitude': -46.642123,
-      },
-      {
-        'id': 'SENSOR789',
-        'anguloLateral': 14.5,
-        'anguloFrontal': 18.3,
-        'latitude': -23.548975,
-        'longitude': -46.639856,
-      },
-    ];
+      if (!operatorDoc.exists) {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
 
-    setState(() {
-      _sensorsData = demoSensors;
-      _isLoading = false;
-    });
+      Map<String, dynamic> operatorData =
+          operatorDoc.data() as Map<String, dynamic>;
+      List<String> sensorIds = [];
+
+      if (operatorData.containsKey('sensorId') &&
+          operatorData['sensorId'] is List) {
+        sensorIds = List<String>.from(operatorData['sensorId']);
+      } else if (operatorData.containsKey('sensoresIDs') &&
+          operatorData['sensoresIDs'] is List) {
+        sensorIds = List<String>.from(operatorData['sensoresIDs']);
+      }
+
+      if (sensorIds.isEmpty) {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      List<Map<String, dynamic>> sensorsData = [];
+
+      final tagoService = TagoIOService();
+
+      for (String sensorId in sensorIds) {
+        Map<String, dynamic> sensorData = await tagoService.fetchTagoIOData(sensorId);
+        if (sensorData.isNotEmpty) {
+          sensorData['id'] = sensorId;
+          sensorsData.add(sensorData);
+        }
+      }
+
+      setState(() {
+        _sensorsData = sensorsData;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print("Erro ao carregar dados dos sensores: $e");
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
+
 
   double? _getDoubleValue(dynamic value) {
     if (value == null) return null;
@@ -538,7 +627,8 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
   }
 
   void _openMap(double latitude, double longitude) async {
-    final url = 'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
+    final url =
+        'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
     try {
       await launchUrl(Uri.parse(url));
     } catch (e) {
