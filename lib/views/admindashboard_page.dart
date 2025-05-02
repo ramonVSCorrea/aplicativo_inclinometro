@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:aplicativo_inclinometro/views/regiteroperator_page.dart';
+import 'package:aplicativo_inclinometro/views/sensorevents_page.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -166,48 +167,34 @@ class _AdminDashboardState extends State<AdminDashboard> {
             SizedBox(height: 10),
             Expanded(
               child:
-                  isLoading
-                      ? Center(child: CircularProgressIndicator())
-                      : operators.isEmpty
-                      ? Center(child: Text("Nenhum operador cadastrado"))
-                      : ListView.builder(
-                        itemCount: operators.length,
-                        itemBuilder: (context, index) {
-                          return OperatorExpansionCard(
-                            operator: operators[index],
-                            onDelete:
-                                () => _deleteOperator(operators[index]['id']),
-                            onDetails: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => OperatorDetailsPage(
-                                        operatorId: operators[index]['id'],
-                                      ),
-                                ),
-                              ).then((_) {
-                                _loadOperators();
-                              });
-                            },
-                            firestore: _firestore,
-                          );
-                        },
-                      ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                minimumSize: Size(double.infinity, 50),
+              isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : operators.isEmpty
+                  ? Center(child: Text("Nenhum operador cadastrado"))
+                  : ListView.builder(
+                itemCount: operators.length,
+                itemBuilder: (context, index) {
+                  return OperatorExpansionCard(
+                    operator: operators[index],
+                    onDelete:
+                        () => _deleteOperator(operators[index]['id']),
+                    onDetails: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => OperatorDetailsPage(
+                            operatorId: operators[index]['id'],
+                          ),
+                        ),
+                      ).then((_) {
+                        _loadOperators();
+                      });
+                    },
+                    firestore: _firestore,
+                  );
+                },
               ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Nav()),
-                );
-              },
-              child: Text("Acessar Aplicativo", style: TextStyle(fontSize: 16)),
             ),
           ],
         ),
@@ -324,11 +311,11 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
                   tooltip: "Ver detalhes",
                   onPressed: widget.onDetails,
                 ),
-                IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red),
-                  tooltip: "Excluir operador",
-                  onPressed: widget.onDelete,
-                ),
+                // IconButton(
+                //   icon: Icon(Icons.delete, color: Colors.red),
+                //   tooltip: "Excluir operador",
+                //   onPressed: widget.onDelete,
+                // ),
               ],
             ),
             onTap: () {
@@ -373,126 +360,288 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
 
   Widget _buildSensorCard(Map<String, dynamic> sensorData) {
     String sensorId = sensorData['id'] ?? "Desconhecido";
-    double? anguloLateral = _getDoubleValue(
-      sensorData['anguloLateral'] ?? sensorData['lateral_angle'],
-    );
-    double? anguloFrontal = _getDoubleValue(
-      sensorData['anguloFrontal'] ?? sensorData['frontal_angle'],
-    );
+    double? anguloLateral = _getDoubleValue(sensorData['anguloLateral'] ?? sensorData['lateral_angle']);
+    double? anguloFrontal = _getDoubleValue(sensorData['anguloFrontal'] ?? sensorData['frontal_angle']);
     double? latitude = _getDoubleValue(sensorData['latitude']);
     double? longitude = _getDoubleValue(sensorData['longitude']);
+
+    // Verificar disponibilidade do sensor (10 minutos)
+    bool isSensorAvailable = true;
+    String statusText = "";
+
+    if (sensorData.containsKey('lastUpdate') && sensorData['lastUpdate'] != null) {
+      try {
+        DateTime lastUpdate = DateTime.parse(sensorData['lastUpdate']);
+        DateTime now = DateTime.now();
+        Duration difference = now.difference(lastUpdate);
+
+        if (difference.inMinutes > 10) {
+          isSensorAvailable = false;
+          statusText = "Sensor Indisponível";
+        } else {
+          statusText = "Última atualização: ${_formatTimeDifference(difference)}";
+        }
+      } catch (e) {
+        print("Erro ao analisar data de atualização: $e");
+        isSensorAvailable = false;
+        statusText = "Data inválida";
+      }
+    }
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Card(
-        color: Colors.grey[100],
+        color: isSensorAvailable ? Colors.grey[100] : Colors.grey[200],
         child: Padding(
           padding: EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Sensor ID: $sensorId",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.black87,
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Sensor ID: $sensorId",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  if (!isSensorAvailable)
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.red[100],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.red),
+                      ),
+                      child: Text(
+                        "Indisponível",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.red[800],
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                ],
               ),
               Divider(),
-              SizedBox(height: 8),
-              _buildAngleRow("Ângulo Lateral", anguloLateral),
-              SizedBox(height: 4),
-              _buildAngleRow("Ângulo Frontal", anguloFrontal),
-              SizedBox(height: 8),
-              if (latitude != null && longitude != null)
+
+              if (!isSensorAvailable)
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Localização",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Container(
-                      height: 120,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Stack(
-                        children: [
-                          // Fundo cinza claro
-                          Container(color: Colors.grey[200]),
-                          // Ícone de localização centralizado
-                          Center(
-                            child: Icon(
-                              Icons.location_on,
-                              size: 40,
-                              color: Colors.red,
-                            ),
-                          ),
-                          // Texto de marca d'água
-                          Positioned(
-                            bottom: 8,
-                            right: 8,
-                            child: Text(
-                              "Mapa",
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16.0),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+                            SizedBox(height: 8),
+                            Text(
+                              "Sensor Indisponível",
                               style: TextStyle(
-                                color: Colors.grey[600],
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
+                                color: Colors.red[700],
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 4),
-                      child: Text(
-                        "Coordenadas: ${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}",
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 8.0),
-                      child: ElevatedButton.icon(
-                        icon: Icon(Icons.map, size: 16),
-                        label: Text("Abrir no mapa"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFA59AFF),
-                          foregroundColor: Colors.white,
-                          minimumSize: Size(double.infinity, 32),
-                          padding: EdgeInsets.symmetric(vertical: 8),
+                            SizedBox(height: 4),
+                            Text(
+                              "Sem comunicação há mais de 10 minutos",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                          ],
                         ),
-                        onPressed: () => _openMap(latitude, longitude),
                       ),
                     ),
+
+                    // Botão para ver eventos (sempre visível)
                     Padding(
-                      padding: EdgeInsets.only(top: 4, bottom: 8),
-                      child: Text(
-                        "Última atualização: ${_formatLastUpdate(sensorData['lastUpdate'])}",
-                        style: TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: Colors.grey[600]),
+                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+                      child: ElevatedButton.icon(
+                        icon: Icon(Icons.event_note, size: 16),
+                        label: Text("Ver histórico de eventos"),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF6750A4),
+                          foregroundColor: Colors.white,
+                          minimumSize: Size(double.infinity, 36),
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                        ),
+                        onPressed: () => _navigateToEventsScreen(sensorId),
                       ),
                     ),
                   ],
                 )
               else
-                Text(
-                  "Localização não disponível",
-                  style: TextStyle(
-                    fontStyle: FontStyle.italic,
-                    color: Colors.grey[600],
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 8),
+                    _buildAngleRow("Ângulo Lateral", anguloLateral),
+                    SizedBox(height: 4),
+                    _buildAngleRow("Ângulo Frontal", anguloFrontal),
+                    SizedBox(height: 8),
+
+                    if (latitude != null && longitude != null)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Localização",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Container(
+                            height: 120,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Stack(
+                              children: [
+                                // Fundo cinza claro
+                                Container(color: Colors.grey[200]),
+                                // Ícone de localização centralizado
+                                Center(
+                                  child: Icon(
+                                    Icons.location_on,
+                                    size: 40,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                                // Texto de marca d'água
+                                Positioned(
+                                  bottom: 8,
+                                  right: 8,
+                                  child: Text(
+                                    "Mapa",
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 4),
+                            child: Text(
+                              "Coordenadas: ${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}",
+                              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                            ),
+                          ),
+                          // Botão para abrir mapa
+                          Padding(
+                            padding: EdgeInsets.only(top: 8.0),
+                            child: ElevatedButton.icon(
+                              icon: Icon(Icons.map, size: 16),
+                              label: Text("Abrir no mapa"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFFA59AFF),
+                                foregroundColor: Colors.white,
+                                minimumSize: Size(double.infinity, 32),
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                              ),
+                              onPressed: () => _openMap(latitude, longitude),
+                            ),
+                          ),
+                          // Botão para ver eventos
+                          Padding(
+                            padding: EdgeInsets.only(top: 8.0),
+                            child: ElevatedButton.icon(
+                              icon: Icon(Icons.event_note, size: 16),
+                              label: Text("Ver eventos"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF6750A4),
+                                foregroundColor: Colors.white,
+                                minimumSize: Size(double.infinity, 32),
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                              ),
+                              onPressed: () => _navigateToEventsScreen(sensorId),
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Localização não disponível",
+                            style: TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          // Botão para ver eventos (quando não tem localização)
+                          Padding(
+                            padding: EdgeInsets.only(top: 16.0),
+                            child: ElevatedButton.icon(
+                              icon: Icon(Icons.event_note, size: 16),
+                              label: Text("Ver eventos"),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF6750A4),
+                                foregroundColor: Colors.white,
+                                minimumSize: Size(double.infinity, 32),
+                                padding: EdgeInsets.symmetric(vertical: 8),
+                              ),
+                              onPressed: () => _navigateToEventsScreen(sensorId),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                    if (isSensorAvailable && sensorData.containsKey('lastUpdate'))
+                      Padding(
+                        padding: EdgeInsets.only(top: 4),
+                        child: Text(
+                          statusText,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  void _navigateToEventsScreen(String sensorId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SensorEventsPage(sensorId: sensorId),
+      ),
+    );
+  }
+
+  String _formatTimeDifference(Duration difference) {
+    if (difference.inMinutes < 1) {
+      return "Agora mesmo";
+    } else if (difference.inMinutes == 1) {
+      return "1 minuto atrás";
+    } else if (difference.inMinutes < 60) {
+      return "${difference.inMinutes} minutos atrás";
+    } else if (difference.inHours == 1) {
+      return "1 hora atrás";
+    } else {
+      return "${difference.inHours} horas atrás";
+    }
   }
 
   String _formatLastUpdate(String? dateTimeStr) {
