@@ -1,3 +1,5 @@
+import 'package:aplicativo_inclinometro/views/admindashboard_page.dart';
+import 'package:aplicativo_inclinometro/views/dashboards_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -31,10 +33,9 @@ class _NavState extends State<Nav> {
   void _setupScreens() {
     setState(() {
       _telas.addAll([
-        HomePage(),
-        if (userId != null) ProfilePage(userId: userId!),
-        SettingsPage(),
-        LockAnglePage(),
+        AdminDashboard(),
+        DashboardsPage(),
+        SettingsPage()
       ]);
     });
   }
@@ -53,19 +54,23 @@ class _NavState extends State<Nav> {
           : Container(),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _indiceAtual,
-        selectedItemColor: const Color(0xFFF07300),
-        backgroundColor: Color.fromARGB(255, 43, 43, 43),
-        unselectedItemColor: Colors.white.withOpacity(.60),
+        selectedItemColor: const Color(0xFFFF4200),
+        //backgroundColor: Color.fromARGB(255, 43, 43, 43),
+        unselectedItemColor: Colors.black,
         selectedFontSize: 14,
         unselectedFontSize: 14,
         onTap: onTabTapped,
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Inicio"),
-          if (userId != null)
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: "Perfil",
-            ),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: "Inicio"
+          ),
+
+          BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard),
+              label: "Dashboards"
+          ),
+
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: "Configurações",

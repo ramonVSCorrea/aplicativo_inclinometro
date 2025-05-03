@@ -56,19 +56,196 @@ class _ConnectPage extends State<ConnectPage> {
   }
 
   Future<void> _connectToDevice(BluetoothDevice device) async {
-    //BluetoothConnection connection;
+    // Mostrar diálogo de progresso de conexão
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text("Conectando a ${device.name ?? 'dispositivo'}..."),
+            ],
+          ),
+        );
+      },
+    );
+
     try {
+      // Tentativa de conexão
       connection = await BluetoothConnection.toAddress(device.address);
+
+      // Fechar o diálogo de progresso
+      Navigator.of(context).pop();
+
+      // Se chegou aqui, a conexão foi bem-sucedida
       setState(() {
         connectedDevice = device;
         connected = true;
       });
+
+      // Salvar dispositivo e iniciar comunicação
       isRunning = true;
       comunicBluetooth();
       saveConnectedDevice(device);
-      //listenBluetooth();
-      // Realize ações de comunicação com o dispositivo aqui
+
+      // Mostrar diálogo de sucesso
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.green[50],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.check,
+                    color: Colors.green,
+                    size: 40,
+                  ),
+                ),
+                SizedBox(height: 15),
+                Text(
+                  "Conectado",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                    color: Colors.green[700],
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "Conectado com sucesso a ${device.name ?? 'dispositivo'}",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontFamily: 'Poppins',
+                    color: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: 20),
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Color(0xFFF07300),
+                    minimumSize: Size(double.infinity, 40),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    "OK",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+          );
+        },
+      );
+
     } catch (error) {
+      // Fechar o diálogo de progresso
+      Navigator.of(context).pop();
+
+      // Mostrar diálogo de erro
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          String errorMessage = error.toString();
+          String simplifiedMessage;
+
+          // Mensagem de erro simplificada
+          if (errorMessage.contains('timed out')) {
+            simplifiedMessage = "Tempo esgotado ao tentar conectar";
+          } else if (errorMessage.contains('rejected')) {
+            simplifiedMessage = "Conexão rejeitada pelo dispositivo";
+          } else {
+            simplifiedMessage = "Não foi possível conectar ao dispositivo";
+          }
+
+          return AlertDialog(
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Colors.red[50],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.close,
+                    color: Colors.red,
+                    size: 40,
+                  ),
+                ),
+                SizedBox(height: 15),
+                Text(
+                  "Erro",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                    color: Colors.red[700],
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  simplifiedMessage,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontFamily: 'Poppins',
+                    color: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: 20),
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Color(0xFFF07300),
+                    minimumSize: Size(double.infinity, 40),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    "OK",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+          );
+        },
+      );
+
       print('Erro de conexão: $error');
     }
   }

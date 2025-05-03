@@ -74,7 +74,7 @@ class _SignupState extends State<SignupPage> {
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
                 fontFamily: 'Poppins',
-                color: Color(0xFFA59AFF),
+                color: Color(0xFFFF4200),
               ),
             ),
             const SizedBox(
@@ -92,7 +92,7 @@ class _SignupState extends State<SignupPage> {
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
                 fontFamily: 'Poppins',
-                color: Color(0xFFA59AFF),
+                color: Color(0xFFFF4200),
               ),
             ),
             const SizedBox(
@@ -110,7 +110,7 @@ class _SignupState extends State<SignupPage> {
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
                 fontFamily: 'Poppins',
-                color: Color(0xFFA59AFF),
+                color: Color(0xFFFF4200),
               ),
             ),
             const SizedBox(
@@ -126,7 +126,7 @@ class _SignupState extends State<SignupPage> {
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
                 fontFamily: 'Poppins',
-                color: Color(0xFFA59AFF),
+                color: Color(0xFFFF4200),
               ),
             ),
             const SizedBox(
@@ -158,7 +158,7 @@ class _SignupState extends State<SignupPage> {
                 fontSize: 18,
                 fontWeight: FontWeight.w900,
                 fontFamily: 'Poppins',
-                color: Color(0xFFA59AFF),
+                color: Color(0xFFFF4200),
               ),
             ),
             const SizedBox(
@@ -179,7 +179,7 @@ class _SignupState extends State<SignupPage> {
                 style: TextStyle(
                   fontSize: 14,
                   fontFamily: 'Poppins',
-                  color: Color(0xFFA59AFF),
+                  color: Color(0xFFFF4200),
                   decoration: TextDecoration.underline,
                 ),
               ),
@@ -200,29 +200,14 @@ class _SignupState extends State<SignupPage> {
                   style: TextStyle(
                     fontSize: 14,
                     fontFamily: 'Poppins',
-                    color: Color(0xFFA59AFF),
+                    color: Color(0xFFFF4200),
                   ),
                 ),
               ],
             ),
-            // CustomButton(
-            //   label: "Continue",
-            //   onPressed: () async {
-            //     if (!acceptedTerms) {
-            //       ScaffoldMessenger.of(context).showSnackBar(
-            //         SnackBar(content: Text('Aceite os termos de uso')),
-            //       );
-            //       return;
-            //     }
-            //     _signUp();
-            //     ScaffoldMessenger.of(context).showSnackBar(
-            //       SnackBar(content: Text('$errorSignUp')),
-            //     );
-            //   },
-            // ),
 
             isLoading
-                ? Center(child: CircularProgressIndicator(color: Color(0xFFA59AFF)))
+                ? Center(child: CircularProgressIndicator(color: Color(0xFFFF4200)))
                 : CustomButton(
               label: "Continue",
               onPressed: () async {
@@ -330,7 +315,7 @@ class _SignupState extends State<SignupPage> {
               const SizedBox(height: 20),
               TextButton(
                 style: TextButton.styleFrom(
-                  backgroundColor: Color(0xFFA59AFF),
+                  backgroundColor: Color(0xFFFF4200),
                   minimumSize: Size(double.infinity, 40),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
