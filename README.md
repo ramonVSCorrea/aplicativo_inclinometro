@@ -1,6 +1,6 @@
 # IncliMax - Aplicativo de Inclinômetro
 
-![Logo IncliMax](assets/inclimaxLogo.png)
+![Logo IncliMax](assets/inclimax-logo-branco.png)
 
 ## Sobre o Projeto
 
