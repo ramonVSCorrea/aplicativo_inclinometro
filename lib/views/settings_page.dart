@@ -52,7 +52,7 @@ class _SettingsPage extends State<SettingsPage> {
       body: ListView(
         children: <Widget>[
           ListTile(
-            leading: Icon(Icons.bluetooth, color: Color(0xFFF07300)),
+            leading: Icon(Icons.bluetooth, color: Color(0xFFFF4200)),
             title: Text('Conectar Sensor'),
             subtitle: Text('Faça conexão de algum sensor via Bluetooth'),
             onTap: () {
@@ -64,7 +64,7 @@ class _SettingsPage extends State<SettingsPage> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.lock, color: Color(0xFFF07300)),
+            leading: Icon(Icons.lock, color: Color(0xFFFF4200)),
             title: Text('Ângulos de Bloqueio'),
             subtitle: Text('Ajuste dos ângulos de bloqueio'),
             onTap: () {
@@ -73,7 +73,7 @@ class _SettingsPage extends State<SettingsPage> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.adjust, color: Color(0xFFF07300)),
+            leading: Icon(Icons.adjust, color: Color(0xFFFF4200)),
             title: Text('Calibrar Sensor'),
             subtitle: Text('Calibre o sensor para melhor ajuste'),
             onTap: () {
@@ -85,7 +85,7 @@ class _SettingsPage extends State<SettingsPage> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.event, color: Color(0xFFF07300)),
+            leading: Icon(Icons.event, color: Color(0xFFFF4200)),
             title: Text('Eventos'),
             subtitle: Text('Lista de eventos registrados'),
             onTap: () {

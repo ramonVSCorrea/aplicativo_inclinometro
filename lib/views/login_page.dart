@@ -1,4 +1,5 @@
 import 'package:aplicativo_inclinometro/store/variables.dart';
+import 'package:aplicativo_inclinometro/views/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/components/email_field.dart';
 import 'package:aplicativo_inclinometro/components/password_field.dart';
@@ -286,12 +287,14 @@ class _LoginPageState extends State<LoginPage> {
         if (_auth.isAdmin()) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => AdminDashboard()),
+            MaterialPageRoute(builder: (context) => Nav()),
+            //MaterialPageRoute(builder: (context) => AdminDashboard()),
           );
         } else {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => Nav()),
+            //MaterialPageRoute(builder: (context) => Nav()),
+            MaterialPageRoute(builder: (context) => HomePage())
           );
         }
       } else {

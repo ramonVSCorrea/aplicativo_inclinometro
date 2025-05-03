@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:aplicativo_inclinometro/components/adminsidebar.dart';
 import 'package:aplicativo_inclinometro/views/regiteroperator_page.dart';
 import 'package:aplicativo_inclinometro/views/sensorevents_page.dart';
 import 'package:flutter/material.dart';
@@ -96,104 +97,135 @@ class _AdminDashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Dashboard Admin"),
-        backgroundColor: Color(0xFFA59AFF),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.exit_to_app),
-            onPressed: () async {
-              await _auth.signOut();
-              Navigator.of(context).pushReplacementNamed('/login');
-            },
-          ),
-        ],
-      ),
-      body: Container(
-        padding: EdgeInsets.all(16.0),
+      drawer: AdminSideBar(),
+      body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Card(
-              elevation: 4,
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
+            // Barra superior personalizada com altura reduzida
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Botão do drawer
+                  Builder(
+                    builder: (context) => IconButton(
+                      icon: Icon(Icons.menu, color: Color(0xFFFF4200), size: 28),
+                      padding: EdgeInsets.zero,
+                      constraints: BoxConstraints(),
+                      onPressed: () => Scaffold.of(context).openDrawer(),
+                    ),
+                  ),
+                  // Logo do aplicativo (com tamanho controlado)
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Image.asset(
+                        'assets/inclimax-logo-lateral.png',
+                        height: 35, // Reduzida a altura
+                        width: 120, // Limitando a largura
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Conteúdo principal - removidos espaços extras
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0), // Reduzido o padding superior
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Bem-vindo, $adminName",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
+                    Card(
+                      elevation: 4,
+                      margin: EdgeInsets.only(bottom: 16.0), // Margem inferior ajustada
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Bem-vindo, $adminName",
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              "Empresa: $companyName",
+                              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      "Empresa: $companyName",
-                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+
+                    // Reduzido o espaço entre o card e a seção de operadores
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Operadores Cadastrados",
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        ElevatedButton.icon(
+                          icon: Icon(Icons.add, color: Colors.white),
+                          label: Text("Novo", style: TextStyle(color: Colors.white)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFFFF4200),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RegisterOperatorPage(),
+                              ),
+                            ).then((_) {
+                              _loadOperators();
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8), // Espaço reduzido
+                    Expanded(
+                      child:
+                      isLoading
+                          ? Center(child: CircularProgressIndicator())
+                          : operators.isEmpty
+                          ? Center(child: Text("Nenhum operador cadastrado"))
+                          : ListView.builder(
+                        itemCount: operators.length,
+                        itemBuilder: (context, index) {
+                          return OperatorExpansionCard(
+                            operator: operators[index],
+                            onDelete:
+                                () => _deleteOperator(operators[index]['id']),
+                            onDetails: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => OperatorDetailsPage(
+                                    operatorId: operators[index]['id'],
+                                  ),
+                                ),
+                              ).then((_) {
+                                _loadOperators();
+                              });
+                            },
+                            firestore: _firestore,
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Operadores Cadastrados",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                ElevatedButton.icon(
-                  icon: Icon(Icons.add),
-                  label: Text("Novo"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFA59AFF),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => RegisterOperatorPage(),
-                      ),
-                    ).then((_) {
-                      _loadOperators(); // Recarregar lista após retornar
-                    });
-                  },
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Expanded(
-              child:
-              isLoading
-                  ? Center(child: CircularProgressIndicator())
-                  : operators.isEmpty
-                  ? Center(child: Text("Nenhum operador cadastrado"))
-                  : ListView.builder(
-                itemCount: operators.length,
-                itemBuilder: (context, index) {
-                  return OperatorExpansionCard(
-                    operator: operators[index],
-                    onDelete:
-                        () => _deleteOperator(operators[index]['id']),
-                    onDetails: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (context) => OperatorDetailsPage(
-                            operatorId: operators[index]['id'],
-                          ),
-                        ),
-                      ).then((_) {
-                        _loadOperators();
-                      });
-                    },
-                    firestore: _firestore,
-                  );
-                },
               ),
             ),
           ],
@@ -278,8 +310,9 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
                 widget.operator['username'].isNotEmpty
                     ? widget.operator['username'][0]
                     : "?",
+                style: TextStyle(color: Colors.white),
               ),
-              backgroundColor: Color(0xFFA59AFF),
+              backgroundColor: Color(0xFF0055AA),
             ),
             title: Text(widget.operator['username']),
             subtitle: Text(widget.operator['email']),
@@ -291,7 +324,7 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
                     _isExpanded
                         ? Icons.keyboard_arrow_up
                         : Icons.keyboard_arrow_down,
-                    color: Color(0xFFA59AFF),
+                    color: Color(0xFFFF4200),
                   ),
                   onPressed: () {
                     setState(() {
@@ -463,17 +496,17 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
                     // Botão para ver eventos (sempre visível)
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
-                      child: ElevatedButton.icon(
-                        icon: Icon(Icons.event_note, size: 16),
-                        label: Text("Ver histórico de eventos"),
+                      child:
+                      ElevatedButton.icon(
+                        icon: Icon(Icons.event_note, size: 16, color: Colors.white),
+                        label: Text("Ver Eventos", style: TextStyle(color: Colors.white)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF6750A4),
-                          foregroundColor: Colors.white,
+                          backgroundColor: Color(0xFFFF4200),
                           minimumSize: Size(double.infinity, 36),
                           padding: EdgeInsets.symmetric(vertical: 10),
                         ),
                         onPressed: () => _navigateToEventsScreen(sensorId),
-                      ),
+                      )
                     ),
                   ],
                 )
@@ -487,6 +520,7 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
                     _buildAngleRow("Ângulo Frontal", anguloFrontal),
                     SizedBox(height: 8),
 
+// Substituir todo o bloco da exibição de localização
                     if (latitude != null && longitude != null)
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -499,37 +533,50 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
                             ),
                           ),
                           SizedBox(height: 4),
-                          Container(
-                            height: 120,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Stack(
-                              children: [
-                                // Fundo cinza claro
-                                Container(color: Colors.grey[200]),
-                                // Ícone de localização centralizado
-                                Center(
-                                  child: Icon(
-                                    Icons.location_on,
-                                    size: 40,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                                // Texto de marca d'água
-                                Positioned(
-                                  bottom: 8,
-                                  right: 8,
-                                  child: Text(
-                                    "Mapa",
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontWeight: FontWeight.bold,
+                          // Widget clicável com efeito de toque
+                          InkWell(
+                            onTap: () => _openMap(latitude, longitude),
+                            child: Container(
+                              height: 120,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Color(0xFF0055AA)),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Stack(
+                                children: [
+                                  // Fundo cinza claro
+                                  Container(color: Colors.grey[200]),
+                                  // Ícone de localização centralizado
+                                  Center(
+                                    child: Icon(
+                                      Icons.location_on,
+                                      size: 40,
+                                      color: Colors.red,
                                     ),
                                   ),
-                                ),
-                              ],
+                                  // Texto de marca d'água
+                                  Positioned(
+                                    bottom: 8,
+                                    right: 8,
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                            Icons.open_in_new,
+                                            size: 14,
+                                            color: Color(0xFF0055AA)),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          "Abrir Mapa",
+                                          style: TextStyle(
+                                            color: Colors.grey[600],
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           Padding(
@@ -539,35 +586,20 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
                               style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                             ),
                           ),
-                          // Botão para abrir mapa
+                          // Botão para ver eventos (agora é o único botão)
                           Padding(
-                            padding: EdgeInsets.only(top: 8.0),
-                            child: ElevatedButton.icon(
-                              icon: Icon(Icons.map, size: 16),
-                              label: Text("Abrir no mapa"),
+                            padding: EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0, bottom: 8.0),
+                            child:
+                            ElevatedButton.icon(
+                              icon: Icon(Icons.event_note, size: 16, color: Colors.white),
+                              label: Text("Ver Eventos", style: TextStyle(color: Colors.white)),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFFA59AFF),
-                                foregroundColor: Colors.white,
-                                minimumSize: Size(double.infinity, 32),
-                                padding: EdgeInsets.symmetric(vertical: 8),
-                              ),
-                              onPressed: () => _openMap(latitude, longitude),
-                            ),
-                          ),
-                          // Botão para ver eventos
-                          Padding(
-                            padding: EdgeInsets.only(top: 8.0),
-                            child: ElevatedButton.icon(
-                              icon: Icon(Icons.event_note, size: 16),
-                              label: Text("Ver eventos"),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF6750A4),
-                                foregroundColor: Colors.white,
-                                minimumSize: Size(double.infinity, 32),
-                                padding: EdgeInsets.symmetric(vertical: 8),
+                                backgroundColor: Color(0xFFFF4200),
+                                minimumSize: Size(double.infinity, 36),
+                                padding: EdgeInsets.symmetric(vertical: 10),
                               ),
                               onPressed: () => _navigateToEventsScreen(sensorId),
-                            ),
+                            )
                           ),
                         ],
                       )
@@ -585,17 +617,17 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
                           // Botão para ver eventos (quando não tem localização)
                           Padding(
                             padding: EdgeInsets.only(top: 16.0),
-                            child: ElevatedButton.icon(
-                              icon: Icon(Icons.event_note, size: 16),
-                              label: Text("Ver eventos"),
+                            child:
+                            ElevatedButton.icon(
+                              icon: Icon(Icons.event_note, size: 16, color: Colors.white),
+                              label: Text("Ver Eventos", style: TextStyle(color: Colors.white)),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF6750A4),
-                                foregroundColor: Colors.white,
-                                minimumSize: Size(double.infinity, 32),
-                                padding: EdgeInsets.symmetric(vertical: 8),
+                                backgroundColor: Color(0xFFFF4200),
+                                minimumSize: Size(double.infinity, 36),
+                                padding: EdgeInsets.symmetric(vertical: 10),
                               ),
                               onPressed: () => _navigateToEventsScreen(sensorId),
-                            ),
+                            )
                           ),
                         ],
                       ),

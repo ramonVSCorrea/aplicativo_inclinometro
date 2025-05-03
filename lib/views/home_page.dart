@@ -298,16 +298,16 @@ class _HomePage extends State<HomePage> {
 
             //onPressed: () => sendMessage(true),
             onPressed: () => enviaMovimentaBascula(true),
-            child: Icon(Icons.arrow_upward),
-            backgroundColor: const Color(0xFFF07300),
+            child: Icon(Icons.arrow_upward, color: Colors.white),
+            backgroundColor: const Color(0xFFFF4200),
 
           ),
           SizedBox(height: 16),
           FloatingActionButton(
             //onPressed: () => sendMessage(false),
             onPressed: () => enviaMovimentaBascula(false),
-            child: Icon(Icons.arrow_downward),
-            backgroundColor: const Color(0xFFF07300),
+            child: Icon(Icons.arrow_downward, color: Colors.white),
+            backgroundColor: const Color(0xFFFF4200),
           ),
         ],
       ),
