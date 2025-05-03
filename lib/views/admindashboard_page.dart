@@ -34,8 +34,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
     _loadOperators();
   }
 
-
-
   Future<void> _loadAdminData() async {
     try {
       String uid = _auth.currentUser!.uid;
