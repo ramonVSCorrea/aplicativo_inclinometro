@@ -119,20 +119,45 @@ class _SensorEventsPageState extends State<SensorEventsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Eventos do Sensor ${widget.sensorId}"),
-        backgroundColor: Color(0xFFA59AFF),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Color(0xFFFF4200)),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          "Eventos do Sensor ${widget.sensorId}",
+          style: TextStyle(
+            color: Colors.black87,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.refresh, color: Color(0xFFFF4200)),
+            onPressed: _loadEvents,
+          ),
+        ],
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: Color(0xFFFF4200)))
           : _events.isEmpty
           ? Center(
         child: Text(
           "Nenhum evento registrado para este sensor",
-          style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey[700],
+            fontFamily: 'Poppins',
+          ),
         ),
       )
           : RefreshIndicator(
+        color: Color(0xFFFF4200),
         onRefresh: _loadEvents,
         child: ListView.builder(
           itemCount: _events.length,
@@ -151,24 +176,52 @@ class _SensorEventsPageState extends State<SensorEventsPage> {
 
             // Definir cor e ícone baseado no tipo de evento
             switch (event['event'].toString().toLowerCase()) {
+            // Eventos críticos - vermelho
               case 'bloqueio':
-                eventColor = Colors.red;
+                eventColor = Colors.red[700]!;
                 eventIcon = Icons.block;
                 break;
+              case 'inclinômetro desconectado':
+              case 'wi-fi desconectado':
+                eventColor = Colors.red[700]!;
+                eventIcon = Icons.link_off;
+                break;
+
+            // Eventos de alerta - laranja
               case 'alerta':
-                eventColor = Colors.orange;
+              case 'valores de bloqueio alterados':
+                eventColor = Colors.orange[700]!;
                 eventIcon = Icons.warning_amber;
                 break;
+
+            // Eventos positivos - verde
               case 'desbloqueio':
-                eventColor = Colors.green;
+              case 'sensor zerado':
+              case 'sensor calibrado':
+              case 'inclinômetro conectado':
+              case 'wi-fi conectado':
+                eventColor = Colors.green[600]!;
                 eventIcon = Icons.check_circle;
                 break;
+
+            // Eventos informativos - azul
+              case 'início do basculamento':
+                eventColor = Color(0xFF0055AA);
+                eventIcon = Icons.arrow_upward;
+                break;
+              case 'fim do basculamento':
+                eventColor = Color(0xFF0055AA);
+                eventIcon = Icons.arrow_downward;
+                break;
+
+            // Outros eventos - laranja padrão
               default:
-                eventColor = Colors.blue;
+                eventColor = Color(0xFFFF4200);
                 eventIcon = Icons.info;
             }
 
             return Card(
+              color: Colors.white,
               margin: EdgeInsets.only(bottom: 12),
               elevation: 2,
               shape: RoundedRectangleBorder(
@@ -215,6 +268,7 @@ class _SensorEventsPageState extends State<SensorEventsPage> {
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                     color: Colors.black87,
+                                    fontFamily: 'Poppins',
                                   ),
                                 ),
                                 SizedBox(height: 4),
@@ -223,6 +277,7 @@ class _SensorEventsPageState extends State<SensorEventsPage> {
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey[600],
+                                    fontFamily: 'Poppins',
                                   ),
                                 ),
                               ],
@@ -245,12 +300,16 @@ class _SensorEventsPageState extends State<SensorEventsPage> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
+                            fontFamily: 'Poppins',
                           ),
                         ),
                         SizedBox(height: 4),
                         Text(
                           event['description'],
-                          style: TextStyle(fontSize: 14),
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontFamily: 'Poppins',
+                          ),
                         ),
                         SizedBox(height: 12),
                         Row(
@@ -279,58 +338,64 @@ class _SensorEventsPageState extends State<SensorEventsPage> {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
+                              fontFamily: 'Poppins',
                             ),
                           ),
                           SizedBox(height: 8),
-                          Container(
-                            height: 120,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey.shade300),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Stack(
-                              children: [
-                                Container(color: Colors.grey[100]),
-                                Center(
-                                  child: Icon(
-                                    Icons.location_on,
-                                    size: 40,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 8,
-                                  right: 8,
-                                  child: Text(
-                                    "Mapa",
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontWeight: FontWeight.bold,
+                          InkWell(
+                            onTap: () => _openMap(latitude!, longitude!),
+                            child: Container(
+                              height: 120,
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Color(0xFFFF4200).withOpacity(0.3)),
+                                borderRadius: BorderRadius.circular(8),
+                                color: Colors.grey[50],
+                              ),
+                              child: Stack(
+                                children: [
+                                  Center(
+                                    child: Icon(
+                                      Icons.location_on,
+                                      size: 40,
+                                      color: Color(0xFFFF4200),
                                     ),
                                   ),
-                                ),
-                              ],
+                                  Positioned(
+                                    bottom: 8,
+                                    right: 8,
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.open_in_new,
+                                          size: 14,
+                                          color: Color(0xFFFF4200),
+                                        ),
+                                        SizedBox(width: 4),
+                                        Text(
+                                          "Abrir Mapa",
+                                          style: TextStyle(
+                                            color: Colors.grey[600],
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'Poppins',
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           Padding(
                             padding: EdgeInsets.only(top: 4),
                             child: Text(
                               "Coordenadas: ${latitude!.toStringAsFixed(6)}, ${longitude!.toStringAsFixed(6)}",
-                              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 8.0),
-                            child: ElevatedButton.icon(
-                              icon: Icon(Icons.map, size: 16),
-                              label: Text("Abrir no mapa"),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFFA59AFF),
-                                foregroundColor: Colors.white,
-                                minimumSize: Size(double.infinity, 32),
-                                padding: EdgeInsets.symmetric(vertical: 8),
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                                fontFamily: 'Poppins',
                               ),
-                              onPressed: () => _openMap(latitude, longitude),
                             ),
                           ),
                         ] else
@@ -341,6 +406,7 @@ class _SensorEventsPageState extends State<SensorEventsPage> {
                               style: TextStyle(
                                 fontStyle: FontStyle.italic,
                                 color: Colors.grey[600],
+                                fontFamily: 'Poppins',
                               ),
                             ),
                           ),
@@ -380,8 +446,9 @@ class _SensorEventsPageState extends State<SensorEventsPage> {
     return Container(
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
+        color: Colors.grey[50],
         borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Color(0xFFFF4200).withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,6 +458,7 @@ class _SensorEventsPageState extends State<SensorEventsPage> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
             ),
           ),
           SizedBox(height: 4),
@@ -412,6 +480,7 @@ class _SensorEventsPageState extends State<SensorEventsPage> {
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
+                    fontFamily: 'Poppins',
                   ),
                 ),
               ] else
@@ -421,6 +490,7 @@ class _SensorEventsPageState extends State<SensorEventsPage> {
                     fontSize: 14,
                     fontStyle: FontStyle.italic,
                     color: Colors.grey,
+                    fontFamily: 'Poppins',
                   ),
                 ),
             ],
