@@ -107,6 +107,7 @@ class FirebaseAuthService{
     required String matricula,
     required String company,
     required List<String> sensoresIDs,
+    required String status
   }) async {
     try {
       UserCredential credential = await _auth.createUserWithEmailAndPassword(
@@ -127,6 +128,7 @@ class FirebaseAuthService{
           'userType': 'operator',
           'company': company,
           'createdAt': FieldValue.serverTimestamp(),
+          'status': status
         });
 
         return credential.user;
@@ -141,6 +143,8 @@ class FirebaseAuthService{
     }
   }
 
+  String? errorSignIn;
+
   Future<User?> signInWithMatricula(String matricula, String password) async {
     try {
       // Primeiro faça login anônimo
@@ -148,7 +152,7 @@ class FirebaseAuthService{
 
       // Verifique se o login anônimo foi bem-sucedido
       if (anonAuth.user == null) {
-        errorSignUp = "Falha na autenticação anônima";
+        errorSignIn = "Falha na autenticação anônima";
         return null;
       }
 
@@ -170,7 +174,17 @@ class FirebaseAuthService{
 
         if (querySnapshot.docs.isEmpty) {
           await _auth.signOut();
-          errorSignUp = "Matrícula não encontrada";
+          errorSignIn = "Matrícula não encontrada";
+          return null;
+        }
+
+        // Verificar o status do usuário
+        final userData = querySnapshot.docs.first.data();
+        final String status = userData['status'] ?? 'ACTIVE';
+
+        if (status == 'INACTIVE') {
+          await _auth.signOut();
+          errorSignIn = "USER_INACTIVE";
           return null;
         }
 
@@ -197,13 +211,18 @@ class FirebaseAuthService{
         throw e;
       }
     } on FirebaseAuthException catch (authError) {
-      errorSignUp = "Erro de autenticação: ${authError.message}";
+      errorSignIn = "Erro de autenticação: ${authError.message}";
       return null;
     } catch (e) {
-      errorSignUp = "Erro ao buscar matrícula: $e";
+      errorSignIn = "Erro ao buscar matrícula: $e";
       print("Erro ao fazer login com matrícula: $e");
       return null;
     }
+  }
+
+// Método para obter o erro de login
+  String? getErrorSignIn() {
+    return errorSignIn;
   }
 
   bool isAdmin() {

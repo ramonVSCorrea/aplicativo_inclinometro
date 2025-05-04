@@ -472,7 +472,7 @@ class _RegisterOperatorPageState extends State<RegisterOperatorPage> {
 
       String company = adminDoc.get('company') ?? '';
 
-      // Modificar o método de registro para incluir sensores, matrícula e senha gerada
+      // Modificar o método de registro para incluir sensores, matrícula, senha gerada e status
       User? user = await _auth.createOperatorUser(
         email: email,
         password: senha!,
@@ -480,6 +480,7 @@ class _RegisterOperatorPageState extends State<RegisterOperatorPage> {
         matricula: matricula!,
         sensoresIDs: _sensoresIDs,
         company: company,
+        status: 'ACTIVE', // Adicionando o campo de status como ACTIVE por padrão
       );
 
       if (!mounted) return;

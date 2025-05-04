@@ -43,6 +43,9 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
     super.dispose();
   }
 
+  // No _OperatorDetailsPageState, adicione uma variável para controlar o status
+  String operatorStatus = 'ACTIVE';
+
   Future<void> _loadOperatorData() async {
     setState(() {
       isLoading = true;
@@ -58,6 +61,9 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
           // Inicializar os controladores de texto
           nameController.text = operatorData['userName'] ?? operatorData['username'] ?? "Usuário";
           emailController.text = operatorData['email'] ?? 'Não informado';
+
+          // Carregar o status do operador
+          operatorStatus = operatorData['status'] ?? 'ACTIVE';
 
           // Carregar sensores
           sensorIds = [];
@@ -92,6 +98,7 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
         'userName': nameController.text,
         'email': emailController.text,
         'sensoresIDs': sensorIds, // Atualiza os sensores
+        'status': operatorStatus // Atualiza o status
       });
 
       // Atualiza os dados locais
@@ -99,6 +106,7 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
         operatorData['userName'] = nameController.text;
         operatorData['email'] = emailController.text;
         operatorData['sensoresIDs'] = sensorIds;
+        operatorData['status'] = operatorStatus;
         isEditingEnabled = false;
       });
 
@@ -109,6 +117,49 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
       print("Erro ao salvar alterações: $e");
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erro ao salvar alterações'))
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  // Adicione um método para alternar o status
+  void _toggleStatus() {
+    setState(() {
+      operatorStatus = operatorStatus == 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+    });
+
+    // Se não estiver no modo de edição, salvar imediatamente
+    if (!isEditingEnabled) {
+      _updateStatus();
+    }
+  }
+
+  // Método para atualizar apenas o status
+  Future<void> _updateStatus() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      await _firestore.collection('users').doc(widget.operatorId).update({
+        'status': operatorStatus,
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Status atualizado para ${operatorStatus == 'ACTIVE' ? 'Ativo' : 'Inativo'}'))
+      );
+
+      // Atualiza os dados locais
+      setState(() {
+        operatorData['status'] = operatorStatus;
+      });
+    } catch (e) {
+      print("Erro ao atualizar status: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao atualizar status'))
       );
     } finally {
       setState(() {
@@ -408,8 +459,67 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
             _buildInfoItem('Matrícula', operatorData['operatorId'] ?? 'Não informado'),
 
             _buildInfoItem('Tipo de Usuário', 'Operador'),
+
+            // Campo de status com opção de alternar
+            _buildStatusToggle(),
           ],
         ),
+      ),
+    );
+  }
+
+  // Widget para alternar o status
+  Widget _buildStatusToggle() {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              "Status:",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[800],
+                fontFamily: 'Poppins',
+              ),
+            ),
+          ),
+          SizedBox(width: 8),
+          GestureDetector(
+            onTap: isEditingEnabled || true ? _toggleStatus : null,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: operatorStatus == 'ACTIVE' ? Colors.green.withOpacity(0.2) : Colors.red.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: operatorStatus == 'ACTIVE' ? Colors.green : Colors.red,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    operatorStatus == 'ACTIVE' ? Icons.check_circle : Icons.cancel,
+                    color: operatorStatus == 'ACTIVE' ? Colors.green : Colors.red,
+                    size: 18,
+                  ),
+                  SizedBox(width: 6),
+                  Text(
+                    operatorStatus == 'ACTIVE' ? 'Ativo' : 'Inativo',
+                    style: TextStyle(
+                      color: operatorStatus == 'ACTIVE' ? Colors.green[800] : Colors.red[800],
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -268,6 +268,16 @@ class _LoginPageState extends State<LoginPage> {
       if (_loginWithMatricula) {
         // Login com matrícula
         user = await _auth.signInWithMatricula(login, password);
+
+        // Verificar se o erro é de usuário inativo
+        if (user == null && _auth.getErrorSignIn() == 'USER_INACTIVE') {
+          if (!mounted) return;
+          setState(() {
+            isLoading = false;
+          });
+          _showBlockedUserDialog();
+          return;
+        }
       } else {
         // Login com e-mail
         user = await _auth.signInWithEmailAndPassword(login, password);
@@ -288,13 +298,11 @@ class _LoginPageState extends State<LoginPage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => Nav()),
-            //MaterialPageRoute(builder: (context) => AdminDashboard()),
           );
         } else {
           Navigator.pushReplacement(
-            context,
-            //MaterialPageRoute(builder: (context) => Nav()),
-            MaterialPageRoute(builder: (context) => HomePage())
+              context,
+              MaterialPageRoute(builder: (context) => HomePage())
           );
         }
       } else {
@@ -310,6 +318,80 @@ class _LoginPageState extends State<LoginPage> {
       });
       _showErrorDialog("Erro ao fazer login: $e");
     }
+  }
+
+// Adicione este método para mostrar o diálogo de usuário bloqueado
+  void _showBlockedUserDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+          backgroundColor: Colors.white,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 15),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.red[50],
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.block,
+                  color: Colors.red,
+                  size: 40,
+                ),
+              ),
+              const SizedBox(height: 15),
+              Text(
+                "Acesso Bloqueado",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                  color: Colors.red[700],
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                "Seu usuário está BLOQUEADO. Entre em contato com o administrador.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontFamily: 'Poppins',
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: Color(0xFFFF4200),
+                  minimumSize: Size(double.infinity, 40),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  "OK",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+        );
+      },
+    );
   }
 
   void _showErrorDialog(String message) {
