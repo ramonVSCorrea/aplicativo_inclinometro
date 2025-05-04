@@ -55,7 +55,7 @@ class _NavState extends State<Nav> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _indiceAtual,
         selectedItemColor: const Color(0xFFFF4200),
-        //backgroundColor: Color.fromARGB(255, 43, 43, 43),
+        backgroundColor: Colors.white,
         unselectedItemColor: Colors.black,
         selectedFontSize: 14,
         unselectedFontSize: 14,

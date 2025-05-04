@@ -1,6 +1,10 @@
+import 'package:aplicativo_inclinometro/components/adminsidebar.dart';
+import 'package:aplicativo_inclinometro/components/nav.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../components/sideBar.dart';
 
 class DashboardsPage extends StatefulWidget {
   @override
@@ -38,9 +42,8 @@ class _DashboardsPageState extends State<DashboardsPage> {
           Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
 
           setState(() {
-            userName = userData['name'] ?? userData['username'] ?? "Usuário";
-            companyName = userData['company'] ?? "Empresa não definida";
-            isLoading = false;
+            userName = userData['username'] ?? userData['userName'] ?? "Usuário";
+            companyName = userData['company'] ?? "Empresa não informada";
           });
         }
       }
@@ -56,84 +59,99 @@ class _DashboardsPageState extends State<DashboardsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Dashboards"),
-        backgroundColor: Color(0xFFA59AFF),
-      ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
+      backgroundColor: Colors.white,
+      drawer: SideBar(),
+      body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Card de boas-vindas
-            Card(
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+            // Barra superior com título centralizado
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 6,
+                    offset: Offset(0, 3),
+                  ),
+                ],
               ),
-              child: Padding(
+              child: Row(
+                children: [
+                  Builder(
+                    builder: (context) => IconButton(
+                      icon: Icon(Icons.menu, color: Color(0xFFFF4200), size: 28),
+                      padding: EdgeInsets.zero,
+                      constraints: BoxConstraints(),
+                      onPressed: () => Scaffold.of(context).openDrawer(),
+                    ),
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: Text(
+                        'Dashboards',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                          color: Color(0xFFFF4200),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Espaço vazio para equilibrar o layout
+                  SizedBox(width: 48),
+                ],
+              ),
+            ),
+
+            // Conteúdo principal (sem o card de bem-vindo)
+            Expanded(
+              child: isLoading
+                  ? Center(child: CircularProgressIndicator(color: Color(0xFFFF4200)))
+                  : Container(
+                color: Colors.white,
                 padding: EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Bem-vindo, $userName",
+                      "Dashboards Disponíveis",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
+                        color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      companyName,
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontSize: 14,
+                    SizedBox(height: 16),
+
+                    Expanded(
+                      child: ListView(
+                        children: [
+                          _buildDashboardCard(
+                              "Monitoramento em Tempo Real",
+                              Icons.assessment,
+                              "Visualize dados dos sensores em tempo real com gráficos e alertas automatizados"
+                          ),
+                          _buildDashboardCard(
+                              "Histórico de Dados",
+                              Icons.history,
+                              "Acesse o histórico completo de dados capturados pelos sensores"
+                          ),
+                          _buildDashboardCard(
+                              "Relatórios Analíticos",
+                              Icons.insert_chart,
+                              "Relatórios detalhados com análises de tendências e estatísticas dos sensores"
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-
-            SizedBox(height: 24),
-
-            // Título seção
-            Text(
-              "Visão Geral",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF424242),
-              ),
-            ),
-
-            SizedBox(height: 16),
-
-            // Aqui você pode adicionar seus widgets de dashboard
-            // Por enquanto, vou adicionar alguns cards vazios
-            _buildDashboardPlaceholder(
-                "Resumo de Sensores",
-                Icons.sensors,
-                "Aqui serão exibidas informações sobre os sensores"
-            ),
-
-            SizedBox(height: 16),
-
-            _buildDashboardPlaceholder(
-                "Eventos Recentes",
-                Icons.event_note,
-                "Aqui serão exibidos os eventos recentes"
-            ),
-
-            SizedBox(height: 16),
-
-            _buildDashboardPlaceholder(
-                "Estatísticas",
-                Icons.bar_chart,
-                "Aqui serão exibidas estatísticas de uso"
             ),
           ],
         ),
@@ -141,77 +159,91 @@ class _DashboardsPageState extends State<DashboardsPage> {
     );
   }
 
-  Widget _buildDashboardPlaceholder(String title, IconData icon, String description) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(
+  Widget _buildDashboardCard(String title, IconData icon, String description) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            offset: Offset(0, 3),
+            blurRadius: 6,
+            spreadRadius: 0,
+          ),
+        ],
       ),
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            // Ação ao clicar no dashboard
+          },
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Color(0xFFA59AFF).withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: Color(0xFFA59AFF),
-                    size: 24,
-                  ),
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFFF4200).withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        icon,
+                        color: Color(0xFFFF4200),
+                      ),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: Color(0xFFFF4200),
+                    ),
+                  ],
                 ),
-                SizedBox(width: 12),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                SizedBox(height: 16),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Color(0xFFFF4200).withOpacity(0.1)),
+                  ),
+                  padding: EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          description,
+                          style: TextStyle(
+                            color: Colors.grey[800],
+                            fontSize: 14,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 16),
-            Container(
-              height: 120,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: Colors.grey[300]!,
-                  width: 1,
-                ),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.dashboard_customize,
-                      color: Colors.grey[400],
-                      size: 32,
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      description,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

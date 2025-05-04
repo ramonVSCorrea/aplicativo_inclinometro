@@ -84,206 +84,351 @@ class _RegisterOperatorPageState extends State<RegisterOperatorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Cadastrar Operador"),
-        backgroundColor: Color(0xFFA59AFF),
+        title: Text(
+          "Cadastrar Operador",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins',
+            color: Color(0xFFFF4200),
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 2,
+        iconTheme: IconThemeData(color: Color(0xFFFF4200)),
+        centerTitle: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: Container(
-        padding: const EdgeInsets.all(40),
-        color: const Color(0xFFFFFEFE),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        color: Colors.white,
         child: ListView(
           children: <Widget>[
-            const Text(
-              "Cadastro de Operador",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-                fontFamily: 'Poppins',
-                color: Color.fromARGB(255, 0, 0, 0),
+            // Campos de Cadastro
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-            ),
-            const SizedBox(height: 30),
-            const Text(
-              "Nome completo",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-                fontFamily: 'Poppins',
-                color: Color(0xFFA59AFF),
-              ),
-            ),
-            const SizedBox(height: 10),
-            NameField(controller: _nameController),
-            const SizedBox(height: 20),
-            const Text(
-              "E-mail",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-                fontFamily: 'Poppins',
-                color: Color(0xFFA59AFF),
-              ),
-            ),
-            const SizedBox(height: 10),
-            EmailField(controller: _emailController),
-            const SizedBox(height: 20),
-
-            // Campo para adicionar sensores
-            const Text(
-              "Sensores (opcional)",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w900,
-                fontFamily: 'Poppins',
-                color: Color(0xFFA59AFF),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _sensorController,
-                    maxLength: 4,
-                    decoration: InputDecoration(
-                      hintText: 'ID do sensor (4 dígitos hex)',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                      prefixIcon: Icon(Icons.sensors),
-                      contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                      counterText: "",
-                    ),
-                  ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton(
-                  onPressed: _adicionarSensor,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFFA59AFF),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  child: Text("Adicionar"),
-                ),
-              ],
-            ),
-
-            // Lista de sensores adicionados
-            if (_sensoresIDs.isNotEmpty) ...[
-              SizedBox(height: 15),
-              Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(10),
-                ),
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Sensores atribuídos:",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
+                    Row(
+                      children: [
+                        Icon(Icons.person_add, color: Color(0xFFFF4200)),
+                        SizedBox(width: 8),
+                        Text(
+                          'Informações do Operador',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 5),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: _sensoresIDs.map((sensor) => Chip(
-                        label: Text(sensor),
-                        deleteIcon: Icon(Icons.close, size: 18),
-                        onDeleted: () => _removerSensor(sensor),
-                        backgroundColor: Colors.grey.shade200,
-                      )).toList(),
+                    Divider(),
+                    SizedBox(height: 16),
+                    // Substituindo pelo NameField sem os parâmetros que geram erro
+                    NameField(
+                      controller: _nameController,
+                    ),
+                    SizedBox(height: 16),
+                    // Substituindo pelo EmailField sem os parâmetros que geram erro
+                    EmailField(
+                      controller: _emailController,
                     ),
                   ],
                 ),
               ),
-            ],
+            ),
 
-            const SizedBox(height: 30),
+            SizedBox(height: 20),
+
+            // Seção de Sensores
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.sensors, color: Color(0xFFFF4200)),
+                        SizedBox(width: 8),
+                        Text(
+                          'Sensores Associados',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ],
+                    ),
+                    Divider(),
+                    SizedBox(height: 16),
+
+                    // Campo para adicionar sensor
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _sensorController,
+                            decoration: InputDecoration(
+                              hintText: "ID do Sensor (4 dígitos)",
+                              prefixIcon: Icon(Icons.bluetooth, color: Color(0xFFFF4200)),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(color: Color(0xFFFF4200)),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: _adicionarSensor,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFFFF4200),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          ),
+                          child: Icon(
+                            Icons.add,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 16),
+
+                    // Lista de sensores adicionados
+                    if (_sensoresIDs.isEmpty)
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: Text(
+                          "Nenhum sensor adicionado",
+                          style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey[600],
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      )
+                    else
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: _sensoresIDs.map((sensorID) {
+                          return Container(
+                            margin: EdgeInsets.only(bottom: 8),
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: Color(0xFFFF4200).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Color(0xFFFF4200).withOpacity(0.3),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.bluetooth_connected,
+                                      color: Color(0xFFFF4200),
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 12),
+                                    Text(
+                                      sensorID,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        fontFamily: 'Poppins',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.delete_outline,
+                                    color: Colors.red[700],
+                                    size: 20,
+                                  ),
+                                  onPressed: () => _removerSensor(sensorID),
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                ),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+
+            SizedBox(height: 25),
+
+            // Botão de Cadastrar
             isLoading
-                ? Center(child: CircularProgressIndicator(color: Color(0xFFA59AFF)))
-                : CustomButton(
-              label: "Cadastrar Operador",
+                ? Center(child: CircularProgressIndicator(color: Color(0xFFFF4200)))
+                : ElevatedButton(
               onPressed: _registerOperator,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFFF4200),
+                foregroundColor: Colors.white,
+                elevation: 2,
+                padding: EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                "CADASTRAR OPERADOR",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'Poppins',
+                ),
+              ),
             ),
 
             // Exibir matrícula e senha após o cadastro bem-sucedido
             if (matricula != null && senha != null) ...[
-              SizedBox(height: 30),
-              Container(
-                padding: EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.green.shade300),
+              SizedBox(height: 25),
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "✅ Operador cadastrado com sucesso!",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green.shade700,
+                color: Colors.green[50],
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.check_circle, color: Colors.green),
+                          SizedBox(width: 8),
+                          Text(
+                            'Cadastro Realizado!',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Poppins',
+                              color: Colors.green[800],
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Text(
-                          "Matrícula: ",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                      Divider(color: Colors.green[200]),
+                      SizedBox(height: 8),
+                      _buildCredentialItem("Matrícula", matricula!),
+                      SizedBox(height: 8),
+                      _buildCredentialItem("Senha provisória", senha!),
+                      SizedBox(height: 16),
+                      Text(
+                        "Importante: Anote essas informações para repassar ao operador.",
+                        style: TextStyle(
+                          fontStyle: FontStyle.italic,
+                          fontSize: 12,
+                          color: Colors.green[800],
+                          fontFamily: 'Poppins',
                         ),
-                        Expanded(
-                          child: Text(matricula!, overflow: TextOverflow.ellipsis),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.copy, size: 16),
-                          onPressed: () {
-                            // Implementar cópia para clipboard
-                          },
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          "Senha: ",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Expanded(
-                          child: Text(senha!, overflow: TextOverflow.ellipsis),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.copy, size: 16),
-                          onPressed: () {
-                            // Implementar cópia para clipboard
-                          },
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      "Guarde estas informações. O operador precisará delas para acessar o sistema.",
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontStyle: FontStyle.italic,
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          minimumSize: Size(double.infinity, 44),
+                        ),
+                        child: Text(
+                          "CONCLUIR",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
+
+            SizedBox(height: 20),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCredentialItem(String label, String value) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.green.withOpacity(0.5)),
+      ),
+      child: Row(
+        children: [
+          Text(
+            "$label:",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.grey[800],
+              fontFamily: 'Poppins',
+            ),
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Poppins',
+              ),
+              textAlign: TextAlign.end,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -366,16 +511,39 @@ class _RegisterOperatorPageState extends State<RegisterOperatorPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Erro"),
-          content: Text(message),
+          title: Text(
+            "Erro",
+            style: TextStyle(
+              color: Colors.red[700],
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          content: Text(
+            message,
+            style: TextStyle(fontFamily: 'Poppins'),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           actions: [
             TextButton(
-              child: Text("OK"),
+              child: Text(
+                "OK",
+                style: TextStyle(
+                  color: Color(0xFFFF4200),
+                  fontWeight: FontWeight.w600,
+                  fontFamily: 'Poppins',
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
           ],
+          titlePadding: EdgeInsets.fromLTRB(24, 16, 24, 8),
+          contentPadding: EdgeInsets.fromLTRB(24, 16, 24, 8),
+          actionsPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         );
       },
     );

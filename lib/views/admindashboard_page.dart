@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../components/sideBar.dart';
 import '../datasources/http/tago/FetchTagoIOData.dart';
 import 'operatordetails_page.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -38,7 +39,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     try {
       String uid = _auth.currentUser!.uid;
       DocumentSnapshot doc =
-          await _firestore.collection('users').doc(uid).get();
+      await _firestore.collection('users').doc(uid).get();
 
       setState(() {
         adminName = doc['username'] ?? "Admin";
@@ -60,11 +61,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
       }
 
       QuerySnapshot querySnapshot =
-          await _firestore
-              .collection('users')
-              .where('company', isEqualTo: companyName)
-              .where('userType', isEqualTo: 'operator')
-              .get();
+      await _firestore
+          .collection('users')
+          .where('company', isEqualTo: companyName)
+          .where('userType', isEqualTo: 'operator')
+          .get();
 
       List<Map<String, dynamic>> tempList = [];
       for (var doc in querySnapshot.docs) {
@@ -95,18 +96,28 @@ class _AdminDashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: AdminSideBar(),
+      backgroundColor: Colors.white,
+      drawer: SideBar(),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Barra superior personalizada com altura reduzida
+            // Barra superior personalizada (mantida como está)
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 6,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Botão do drawer
                   Builder(
                     builder: (context) => IconButton(
                       icon: Icon(Icons.menu, color: Color(0xFFFF4200), size: 28),
@@ -115,14 +126,13 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       onPressed: () => Scaffold.of(context).openDrawer(),
                     ),
                   ),
-                  // Logo do aplicativo (com tamanho controlado)
                   Expanded(
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: Image.asset(
                         'assets/inclimax-logo-lateral.png',
-                        height: 35, // Reduzida a altura
-                        width: 120, // Limitando a largura
+                        height: 35,
+                        width: 120,
                         fit: BoxFit.contain,
                       ),
                     ),
@@ -131,51 +141,102 @@ class _AdminDashboardState extends State<AdminDashboard> {
               ),
             ),
 
-            // Conteúdo principal - removidos espaços extras
+            // Conteúdo principal com cards redesenhados
             Expanded(
               child: Container(
-                padding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0), // Reduzido o padding superior
+                color: Colors.white,
+                padding: EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Card(
-                      elevation: 4,
-                      margin: EdgeInsets.only(bottom: 16.0), // Margem inferior ajustada
+                    // Card de boas-vindas com novo estilo
+                    Container(
+                      margin: EdgeInsets.only(bottom: 16.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            offset: Offset(0, 3),
+                            blurRadius: 6,
+                            spreadRadius: 0,
+                          ),
+                        ],
+                      ),
                       child: Padding(
                         padding: EdgeInsets.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              "Bem-vindo, $adminName",
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              "Empresa: $companyName",
-                              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFFF4200).withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.person,
+                                    color: Color(0xFFFF4200),
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Bem-vindo, $adminName",
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'Poppins',
+                                      ),
+                                    ),
+                                    Text(
+                                      "Empresa: $companyName",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[700],
+                                        fontFamily: 'Poppins',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ],
                         ),
                       ),
                     ),
 
-                    // Reduzido o espaço entre o card e a seção de operadores
+                    // Título e botão de novo operador
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           "Operadores Cadastrados",
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins',
+                          ),
                         ),
                         ElevatedButton.icon(
                           icon: Icon(Icons.add, color: Colors.white),
-                          label: Text("Novo", style: TextStyle(color: Colors.white)),
+                          label: Text("Novo",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFFFF4200),
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                           onPressed: () {
                             Navigator.push(
@@ -190,26 +251,34 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 8), // Espaço reduzido
+
+                    SizedBox(height: 8),
+
+                    // Lista de operadores
                     Expanded(
-                      child:
-                      isLoading
-                          ? Center(child: CircularProgressIndicator())
+                      child: isLoading
+                          ? Center(child: CircularProgressIndicator(color: Color(0xFFFF4200)))
                           : operators.isEmpty
-                          ? Center(child: Text("Nenhum operador cadastrado"))
+                          ? Center(
+                        child: Text(
+                          "Nenhum operador cadastrado",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                      )
                           : ListView.builder(
                         itemCount: operators.length,
                         itemBuilder: (context, index) {
                           return OperatorExpansionCard(
                             operator: operators[index],
-                            onDelete:
-                                () => _deleteOperator(operators[index]['id']),
+                            onDelete: () => _deleteOperator(operators[index]['id']),
                             onDetails: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder:
-                                      (context) => OperatorDetailsPage(
+                                  builder: (context) => OperatorDetailsPage(
                                     operatorId: operators[index]['id'],
                                   ),
                                 ),
@@ -298,22 +367,56 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
       margin: EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            offset: Offset(0, 3),
+            blurRadius: 6,
+            spreadRadius: 0,
+          ),
+        ],
+      ),
       child: Column(
         children: [
           ListTile(
-            leading: CircleAvatar(
-              child: Text(
-                widget.operator['username'].isNotEmpty
-                    ? widget.operator['username'][0]
-                    : "?",
-                style: TextStyle(color: Colors.white),
+            leading: Container(
+              padding: EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: Color(0xFFFF4200).withOpacity(0.1),
+                shape: BoxShape.circle,
               ),
-              backgroundColor: Color(0xFF0055AA),
+              child: CircleAvatar(
+                backgroundColor: Color(0xFFFF4200),
+                child: Text(
+                  widget.operator['username'].isNotEmpty
+                      ? widget.operator['username'][0]
+                      : "?",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
-            title: Text(widget.operator['username']),
-            subtitle: Text(widget.operator['email']),
+            title: Text(
+              widget.operator['username'],
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            subtitle: Text(
+              widget.operator['email'],
+              style: TextStyle(
+                fontFamily: 'Poppins',
+              ),
+            ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -338,15 +441,13 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
                   },
                 ),
                 IconButton(
-                  icon: Icon(Icons.info_outline, color: Colors.blue),
+                  icon: Icon(
+                      Icons.info_outline,
+                      color: Color(0xFF0055AA)
+                  ),
                   tooltip: "Ver detalhes",
                   onPressed: widget.onDetails,
                 ),
-                // IconButton(
-                //   icon: Icon(Icons.delete, color: Colors.red),
-                //   tooltip: "Excluir operador",
-                //   onPressed: widget.onDelete,
-                // ),
               ],
             ),
             onTap: () {
@@ -361,9 +462,9 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
           if (_isExpanded)
             _isLoading
                 ? Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16.0),
-                  child: Center(child: CircularProgressIndicator()),
-                )
+              padding: EdgeInsets.symmetric(vertical: 16.0),
+              child: Center(child: CircularProgressIndicator(color: Color(0xFFFF4200))),
+            )
                 : _buildSensorsInfo(),
         ],
       ),
@@ -376,16 +477,15 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
         padding: EdgeInsets.all(16.0),
         child: Text(
           "Nenhum sensor associado a este operador.",
-          style: TextStyle(fontStyle: FontStyle.italic),
+          style: TextStyle(fontStyle: FontStyle.italic, fontFamily: 'Poppins'),
         ),
       );
     }
 
     return Column(
-      children:
-          _sensorsData.map((sensorData) {
-            return _buildSensorCard(sensorData);
-          }).toList(),
+      children: _sensorsData.map((sensorData) {
+        return _buildSensorCard(sensorData);
+      }).toList(),
     );
   }
 
@@ -396,7 +496,6 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
     double? latitude = _getDoubleValue(sensorData['latitude']);
     double? longitude = _getDoubleValue(sensorData['longitude']);
 
-    // Verificar disponibilidade do sensor (10 minutos)
     bool isSensorAvailable = true;
     String statusText = "";
 
@@ -419,233 +518,293 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
       }
     }
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Card(
-        color: isSensorAvailable ? Colors.grey[100] : Colors.grey[200],
-        child: Padding(
-          padding: EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Sensor ID: $sensorId",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.black87,
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isSensorAvailable ? Colors.grey.shade200 : Colors.red.shade100,
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFFF4200).withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.sensors,
+                        color: Color(0xFFFF4200),
+                        size: 20,
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      "Sensor ID: $sensorId",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.black87,
+                        fontFamily: 'Poppins',
+                      ),
+                    ),
+                  ],
+                ),
+                if (!isSensorAvailable)
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.red[100],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.red),
+                    ),
+                    child: Text(
+                      "Indisponível",
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.red[800],
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
+                      ),
                     ),
                   ),
-                  if (!isSensorAvailable)
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.red[100],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.red),
+              ],
+            ),
+            Divider(),
+
+            if (!isSensorAvailable)
+              Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+                          SizedBox(height: 8),
+                          Text(
+                            "Sensor Indisponível",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red[700],
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            "Sem comunicação há mais de 10 minutos",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[700],
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        ],
                       ),
+                    ),
+                  ),
+
+                  Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
+                      child: ElevatedButton.icon(
+                        icon: Icon(Icons.event_note, size: 16, color: Colors.white),
+                        label: Text(
+                          "Ver Eventos",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFFFF4200),
+                          minimumSize: Size(double.infinity, 36),
+                          padding: EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: () => _navigateToEventsScreen(sensorId),
+                      )
+                  ),
+                ],
+              )
+            else
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 8),
+                  _buildAngleRow("Ângulo Lateral", anguloLateral),
+                  SizedBox(height: 4),
+                  _buildAngleRow("Ângulo Frontal", anguloFrontal),
+                  SizedBox(height: 8),
+
+                  if (latitude != null && longitude != null)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Localização",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        InkWell(
+                          onTap: () => _openMap(latitude, longitude),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            height: 120,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Color(0xFFFF4200).withOpacity(0.3)),
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.grey[50],
+                            ),
+                            child: Stack(
+                              children: [
+                                Center(
+                                  child: Icon(
+                                    Icons.location_on,
+                                    size: 40,
+                                    color: Color(0xFFFF4200),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: 8,
+                                  right: 8,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                          Icons.open_in_new,
+                                          size: 14,
+                                          color: Color(0xFFFF4200)
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        "Abrir Mapa",
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Poppins',
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 4),
+                          child: Text(
+                            "Coordenadas: ${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        ),
+                        Padding(
+                            padding: EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0, bottom: 8.0),
+                            child: ElevatedButton.icon(
+                              icon: Icon(Icons.event_note, size: 16, color: Colors.white),
+                              label: Text(
+                                "Ver Eventos",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFFFF4200),
+                                minimumSize: Size(double.infinity, 36),
+                                padding: EdgeInsets.symmetric(vertical: 10),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: () => _navigateToEventsScreen(sensorId),
+                            )
+                        ),
+                      ],
+                    )
+                  else
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Localização não disponível",
+                          style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey[600],
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                        Padding(
+                            padding: EdgeInsets.only(top: 16.0),
+                            child: ElevatedButton.icon(
+                              icon: Icon(Icons.event_note, size: 16, color: Colors.white),
+                              label: Text(
+                                "Ver Eventos",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFFFF4200),
+                                minimumSize: Size(double.infinity, 36),
+                                padding: EdgeInsets.symmetric(vertical: 10),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: () => _navigateToEventsScreen(sensorId),
+                            )
+                        ),
+                      ],
+                    ),
+
+                  if (isSensorAvailable && sensorData.containsKey('lastUpdate'))
+                    Padding(
+                      padding: EdgeInsets.only(top: 4),
                       child: Text(
-                        "Indisponível",
+                        statusText,
                         style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.red[800],
-                          fontWeight: FontWeight.bold,
+                          fontSize: 11,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.grey[600],
+                          fontFamily: 'Poppins',
                         ),
                       ),
                     ),
                 ],
               ),
-              Divider(),
-
-              if (!isSensorAvailable)
-                Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16.0),
-                      child: Center(
-                        child: Column(
-                          children: [
-                            Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
-                            SizedBox(height: 8),
-                            Text(
-                              "Sensor Indisponível",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red[700],
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              "Sem comunicação há mais de 10 minutos",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[700],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    // Botão para ver eventos (sempre visível)
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
-                      child:
-                      ElevatedButton.icon(
-                        icon: Icon(Icons.event_note, size: 16, color: Colors.white),
-                        label: Text("Ver Eventos", style: TextStyle(color: Colors.white)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFFF4200),
-                          minimumSize: Size(double.infinity, 36),
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                        ),
-                        onPressed: () => _navigateToEventsScreen(sensorId),
-                      )
-                    ),
-                  ],
-                )
-              else
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 8),
-                    _buildAngleRow("Ângulo Lateral", anguloLateral),
-                    SizedBox(height: 4),
-                    _buildAngleRow("Ângulo Frontal", anguloFrontal),
-                    SizedBox(height: 8),
-
-// Substituir todo o bloco da exibição de localização
-                    if (latitude != null && longitude != null)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Localização",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          // Widget clicável com efeito de toque
-                          InkWell(
-                            onTap: () => _openMap(latitude, longitude),
-                            child: Container(
-                              height: 120,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Color(0xFF0055AA)),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Stack(
-                                children: [
-                                  // Fundo cinza claro
-                                  Container(color: Colors.grey[200]),
-                                  // Ícone de localização centralizado
-                                  Center(
-                                    child: Icon(
-                                      Icons.location_on,
-                                      size: 40,
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                  // Texto de marca d'água
-                                  Positioned(
-                                    bottom: 8,
-                                    right: 8,
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                            Icons.open_in_new,
-                                            size: 14,
-                                            color: Color(0xFF0055AA)),
-                                        SizedBox(width: 4),
-                                        Text(
-                                          "Abrir Mapa",
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 4),
-                            child: Text(
-                              "Coordenadas: ${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}",
-                              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                            ),
-                          ),
-                          // Botão para ver eventos (agora é o único botão)
-                          Padding(
-                            padding: EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0, bottom: 8.0),
-                            child:
-                            ElevatedButton.icon(
-                              icon: Icon(Icons.event_note, size: 16, color: Colors.white),
-                              label: Text("Ver Eventos", style: TextStyle(color: Colors.white)),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFFFF4200),
-                                minimumSize: Size(double.infinity, 36),
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                              ),
-                              onPressed: () => _navigateToEventsScreen(sensorId),
-                            )
-                          ),
-                        ],
-                      )
-                    else
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Localização não disponível",
-                            style: TextStyle(
-                              fontStyle: FontStyle.italic,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                          // Botão para ver eventos (quando não tem localização)
-                          Padding(
-                            padding: EdgeInsets.only(top: 16.0),
-                            child:
-                            ElevatedButton.icon(
-                              icon: Icon(Icons.event_note, size: 16, color: Colors.white),
-                              label: Text("Ver Eventos", style: TextStyle(color: Colors.white)),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFFFF4200),
-                                minimumSize: Size(double.infinity, 36),
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                              ),
-                              onPressed: () => _navigateToEventsScreen(sensorId),
-                            )
-                          ),
-                        ],
-                      ),
-
-                    if (isSensorAvailable && sensorData.containsKey('lastUpdate'))
-                      Padding(
-                        padding: EdgeInsets.only(top: 4),
-                        child: Text(
-                          statusText,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontStyle: FontStyle.italic,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-            ],
-          ),
+          ],
         ),
       ),
     );
@@ -674,47 +833,56 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
     }
   }
 
-  String _formatLastUpdate(String? dateTimeStr) {
-    if (dateTimeStr == null) return "Desconhecida";
-    try {
-      DateTime dateTime = DateTime.parse(dateTimeStr);
-      return "${dateTime.day}/${dateTime.month}/${dateTime.year} às ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}";
-    } catch (e) {
-      return "Formato inválido";
-    }
-  }
-
   Widget _buildAngleRow(String title, double? value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(title),
-        value != null
-            ? Row(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _getAngleColor(value),
-                  ),
-                ),
-                SizedBox(width: 4),
-                Text(
-                  "${value.toStringAsFixed(1)}°",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: _getAngleColor(value),
-                  ),
-                ),
-              ],
-            )
-            : Text(
-              "N/A",
-              style: TextStyle(fontStyle: FontStyle.italic, color: Colors.grey),
+    Color angleColor = value != null ? _getAngleColor(value) : Colors.grey;
+
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+      decoration: BoxDecoration(
+        color: value != null ? angleColor.withOpacity(0.05) : Colors.transparent,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontFamily: 'Poppins',
             ),
-      ],
+          ),
+          value != null
+              ? Row(
+            children: [
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: angleColor,
+                ),
+              ),
+              SizedBox(width: 4),
+              Text(
+                "${value.toStringAsFixed(1)}°",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: angleColor,
+                  fontFamily: 'Poppins',
+                ),
+              ),
+            ],
+          )
+              : Text(
+            "N/A",
+            style: TextStyle(
+              fontStyle: FontStyle.italic,
+              color: Colors.grey,
+              fontFamily: 'Poppins',
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -735,10 +903,10 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
 
     try {
       DocumentSnapshot operatorDoc =
-          await widget.firestore
-              .collection('users')
-              .doc(widget.operator['id'])
-              .get();
+      await widget.firestore
+          .collection('users')
+          .doc(widget.operator['id'])
+          .get();
 
       if (!operatorDoc.exists) {
         setState(() {
@@ -748,7 +916,7 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
       }
 
       Map<String, dynamic> operatorData =
-          operatorDoc.data() as Map<String, dynamic>;
+      operatorDoc.data() as Map<String, dynamic>;
       List<String> sensorIds = [];
 
       if (operatorData.containsKey('sensorId') &&
@@ -789,7 +957,6 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
       });
     }
   }
-
 
   double? _getDoubleValue(dynamic value) {
     if (value == null) return null;

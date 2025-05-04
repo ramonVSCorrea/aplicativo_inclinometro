@@ -16,11 +16,45 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
   bool isLoading = true;
   Map<String, dynamic> userData = {};
+  bool isAdmin = false; // Para verificar se o usuário logado é admin
+  bool isEditingEnabled = false; // Controla o modo de edição
+
+  // Controladores para os campos de texto
+  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController companyController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    _checkCurrentUserType();
     _loadUserData();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    companyController.dispose();
+    super.dispose();
+  }
+
+  // Verifica se o usuário atual é administrador
+  Future<void> _checkCurrentUserType() async {
+    try {
+      User? currentUser = _auth.currentUser;
+      if (currentUser != null) {
+        DocumentSnapshot userDoc = await _firestore.collection('users').doc(currentUser.uid).get();
+        if (userDoc.exists) {
+          Map<String, dynamic> data = userDoc.data() as Map<String, dynamic>;
+          setState(() {
+            isAdmin = data['userType'] == 'admin';
+          });
+        }
+      }
+    } catch (e) {
+      print("Erro ao verificar tipo de usuário: $e");
+    }
   }
 
   Future<void> _loadUserData() async {
@@ -39,6 +73,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
         if (doc.exists) {
           setState(() {
             userData = doc.data() as Map<String, dynamic>;
+
+            // Inicializar os controladores de texto
+            nameController.text = userData['userName'] ?? userData['username'] ?? "Usuário";
+            emailController.text = userData['email'] ?? _auth.currentUser?.email ?? 'Não informado';
+            companyController.text = userData['company'] ?? 'Não informado';
           });
         }
       }
@@ -54,11 +93,50 @@ class _UserProfilePageState extends State<UserProfilePage> {
     }
   }
 
+  // Função para salvar as alterações
+  Future<void> _saveChanges() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      User? currentUser = _auth.currentUser;
+      if (currentUser != null) {
+        // Atualiza os dados no Firestore
+        await _firestore.collection('users').doc(currentUser.uid).update({
+          'userName': nameController.text,
+          'email': emailController.text,
+          'company': companyController.text,
+        });
+
+        // Atualiza os dados locais
+        setState(() {
+          userData['userName'] = nameController.text;
+          userData['email'] = emailController.text;
+          userData['company'] = companyController.text;
+          isEditingEnabled = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Dados atualizados com sucesso'))
+        );
+      }
+    } catch (e) {
+      print("Erro ao salvar alterações: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao salvar alterações'))
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: SideBar(),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,14 +147,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Botão do drawer
-                  Builder(
-                    builder: (context) => IconButton(
-                      icon: Icon(Icons.menu, color: Color(0xFFFF4200), size: 28),
-                      padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(),
-                      onPressed: () => Scaffold.of(context).openDrawer(),
-                    ),
+                  // Botão de voltar
+                  IconButton(
+                    icon: Icon(Icons.arrow_back, color: Color(0xFFFF4200), size: 28),
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(),
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
                   // Título centralizado
                   Expanded(
@@ -91,8 +167,19 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       ),
                     ),
                   ),
-                  // Botão de atualização
-                  IconButton(
+                  // Botão de edição ou atualização
+                  isAdmin ? IconButton(
+                    icon: Icon(
+                        isEditingEnabled ? Icons.save : Icons.edit,
+                        color: Color(0xFFFF4200),
+                        size: 24
+                    ),
+                    onPressed: isEditingEnabled ? _saveChanges : () {
+                      setState(() {
+                        isEditingEnabled = true;
+                      });
+                    },
+                  ) : IconButton(
                     icon: Icon(Icons.refresh, color: Color(0xFFFF4200), size: 24),
                     onPressed: _loadUserData,
                   ),
@@ -116,7 +203,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       width: 120,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: Color(0xFF0055AA), width: 3),
+                        border: Border.all(color: Color(0xFFFF4200), width: 3),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.1),
@@ -148,8 +235,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
                     SizedBox(height: 16),
 
-                    // Informações adicionais
-                    _buildAdditionalInfoCard(),
+                    // Informações adicionais (sensores) - apenas se NÃO for admin
+                    if (userData['userType'] != 'admin')
+                      _buildAdditionalInfoCard(),
                   ],
                 ),
               ),
@@ -166,6 +254,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
+      color: Colors.white,
       child: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
@@ -173,7 +262,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           children: [
             Row(
               children: [
-                Icon(Icons.person, color: Color(0xFF0055AA)),
+                Icon(Icons.person, color: Color(0xFFFF4200)),
                 SizedBox(width: 8),
                 Text(
                   'Informações Pessoais',
@@ -186,8 +275,14 @@ class _UserProfilePageState extends State<UserProfilePage> {
               ],
             ),
             Divider(),
-            _buildInfoItem('Nome', userData['userName'] ?? 'Não informado'),
-            _buildInfoItem('E-mail', userData['email'] ?? _auth.currentUser?.email ?? 'Não informado'),
+            isEditingEnabled
+                ? _buildEditableInfoItem('Nome', nameController)
+                : _buildInfoItem('Nome', userData['userName'] ?? userData['username'] ?? "Usuário"),
+
+            isEditingEnabled
+                ? _buildEditableInfoItem('E-mail', emailController)
+                : _buildInfoItem('E-mail', userData['email'] ?? _auth.currentUser?.email ?? 'Não informado'),
+
             _buildInfoItem('Tipo de Usuário', _formatUserType(userData['userType'])),
           ],
         ),
@@ -201,6 +296,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
+      color: Colors.white,
       child: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
@@ -208,7 +304,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           children: [
             Row(
               children: [
-                Icon(Icons.business, color: Color(0xFF0055AA)),
+                Icon(Icons.business, color: Color(0xFFFF4200)),
                 SizedBox(width: 8),
                 Text(
                   'Empresa',
@@ -221,7 +317,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
               ],
             ),
             Divider(),
-            _buildInfoItem('Empresa', userData['company'] ?? 'Não informado'),
+            isEditingEnabled
+                ? _buildEditableInfoItem('Empresa', companyController)
+                : _buildInfoItem('Empresa', userData['company'] ?? 'Não informado'),
+
             if (userData.containsKey('createdAt') && userData['createdAt'] != null)
               _buildInfoItem('Cadastrado em', _formatTimestamp(userData['createdAt'])),
           ],
@@ -244,6 +343,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
+      color: Colors.white,
       child: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
@@ -251,7 +351,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           children: [
             Row(
               children: [
-                Icon(Icons.sensors, color: Color(0xFF0055AA)),
+                Icon(Icons.sensors, color: Color(0xFFFF4200)),
                 SizedBox(width: 8),
                 Text(
                   'Sensores Associados',
@@ -339,6 +439,50 @@ class _UserProfilePageState extends State<UserProfilePage> {
               style: TextStyle(
                 fontFamily: 'Poppins',
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEditableInfoItem(String label, TextEditingController controller) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Text(
+              label + ":",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[800],
+                fontFamily: 'Poppins',
+              ),
+            ),
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Color(0xFFFF4200).withOpacity(0.5)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Color(0xFFFF4200).withOpacity(0.5)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Color(0xFFFF4200)),
+                ),
+              ),
+              style: TextStyle(fontFamily: 'Poppins'),
             ),
           ),
         ],

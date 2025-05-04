@@ -1,5 +1,9 @@
 import 'package:aplicativo_inclinometro/views/connect_page.dart';
 import 'package:aplicativo_inclinometro/views/login_page.dart';
+import 'package:aplicativo_inclinometro/views/home_page.dart';
+import 'package:aplicativo_inclinometro/views/dashboards_page.dart';
+import 'package:aplicativo_inclinometro/views/calibratesensor.dart';
+import 'package:aplicativo_inclinometro/views/lockangle_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/store/variables.dart';
@@ -15,10 +19,10 @@ class SideBar extends StatefulWidget {
 }
 
 class _SideBarState extends State<SideBar> {
-
   User? user = FirebaseAuth.instance.currentUser;
   Map<String, dynamic> userData = {};
   bool isLoading = true;
+  String userType = 'operator'; // valor padrão
 
   @override
   void initState() {
@@ -37,6 +41,11 @@ class _SideBarState extends State<SideBar> {
         if (userDoc.exists) {
           setState(() {
             userData = userDoc.data() as Map<String, dynamic>;
+            userType = userData['userType'] ?? 'operator';
+            isLoading = false;
+          });
+        } else {
+          setState(() {
             isLoading = false;
           });
         }
@@ -61,6 +70,49 @@ class _SideBarState extends State<SideBar> {
         child: Column(
           children: [
             _buildHeader(),
+            // Status da conexão
+            if (connected != null)
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 12,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: connected ? Colors.green : Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        connected
+                            ? "Sensor Conectado"
+                            : "Sensor Desconectado",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             Expanded(
               child: _buildMenuItems(context),
             ),
@@ -72,19 +124,18 @@ class _SideBarState extends State<SideBar> {
   }
 
   Widget _buildHeader() {
-    String userName = userData['userName'] ?? user?.displayName ?? "Usuário";
+    String userName = userData['userName'] ?? userData['username'] ?? user?.displayName ?? "Usuário";
     String company = userData['company'] ?? "Empresa não informada";
 
     return Container(
-      width: double.infinity, // Garante que ocupe toda a largura disponível
+      width: double.infinity,
       padding: EdgeInsets.only(top: 50, bottom: 20),
       decoration: BoxDecoration(
         color: Color(0xFF0055AA),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center, // Centraliza os itens
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Avatar do usuário
           Container(
             margin: EdgeInsets.only(bottom: 12),
             height: 80,
@@ -105,7 +156,6 @@ class _SideBarState extends State<SideBar> {
               ),
             ),
           ),
-          // Nome do usuário
           Text(
             userName,
             style: TextStyle(
@@ -115,7 +165,6 @@ class _SideBarState extends State<SideBar> {
               fontFamily: 'Poppins',
             ),
           ),
-          // Email
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: Text(
@@ -133,91 +182,18 @@ class _SideBarState extends State<SideBar> {
       ),
     );
   }
+
   Widget _buildMenuItems(BuildContext context) {
     return ListView(
       padding: EdgeInsets.zero,
       children: [
-        // Status da conexão
-        if (connected != null)
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: connected ? Colors.green : Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    connected
-                        ? "Sensor Conectado"
-                        : "Sensor Desconectado",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w500,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-        // Item Conectar Sensor
-        _buildMenuItem(
-          context: context,
-          icon: Icons.bluetooth_connected,
-          title: 'Conectar Sensor',
-          onTap: () {
-            Navigator.pop(context); // Fecha o drawer primeiro
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ConnectPage()),
-            );
-          },
-        ),
-
-        Divider(color: Colors.grey.withOpacity(0.2)),
-
-        // Item Home (opcional)
-        _buildMenuItem(
-          context: context,
-          icon: Icons.home,
-          title: 'Home',
-          onTap: () {
-            Navigator.pop(context); // Fecha o drawer
-            // Se já estiver na home page, não faça nada
-            if (Navigator.canPop(context)) {
-              Navigator.popUntil(context, (route) => route.isFirst);
-            }
-          },
-        ),
-
-        // Item Perfil
+        // Meu Perfil (comum para todos os tipos)
         _buildMenuItem(
           context: context,
           icon: Icons.person,
           title: 'Meu Perfil',
           onTap: () {
-            Navigator.pop(context); // Fecha o drawer primeiro
+            Navigator.pop(context);
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => UserProfilePage()),
@@ -225,8 +201,164 @@ class _SideBarState extends State<SideBar> {
           },
         ),
 
-        // Outros itens do menu podem ser adicionados aqui
+        // Itens específicos para administrador
+        if (userType == 'admin') ...[
+          _buildMenuItem(
+            context: context,
+            icon: Icons.dashboard,
+            title: 'Dashboards',
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => DashboardsPage()),
+              );
+            },
+          ),
+        ],
+
+        // Conectar Sensor (comum para todos os tipos)
+        _buildMenuItem(
+          context: context,
+          icon: Icons.bluetooth,
+          title: 'Conectar Sensor',
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ConnectPage()),
+            );
+          },
+        ),
+
+        // Home (somente para operadores)
+        if (userType == 'operator') ...[
+          _buildMenuItem(
+            context: context,
+            icon: Icons.home,
+            title: 'Home',
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomePage()),
+              );
+            },
+          ),
+        ],
+
+        // Itens adicionais para administrador
+        if (userType == 'admin') ...[
+          _buildMenuItem(
+            context: context,
+            icon: Icons.lock,
+            title: 'Ângulos de Bloqueio',
+            onTap: () {
+              Navigator.pop(context);
+              if (connected) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LockAnglePage()),
+                );
+              } else {
+                _showConnectDeviceDialog(context);
+              }
+            },
+          ),
+          _buildMenuItem(
+            context: context,
+            icon: Icons.adjust,
+            title: 'Calibrar Sensor',
+            onTap: () {
+              Navigator.pop(context);
+              if (connected) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CalibrateSensorPage()),
+                );
+              } else {
+                _showConnectDeviceDialog(context);
+              }
+            },
+          ),
+        ],
       ],
+    );
+  }
+
+  // Dialog para mostrar quando não há dispositivo conectado
+  void _showConnectDeviceDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Text(
+            'Dispositivo não conectado',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+              color: Color(0xFF0055AA),
+            ),
+          ),
+          content: Text(
+            'É necessário conectar um sensor antes de acessar esta função.',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 14,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.grey[700],
+              ),
+              child: Text(
+                'Cancelar',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ConnectPage()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFFF4200),
+                foregroundColor: Colors.white,
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Conectar',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+          actionsPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          contentPadding: EdgeInsets.fromLTRB(24, 16, 24, 8),
+          titlePadding: EdgeInsets.fromLTRB(24, 16, 24, 8),
+          backgroundColor: Colors.white,
+          elevation: 10,
+        );
+      },
     );
   }
 
@@ -288,21 +420,40 @@ class _SideBarState extends State<SideBar> {
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: Text("Sair"),
-                  content: Text("Deseja realmente sair do aplicativo?"),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  title: Text(
+                    "Sair",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
+                      color: Colors.red[700],
+                    ),
+                  ),
+                  content: Text(
+                    "Deseja realmente sair do aplicativo?",
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 14,
+                    ),
+                  ),
                   actions: [
                     TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.grey[700],
+                      ),
                       child: Text(
                         "Cancelar",
-                        style: TextStyle(color: Colors.grey[800]),
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                      onPressed: () => Navigator.of(context).pop(),
                     ),
-                    TextButton(
-                      child: Text(
-                        "Sair",
-                        style: TextStyle(color: Color(0xFFFF4200)),
-                      ),
+                    ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pop();
                         FirebaseAuth.instance.signOut();
@@ -312,8 +463,28 @@ class _SideBarState extends State<SideBar> {
                               (route) => false,
                         );
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red[700],
+                        foregroundColor: Colors.white,
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        "Sair",
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
                   ],
+                  actionsPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  contentPadding: EdgeInsets.fromLTRB(24, 16, 24, 8),
+                  titlePadding: EdgeInsets.fromLTRB(24, 16, 24, 8),
+                  backgroundColor: Colors.white,
+                  elevation: 10,
                 );
               },
             );
@@ -350,5 +521,4 @@ class _SideBarState extends State<SideBar> {
         ),
       ),
     );
-  }
-}
+  }}
