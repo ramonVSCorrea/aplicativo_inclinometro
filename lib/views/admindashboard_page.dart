@@ -27,6 +27,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
   List<Map<String, dynamic>> filteredOperators = []; // Nova lista para resultados filtrados
   bool isLoading = true;
   TextEditingController searchController = TextEditingController(); // Controlador para campo de busca
+  bool isAscendingOrder = true; // Nova variável para controlar a ordenação
 
   Timer? _updateTimer;
 
@@ -43,7 +44,21 @@ class _AdminDashboardState extends State<AdminDashboard> {
     super.dispose();
   }
 
-  // Método para filtrar operadores baseado no texto de busca
+  void _sortOperators() {
+    setState(() {
+      isAscendingOrder = !isAscendingOrder;
+
+      filteredOperators.sort((a, b) {
+        String nameA = a['username'].toString().toLowerCase();
+        String nameB = b['username'].toString().toLowerCase();
+
+        return isAscendingOrder
+            ? nameA.compareTo(nameB)  // A-Z
+            : nameB.compareTo(nameA); // Z-A
+      });
+    });
+  }
+
   void _filterOperators(String query) {
     setState(() {
       if (query.isEmpty) {
@@ -56,7 +71,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           if (username.contains(query)) return true;
 
           // Busca por matrícula
-          final matricula = operator['matricula']?.toString().toLowerCase() ?? '';
+          final matricula = operator['operatorId']?.toString().toLowerCase() ?? '';
           if (matricula.contains(query)) return true;
 
           // Busca por ID de sensor associado
@@ -72,8 +87,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
           return false;
         }).toList();
       }
+
+      // Mantém a ordenação atual
+      filteredOperators.sort((a, b) {
+        String nameA = a['username'].toString().toLowerCase();
+        String nameB = b['username'].toString().toLowerCase();
+        return isAscendingOrder
+            ? nameA.compareTo(nameB)
+            : nameB.compareTo(nameA);
+      });
     });
   }
+
   Future<void> _loadAdminData() async {
     try {
       String uid = _auth.currentUser!.uid;
@@ -130,9 +155,18 @@ class _AdminDashboardState extends State<AdminDashboard> {
         });
       }
 
+      // Ordenar a lista conforme a configuração atual
+      tempList.sort((a, b) {
+        String nameA = a['username'].toString().toLowerCase();
+        String nameB = b['username'].toString().toLowerCase();
+        return isAscendingOrder
+            ? nameA.compareTo(nameB)
+            : nameB.compareTo(nameA);
+      });
+
       setState(() {
         operators = tempList;
-        filteredOperators = tempList; // Inicializa a lista filtrada com todos os operadores
+        filteredOperators = tempList;
         isLoading = false;
       });
       print("Total de operadores encontrados: ${operators.length}");
@@ -305,56 +339,95 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
                     SizedBox(height: 8),
 
-                    // Barra de pesquisa
-                    Container(
-                      margin: EdgeInsets.only(bottom: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
-                            spreadRadius: 0,
+                    // Barra de pesquisa com botão de ordenação
+                    Row(
+                      children: [
+                        // Barra de pesquisa
+                        Expanded(
+                          child: Container(
+                            margin: EdgeInsets.only(bottom: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
+                                  spreadRadius: 0,
+                                ),
+                              ],
+                            ),
+                            child: Theme(
+                              data: Theme.of(context).copyWith(
+                                textSelectionTheme: TextSelectionThemeData(
+                                  selectionColor: Color(0xFFFF4200).withOpacity(0.3),
+                                ),
+                              ),
+                              child: TextField(
+                                controller: searchController,
+                                onChanged: _filterOperators,
+                                cursorColor: Color(0xFFFF4200),
+                                style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 14,
+                                ),
+                                decoration: InputDecoration(
+                                  hintText: "Buscar por nome, matrícula ou ID sensor",
+                                  hintStyle: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontFamily: 'Poppins',
+                                  ),
+                                  prefixIcon: Icon(
+                                    Icons.search,
+                                    color: Color(0xFFFF4200),
+                                  ),
+                                  suffixIcon: searchController.text.isNotEmpty
+                                      ? IconButton(
+                                    icon: Icon(Icons.clear, color: Colors.grey),
+                                    onPressed: () {
+                                      searchController.clear();
+                                      _filterOperators('');
+                                    },
+                                  )
+                                      : null,
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 12,
+                                    horizontal: 8,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                        ],
-                      ),
-                      child:
-                      TextField(
-                        controller: searchController,
-                        onChanged: _filterOperators,
-                        cursorColor: Color(0xFFFF4200), // Cor do cursor
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 14,
                         ),
-                        decoration: InputDecoration(
-                          hintText: "Buscar por nome, matrícula ou ID sensor",
-                          hintStyle: TextStyle(
-                            color: Colors.grey[400],
-                            fontFamily: 'Poppins',
+
+                        // Botão de ordenação
+                        Container(
+                          margin: EdgeInsets.only(left: 8, bottom: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                offset: Offset(0, 2),
+                                blurRadius: 4,
+                                spreadRadius: 0,
+                              ),
+                            ],
                           ),
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: Color(0xFFFF4200),
-                          ),
-                          suffixIcon: searchController.text.isNotEmpty
-                              ? IconButton(
-                            icon: Icon(Icons.clear, color: Colors.grey),
-                            onPressed: () {
-                              searchController.clear();
-                              _filterOperators('');
-                            },
-                          )
-                              : null,
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 8,
+                          child: IconButton(
+                            icon: Icon(
+                              isAscendingOrder ? Icons.sort_by_alpha : Icons.sort_by_alpha_outlined,
+                              color: Color(0xFFFF4200),
+                            ),
+                            tooltip: isAscendingOrder ? "Ordenar de A-Z" : "Ordenar de Z-A",
+                            onPressed: _sortOperators,
+                            padding: EdgeInsets.all(12),
                           ),
                         ),
-                      )
+                      ],
                     ),
 
                     // Lista de operadores
