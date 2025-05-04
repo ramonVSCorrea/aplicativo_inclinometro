@@ -24,7 +24,10 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
   // Controladores para os campos de texto
   TextEditingController nameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
-  TextEditingController matriculaController = TextEditingController();
+  TextEditingController sensorController = TextEditingController();
+
+  // Lista para armazenar os sensores
+  List<dynamic> sensorIds = [];
 
   @override
   void initState() {
@@ -36,7 +39,7 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
   void dispose() {
     nameController.dispose();
     emailController.dispose();
-    matriculaController.dispose();
+    sensorController.dispose();
     super.dispose();
   }
 
@@ -55,7 +58,14 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
           // Inicializar os controladores de texto
           nameController.text = operatorData['userName'] ?? operatorData['username'] ?? "Usuário";
           emailController.text = operatorData['email'] ?? 'Não informado';
-          matriculaController.text = operatorData['matricula'] ?? 'Não informado';
+
+          // Carregar sensores
+          sensorIds = [];
+          if (operatorData.containsKey('sensorId') && operatorData['sensorId'] is List) {
+            sensorIds = List.from(operatorData['sensorId']);
+          } else if (operatorData.containsKey('sensoresIDs') && operatorData['sensoresIDs'] is List) {
+            sensorIds = List.from(operatorData['sensoresIDs']);
+          }
         });
       }
     } catch (e) {
@@ -81,14 +91,14 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
       await _firestore.collection('users').doc(widget.operatorId).update({
         'userName': nameController.text,
         'email': emailController.text,
-        'matricula': matriculaController.text,
+        'sensoresIDs': sensorIds, // Atualiza os sensores
       });
 
       // Atualiza os dados locais
       setState(() {
         operatorData['userName'] = nameController.text;
         operatorData['email'] = emailController.text;
-        operatorData['matricula'] = matriculaController.text;
+        operatorData['sensoresIDs'] = sensorIds;
         isEditingEnabled = false;
       });
 
@@ -105,6 +115,29 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
         isLoading = false;
       });
     }
+  }
+
+  // Função para adicionar um sensor
+  void _addSensor() {
+    if (sensorController.text.trim().isNotEmpty) {
+      setState(() {
+        if (!sensorIds.contains(sensorController.text.trim())) {
+          sensorIds.add(sensorController.text.trim());
+          sensorController.clear();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Este sensor já está associado ao operador'))
+          );
+        }
+      });
+    }
+  }
+
+  // Função para remover um sensor
+  void _removeSensor(dynamic sensor) {
+    setState(() {
+      sensorIds.remove(sensor);
+    });
   }
 
   // Função para excluir o operador
@@ -197,32 +230,6 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
         );
       },
     );
-  }
-
-  Future<void> _confirmDeleteOperator() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      // Exclui o documento do usuário no Firestore
-      await _firestore.collection('users').doc(widget.operatorId).delete();
-
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Operador excluído com sucesso'))
-      );
-
-      // Volta para a tela anterior
-      Navigator.of(context).pop();
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      print("Erro ao excluir operador: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao excluir operador'))
-      );
-    }
   }
 
   @override
@@ -397,9 +404,8 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
                 ? _buildEditableInfoItem('E-mail', emailController)
                 : _buildInfoItem('E-mail', operatorData['email'] ?? 'Não informado'),
 
-            isEditingEnabled
-                ? _buildEditableInfoItem('Matrícula', matriculaController)
-                : _buildInfoItem('Matrícula', operatorData['matricula'] ?? 'Não informado'),
+            // Matrícula não é editável
+            _buildInfoItem('Matrícula', operatorData['operatorId'] ?? 'Não informado'),
 
             _buildInfoItem('Tipo de Usuário', 'Operador'),
           ],
@@ -446,14 +452,6 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
   }
 
   Widget _buildSensorsCard() {
-    // Sensores associados ao usuário, se houver
-    List<dynamic> sensorIds = [];
-    if (operatorData.containsKey('sensorId') && operatorData['sensorId'] is List) {
-      sensorIds = operatorData['sensorId'];
-    } else if (operatorData.containsKey('sensoresIDs') && operatorData['sensoresIDs'] is List) {
-      sensorIds = operatorData['sensoresIDs'];
-    }
-
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
@@ -480,6 +478,46 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
               ],
             ),
             Divider(),
+
+            // Campo para adicionar sensor (apenas visível no modo edição)
+            if (isEditingEnabled)
+              Padding(
+                padding: EdgeInsets.only(bottom: 16),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: sensorController,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Color(0xFFFF4200).withOpacity(0.5)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Color(0xFFFF4200).withOpacity(0.5)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Color(0xFFFF4200)),
+                          ),
+                          hintText: 'ID do sensor',
+                          hintStyle: TextStyle(fontFamily: 'Poppins'),
+                        ),
+                        style: TextStyle(fontFamily: 'Poppins'),
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    IconButton(
+                      icon: Icon(Icons.add_circle, color: Color(0xFFFF4200)),
+                      onPressed: _addSensor,
+                    ),
+                  ],
+                ),
+              ),
+
+            // Lista de sensores
             sensorIds.isEmpty
                 ? Padding(
               padding: EdgeInsets.symmetric(vertical: 12),
@@ -521,6 +559,15 @@ class _OperatorDetailsPageState extends State<OperatorDetailsPage> {
                           ),
                         ),
                       ),
+                      // Botão para remover sensor (apenas visível no modo edição)
+                      if (isEditingEnabled)
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _removeSensor(sensorId),
+                          iconSize: 20,
+                          padding: EdgeInsets.zero,
+                          constraints: BoxConstraints(),
+                        ),
                     ],
                   ),
                 );
