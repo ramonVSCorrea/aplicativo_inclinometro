@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../components/sideBar.dart';
+import 'home_page.dart';
 
 class SettingsPage extends StatefulWidget {
   @override
@@ -82,7 +83,7 @@ class _SettingsPage extends State<SettingsPage> {
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Poppins',
-                          color: Color(0xFFFF4200),
+                          color: Colors.black,
                         ),
                       ),
                     ),
@@ -153,6 +154,28 @@ class _SettingsPage extends State<SettingsPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => CalibrateSensorPage()));
+                          } else {
+                            _showConnectDeviceDialog(context);
+                          }
+                        },
+                        isEnabled: isDeviceConnected,
+                      ),
+
+                      _buildSettingCard(
+                        icon: Icons.construction,  // Ícone de ferramentas/construção
+                        title: 'Comandar Inclinômetro',
+                        subtitle: isDeviceConnected
+                            ? 'Faça os comandos de operador em um dispositivo'
+                            : 'Conecte um dispositivo para acessar',
+                        onTap: () {
+                          if (isDeviceConnected) {
+                            // Navegue para a tela de comando quando estiver implementada
+                            // Navigator.push(context, MaterialPageRoute(builder: (context) => ControlPage()));
+                            // Por enquanto, exibe um diálogo informando que está em desenvolvimento
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => HomePage(isAdminMode: true))
+                            );
                           } else {
                             _showConnectDeviceDialog(context);
                           }

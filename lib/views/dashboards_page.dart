@@ -96,7 +96,7 @@ class _DashboardsPageState extends State<DashboardsPage> {
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           fontFamily: 'Poppins',
-                          color: Color(0xFFFF4200),
+                          color: Colors.black,
                         ),
                       ),
                     ),

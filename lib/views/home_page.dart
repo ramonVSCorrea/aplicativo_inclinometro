@@ -13,6 +13,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:aplicativo_inclinometro/components/sideBar.dart';
 
 class HomePage extends StatefulWidget {
+  final bool isAdminMode;
+
+  HomePage({this.isAdminMode = false});
+
   @override
   _HomePage createState() => _HomePage();
 }
@@ -117,7 +121,7 @@ class _HomePage extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: SideBar(),
+      drawer: widget.isAdminMode ? null : SideBar(),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,8 +132,15 @@ class _HomePage extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Botão do drawer
-                  Builder(
+                  // Botão do drawer ou botão de voltar
+                  widget.isAdminMode
+                      ? IconButton(
+                    icon: Icon(Icons.arrow_back, color: Color(0xFFFF4200), size: 28),
+                    padding: EdgeInsets.zero,
+                    constraints: BoxConstraints(),
+                    onPressed: () => Navigator.of(context).pop(),
+                  )
+                      : Builder(
                     builder: (context) => IconButton(
                       icon: Icon(Icons.menu, color: Color(0xFFFF4200), size: 28),
                       padding: EdgeInsets.zero,
