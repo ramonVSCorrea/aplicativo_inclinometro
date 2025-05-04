@@ -24,7 +24,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
   String adminName = "";
   String companyName = "";
   List<Map<String, dynamic>> operators = [];
+  List<Map<String, dynamic>> filteredOperators = []; // Nova lista para resultados filtrados
   bool isLoading = true;
+  TextEditingController searchController = TextEditingController(); // Controlador para campo de busca
 
   Timer? _updateTimer;
 
@@ -35,6 +37,43 @@ class _AdminDashboardState extends State<AdminDashboard> {
     _loadOperators();
   }
 
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  // Método para filtrar operadores baseado no texto de busca
+  void _filterOperators(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        filteredOperators = List.from(operators);
+      } else {
+        query = query.toLowerCase();
+        filteredOperators = operators.where((operator) {
+          // Busca por nome
+          final username = operator['username'].toString().toLowerCase();
+          if (username.contains(query)) return true;
+
+          // Busca por matrícula
+          final matricula = operator['matricula']?.toString().toLowerCase() ?? '';
+          if (matricula.contains(query)) return true;
+
+          // Busca por ID de sensor associado
+          final sensorIds = operator['sensorIds'] ?? [];
+          if (sensorIds is List) {
+            for (var sensorId in sensorIds) {
+              if (sensorId.toString().toLowerCase().contains(query)) {
+                return true;
+              }
+            }
+          }
+
+          return false;
+        }).toList();
+      }
+    });
+  }
   Future<void> _loadAdminData() async {
     try {
       String uid = _auth.currentUser!.uid;
@@ -72,16 +111,28 @@ class _AdminDashboardState extends State<AdminDashboard> {
         print(
           "Operador encontrado: ${doc['userName']} da empresa $companyName",
         );
+
+        // Obter sensores associados ao operador
+        List<String> sensorIds = [];
+        if (doc.data().toString().contains('sensorId') && doc['sensorId'] is List) {
+          sensorIds = List<String>.from(doc['sensorId']);
+        } else if (doc.data().toString().contains('sensoresIDs') && doc['sensoresIDs'] is List) {
+          sensorIds = List<String>.from(doc['sensoresIDs']);
+        }
+
         tempList.add({
           'id': doc.id,
           'username': doc['userName'] ?? doc['userName'] ?? "Sem nome",
           'email': doc['email'] ?? "Sem email",
           'createdAt': doc['createdAt'] ?? Timestamp.now(),
+          'operatorId': doc['operatorId'] ?? "",
+          'sensorIds': sensorIds,
         });
       }
 
       setState(() {
         operators = tempList;
+        filteredOperators = tempList; // Inicializa a lista filtrada com todos os operadores
         isLoading = false;
       });
       print("Total de operadores encontrados: ${operators.length}");
@@ -254,32 +305,98 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
                     SizedBox(height: 8),
 
+                    // Barra de pesquisa
+                    Container(
+                      margin: EdgeInsets.only(bottom: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
+                            spreadRadius: 0,
+                          ),
+                        ],
+                      ),
+                      child:
+                      TextField(
+                        controller: searchController,
+                        onChanged: _filterOperators,
+                        cursorColor: Color(0xFFFF4200), // Cor do cursor
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 14,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: "Buscar por nome, matrícula ou ID sensor",
+                          hintStyle: TextStyle(
+                            color: Colors.grey[400],
+                            fontFamily: 'Poppins',
+                          ),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: Color(0xFFFF4200),
+                          ),
+                          suffixIcon: searchController.text.isNotEmpty
+                              ? IconButton(
+                            icon: Icon(Icons.clear, color: Colors.grey),
+                            onPressed: () {
+                              searchController.clear();
+                              _filterOperators('');
+                            },
+                          )
+                              : null,
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 8,
+                          ),
+                        ),
+                      )
+                    ),
+
                     // Lista de operadores
                     Expanded(
                       child: isLoading
                           ? Center(child: CircularProgressIndicator(color: Color(0xFFFF4200)))
-                          : operators.isEmpty
+                          : filteredOperators.isEmpty
                           ? Center(
-                        child: Text(
-                          "Nenhum operador cadastrado",
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            color: Colors.grey[700],
-                          ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.search_off,
+                              size: 48,
+                              color: Colors.grey[400],
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              searchController.text.isEmpty
+                                  ? "Nenhum operador cadastrado"
+                                  : "Nenhum resultado encontrado",
+                              style: TextStyle(
+                                fontFamily: 'Poppins',
+                                color: Colors.grey[700],
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
                         ),
                       )
                           : ListView.builder(
-                        itemCount: operators.length,
+                        itemCount: filteredOperators.length,
                         itemBuilder: (context, index) {
                           return OperatorExpansionCard(
-                            operator: operators[index],
-                            onDelete: () => _deleteOperator(operators[index]['id']),
+                            operator: filteredOperators[index],
+                            onDelete: () => _deleteOperator(filteredOperators[index]['id']),
                             onDetails: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => OperatorDetailsPage(
-                                    operatorId: operators[index]['id'],
+                                    operatorId: filteredOperators[index]['id'],
                                   ),
                                 ),
                               ).then((_) {
