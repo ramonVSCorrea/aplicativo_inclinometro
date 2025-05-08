@@ -24,15 +24,21 @@ void listenBluetooth() async {
           print('Received message: $msgBT');
           final jsonData = jsonDecode(msgBT);
 
-          if (jsonData.containsKey('configurations')) {
+          if (jsonData.containsKey('configurations') && jsonData.containsKey('wifiConfigs')) {
             final configs = jsonData['configurations'];
+            final wifiConfigs = jsonData['wifiConfigs'];
 
             if (configs.containsKey('blockLateralAngle') &&
-                configs.containsKey('blockFrontalAngle')) {
+                configs.containsKey('blockFrontalAngle') &&
+                wifiConfigs.containsKey('SSID') &&
+                wifiConfigs.containsKey('password')) {
               bloqueioLateral = configs['blockLateralAngle'].toDouble();
               bloqueioFrontal = configs['blockFrontalAngle'].toDouble();
               calibracaoLateral = configs['calibrateLateralAngle'].toDouble();
               calibracaoFrontal = configs['calibrateFrontalAngle'].toDouble();
+              ssid = wifiConfigs['SSID'];
+              password = wifiConfigs['password'];
+
               print('mensagem recebida com sucesso!');
               requestCfg = true;
               requestLeitura = true;

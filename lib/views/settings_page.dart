@@ -4,6 +4,7 @@ import 'package:aplicativo_inclinometro/views/calibratesensor.dart';
 import 'package:aplicativo_inclinometro/views/connect_page.dart';
 import 'package:aplicativo_inclinometro/views/events_page.dart';
 import 'package:aplicativo_inclinometro/views/lockangle_page.dart';
+import 'package:aplicativo_inclinometro/views/wifi_config_page.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
 import 'dart:async';
@@ -154,6 +155,23 @@ class _SettingsPage extends State<SettingsPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => CalibrateSensorPage()));
+                          } else {
+                            _showConnectDeviceDialog(context);
+                          }
+                        },
+                        isEnabled: isDeviceConnected,
+                      ),
+
+                      _buildSettingCard(
+                        icon: Icons.wifi,
+                        title: 'Rede Wi-Fi',
+                        subtitle: isDeviceConnected
+                            ? 'Altere a rede Wi-Fi do seu inclinômetro'
+                            : 'Conecte um dispositivo para acessar',
+                        onTap: () {
+                          if (isDeviceConnected) {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (context) => WiFiConfigPage()));
                           } else {
                             _showConnectDeviceDialog(context);
                           }

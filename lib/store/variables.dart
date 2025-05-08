@@ -9,6 +9,9 @@ double bloqueioFrontal = 0;
 double calibracaoLateral = 0;
 double calibracaoFrontal = 0;
 
+String ssid = '';
+String password = '';
+
 bool sendingMSG = false;
 bool connected = false;
 
