@@ -4,6 +4,7 @@ import 'package:aplicativo_inclinometro/views/calibratesensor.dart';
 import 'package:aplicativo_inclinometro/views/connect_page.dart';
 import 'package:aplicativo_inclinometro/views/events_page.dart';
 import 'package:aplicativo_inclinometro/views/lockangle_page.dart';
+import 'package:aplicativo_inclinometro/views/remote_config_page.dart';
 import 'package:aplicativo_inclinometro/views/wifi_config_page.dart';
 import 'package:flutter/material.dart';
 import 'package:aplicativo_inclinometro/components/nav.dart';
@@ -99,108 +100,123 @@ class _SettingsPage extends State<SettingsPage> {
             Expanded(
               child: Container(
                 color: Colors.white,
-                child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Configurações do Dispositivo",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins',
-                          color: Colors.black87,
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Configurações do Dispositivo",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            fontFamily: 'Poppins',
+                            color: Colors.black87,
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 16),
-                      _buildSettingCard(
-                        icon: Icons.bluetooth,
-                        title: 'Conectar Sensor',
-                        subtitle: 'Faça conexão de algum sensor via Bluetooth',
-                        onTap: () {
-                          requestBluetoothPermissions();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => ConnectPage()),
-                          );
-                        },
-                        isEnabled: true,
-                      ),
-                      _buildSettingCard(
-                        icon: Icons.lock,
-                        title: 'Ângulos de Bloqueio',
-                        subtitle: isDeviceConnected
-                            ? 'Ajuste dos ângulos de bloqueio'
-                            : 'Conecte um dispositivo para acessar',
-                        onTap: () {
-                          if (isDeviceConnected) {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) => LockAnglePage()));
-                          } else {
-                            _showConnectDeviceDialog(context);
-                          }
-                        },
-                        isEnabled: isDeviceConnected,
-                      ),
-                      _buildSettingCard(
-                        icon: Icons.adjust,
-                        title: 'Calibrar Sensor',
-                        subtitle: isDeviceConnected
-                            ? 'Calibre o sensor para melhor ajuste'
-                            : 'Conecte um dispositivo para acessar',
-                        onTap: () {
-                          if (isDeviceConnected) {
+                        SizedBox(height: 16),
+                        // Adicione este novo item na lista de configurações em settings_page.dart
+                        _buildSettingCard(
+                          icon: Icons.cloud_sync,
+                          title: 'Configuração Remota',
+                          subtitle: 'Configure seus dispositivos de forma remota',
+                          onTap: () {
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => CalibrateSensorPage()));
-                          } else {
-                            _showConnectDeviceDialog(context);
-                          }
-                        },
-                        isEnabled: isDeviceConnected,
-                      ),
-
-                      _buildSettingCard(
-                        icon: Icons.wifi,
-                        title: 'Rede Wi-Fi',
-                        subtitle: isDeviceConnected
-                            ? 'Altere a rede Wi-Fi do seu inclinômetro'
-                            : 'Conecte um dispositivo para acessar',
-                        onTap: () {
-                          if (isDeviceConnected) {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) => WiFiConfigPage()));
-                          } else {
-                            _showConnectDeviceDialog(context);
-                          }
-                        },
-                        isEnabled: isDeviceConnected,
-                      ),
-
-                      _buildSettingCard(
-                        icon: Icons.construction,  // Ícone de ferramentas/construção
-                        title: 'Comandar Inclinômetro',
-                        subtitle: isDeviceConnected
-                            ? 'Faça os comandos de operador em um dispositivo'
-                            : 'Conecte um dispositivo para acessar',
-                        onTap: () {
-                          if (isDeviceConnected) {
-                            // Navegue para a tela de comando quando estiver implementada
-                            // Navigator.push(context, MaterialPageRoute(builder: (context) => ControlPage()));
-                            // Por enquanto, exibe um diálogo informando que está em desenvolvimento
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => HomePage(isAdminMode: true))
+                              context,
+                              MaterialPageRoute(builder: (context) => RemoteConfigPage()),
                             );
-                          } else {
-                            _showConnectDeviceDialog(context);
-                          }
-                        },
-                        isEnabled: isDeviceConnected,
-                      ),
-                    ],
+                          },
+                          isEnabled: true,
+                        ),
+                        _buildSettingCard(
+                          icon: Icons.bluetooth,
+                          title: 'Conectar Sensor',
+                          subtitle: 'Faça conexão de algum sensor via Bluetooth',
+                          onTap: () {
+                            requestBluetoothPermissions();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => ConnectPage()),
+                            );
+                          },
+                          isEnabled: true,
+                        ),
+                        _buildSettingCard(
+                          icon: Icons.lock,
+                          title: 'Ângulos de Bloqueio',
+                          subtitle: isDeviceConnected
+                              ? 'Ajuste dos ângulos de bloqueio'
+                              : 'Conecte um dispositivo para acessar',
+                          onTap: () {
+                            if (isDeviceConnected) {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) => LockAnglePage()));
+                            } else {
+                              _showConnectDeviceDialog(context);
+                            }
+                          },
+                          isEnabled: isDeviceConnected,
+                        ),
+                        _buildSettingCard(
+                          icon: Icons.adjust,
+                          title: 'Calibrar Sensor',
+                          subtitle: isDeviceConnected
+                              ? 'Calibre o sensor para melhor ajuste'
+                              : 'Conecte um dispositivo para acessar',
+                          onTap: () {
+                            if (isDeviceConnected) {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => CalibrateSensorPage()));
+                            } else {
+                              _showConnectDeviceDialog(context);
+                            }
+                          },
+                          isEnabled: isDeviceConnected,
+                        ),
+
+                        _buildSettingCard(
+                          icon: Icons.wifi,
+                          title: 'Rede Wi-Fi',
+                          subtitle: isDeviceConnected
+                              ? 'Altere a rede Wi-Fi do seu inclinômetro'
+                              : 'Conecte um dispositivo para acessar',
+                          onTap: () {
+                            if (isDeviceConnected) {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) => WiFiConfigPage()));
+                            } else {
+                              _showConnectDeviceDialog(context);
+                            }
+                          },
+                          isEnabled: isDeviceConnected,
+                        ),
+
+                        _buildSettingCard(
+                          icon: Icons.construction,  // Ícone de ferramentas/construção
+                          title: 'Comandar Inclinômetro',
+                          subtitle: isDeviceConnected
+                              ? 'Faça os comandos de operador em um dispositivo'
+                              : 'Conecte um dispositivo para acessar',
+                          onTap: () {
+                            if (isDeviceConnected) {
+                              // Navegue para a tela de comando quando estiver implementada
+                              // Navigator.push(context, MaterialPageRoute(builder: (context) => ControlPage()));
+                              // Por enquanto, exibe um diálogo informando que está em desenvolvimento
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => HomePage(isAdminMode: true))
+                              );
+                            } else {
+                              _showConnectDeviceDialog(context);
+                            }
+                          },
+                          isEnabled: isDeviceConnected,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
