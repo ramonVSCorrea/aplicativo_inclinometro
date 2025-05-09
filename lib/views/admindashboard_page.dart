@@ -814,27 +814,54 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
                     ),
                   ),
 
+                  // Botões para sensor indisponível
                   Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 16.0),
-                      child: ElevatedButton.icon(
-                        icon: Icon(Icons.event_note, size: 16, color: Colors.white),
-                        label: Text(
-                          "Ver Eventos",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Poppins',
+                    padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            icon: Icon(Icons.event_note, size: 16, color: Colors.white),
+                            label: Text(
+                              "Ver Eventos",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFFFF4200),
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: () => _navigateToEventsScreen(sensorId),
                           ),
                         ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFFF4200),
-                          minimumSize: Size(double.infinity, 36),
-                          padding: EdgeInsets.symmetric(vertical: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            icon: Icon(Icons.settings, size: 16, color: Colors.white),
+                            label: Text(
+                              "Configurações",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF0055AA),
+                              padding: EdgeInsets.symmetric(vertical: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: () => _showSensorConfigDialog(sensorId),
                           ),
                         ),
-                        onPressed: () => _navigateToEventsScreen(sensorId),
-                      )
+                      ],
+                    ),
                   ),
                 ],
               )
@@ -918,27 +945,54 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
                             ),
                           ),
                         ),
+                        // Botões de ação
                         Padding(
-                            padding: EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0, bottom: 8.0),
-                            child: ElevatedButton.icon(
-                              icon: Icon(Icons.event_note, size: 16, color: Colors.white),
-                              label: Text(
-                                "Ver Eventos",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: 'Poppins',
+                          padding: EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0, bottom: 8.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  icon: Icon(Icons.event_note, size: 16, color: Colors.white),
+                                  label: Text(
+                                    "Ver Eventos",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFFFF4200),
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  onPressed: () => _navigateToEventsScreen(sensorId),
                                 ),
                               ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFFFF4200),
-                                minimumSize: Size(double.infinity, 36),
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  icon: Icon(Icons.settings, size: 16, color: Colors.white),
+                                  label: Text(
+                                    "Configurações",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFF0055AA),
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  onPressed: () => _showSensorConfigDialog(sensorId),
                                 ),
                               ),
-                              onPressed: () => _navigateToEventsScreen(sensorId),
-                            )
+                            ],
+                          ),
                         ),
                       ],
                     )
@@ -954,27 +1008,54 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
                             fontFamily: 'Poppins',
                           ),
                         ),
+                        // Botões de ação
                         Padding(
-                            padding: EdgeInsets.only(top: 16.0),
-                            child: ElevatedButton.icon(
-                              icon: Icon(Icons.event_note, size: 16, color: Colors.white),
-                              label: Text(
-                                "Ver Eventos",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: 'Poppins',
+                          padding: EdgeInsets.only(top: 16.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  icon: Icon(Icons.event_note, size: 16, color: Colors.white),
+                                  label: Text(
+                                    "Ver Eventos",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFFFF4200),
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  onPressed: () => _navigateToEventsScreen(sensorId),
                                 ),
                               ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFFFF4200),
-                                minimumSize: Size(double.infinity, 36),
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  icon: Icon(Icons.settings, size: 16, color: Colors.white),
+                                  label: Text(
+                                    "Configurações",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'Poppins',
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFF0055AA),
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  onPressed: () => _showSensorConfigDialog(sensorId),
                                 ),
                               ),
-                              onPressed: () => _navigateToEventsScreen(sensorId),
-                            )
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -999,7 +1080,6 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
       ),
     );
   }
-
   void _navigateToEventsScreen(String sensorId) {
     Navigator.push(
       context,
@@ -1172,5 +1252,276 @@ class _OperatorExpansionCardState extends State<OperatorExpansionCard> {
         SnackBar(content: Text('Não foi possível abrir o mapa: $e')),
       );
     }
+  }
+
+  Future<Map<String, dynamic>> _fetchSensorConfigurations(String sensorId) async {
+    try {
+      final tagoService = TagoIOService();
+      Map<String, dynamic> configData = await tagoService.fetchSensorConfigurations(sensorId);
+      return configData;
+    } catch (e) {
+      print("Erro ao buscar configurações do sensor: $e");
+      return {};
+    }
+  }
+
+  void _showSensorConfigDialog(String sensorId) {
+    setState(() {
+      _isLoading = true;
+    });
+
+    _fetchSensorConfigurations(sensorId).then((configData) {
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (configData.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Não foi possível carregar as configurações do sensor.')),
+        );
+        return;
+      }
+
+      // Mapeamento para nomes mais amigáveis
+      Map<String, String> friendlyNames = {
+        'blockLateralAngle': 'Bloqueio Ângulo Lateral',
+        'blockFrontalAngle': 'Bloqueio Ângulo Frontal',
+        'calibrateLateralAngle': 'Calibração Ângulo Lateral',
+        'calibrateFrontalAngle': 'Calibração Ângulo Frontal',
+        'SSID': 'Nome da Rede Wi-Fi'
+      };
+
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Icon(
+                Icons.settings,
+                color: Color(0xFFFF4200),
+                size: 24,
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  "Configurações do Sensor",
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Container(
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Color(0xFFFF4200).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          color: Color(0xFFFF4200),
+                          size: 20,
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "ID: $sensorId",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Poppins',
+                              color: Color(0xFFFF4200),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 16),
+
+                  // Parâmetros de Bloqueio
+                  _buildConfigSection(
+                    "Parâmetros de Bloqueio",
+                    Icons.block,
+                    configData,
+                    {'blockLateralAngle', 'blockFrontalAngle'},
+                    friendlyNames,
+                  ),
+
+                  // Parâmetros de Calibração
+                  _buildConfigSection(
+                    "Parâmetros de Calibração",
+                    Icons.tune,
+                    configData,
+                    {'calibrateLateralAngle', 'calibrateFrontalAngle'},
+                    friendlyNames,
+                  ),
+
+                  // Configurações de Wi-Fi
+                  _buildConfigSection(
+                    "Configurações de Wi-Fi",
+                    Icons.wifi,
+                    configData,
+                    {'SSID'},
+                    friendlyNames,
+                  ),
+
+                  // Outros parâmetros (que não estão nas categorias acima)
+                  if (configData.keys.any((key) =>
+                  !{'blockLateralAngle', 'blockFrontalAngle',
+                    'calibrateLateralAngle', 'calibrateFrontalAngle', 'SSID'}.contains(key)))
+                    _buildConfigSection(
+                      "Outros Parâmetros",
+                      Icons.more_horiz,
+                      configData,
+                      configData.keys.where((key) =>
+                      !{'blockLateralAngle', 'blockFrontalAngle',
+                        'calibrateLateralAngle', 'calibrateFrontalAngle', 'SSID'}.contains(key)).toSet(),
+                      friendlyNames,
+                    ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Color(0xFFFF4200),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  "Fechar",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildConfigSection(String title, IconData icon, Map<String, dynamic> configData,
+      Set<String> keysToInclude, Map<String, String> friendlyNames) {
+    // Filtra as configurações que pertencem a esta seção
+    Map<String, dynamic> sectionConfigs = {};
+    for (var key in configData.keys) {
+      if (keysToInclude.contains(key)) {
+        sectionConfigs[key] = configData[key];
+      }
+    }
+
+    if (sectionConfigs.isEmpty) {
+      return SizedBox.shrink(); // Não mostra a seção se não tiver configurações
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              icon,
+              color: Color(0xFFFF4200),
+              size: 18,
+            ),
+            SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Colors.black,
+              ),
+            ),
+          ],
+        ),
+        Divider(color: Color(0xFFEEF5FF), thickness: 2),
+        SizedBox(height: 8),
+        ...sectionConfigs.entries.map((entry) {
+          String displayName = friendlyNames[entry.key] ?? entry.key;
+          dynamic value = entry.value;
+
+          // Formatação especial para valores numéricos (adicionar grau para ângulos)
+          String displayValue = value.toString();
+          if (entry.key.toLowerCase().contains("angle") && value is num) {
+            displayValue = "${value.toString()}°";
+          }
+
+          return Container(
+            margin: EdgeInsets.only(bottom: 12),
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey[200]!),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: Color(0xFFFF4200),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        displayName,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                          fontSize: 14,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        displayValue,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 14,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+        SizedBox(height: 16),
+      ],
+    );
   }
 }

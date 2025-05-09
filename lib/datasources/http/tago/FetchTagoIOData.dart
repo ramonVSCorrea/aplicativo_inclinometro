@@ -76,4 +76,47 @@ class TagoIOService {
       return null;
     }
   }
+
+  Future<Map<String, dynamic>> fetchSensorConfigurations(String sensorId) async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://api.tago.io/data?variables=deviceConfigurations&groups=$sensorId&query=last_value'),
+        headers: {'device-token': '55156222-043d-4058-8ed1-bae50449a22a'},
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+
+        // Verifica se há dados disponíveis
+        if (jsonResponse['result'] != null && jsonResponse['result'].isNotEmpty) {
+          final result = jsonResponse['result'][0];
+
+          // Extrair dados do campo metadata
+          if (result.containsKey('metadata') && result['metadata'] is Map) {
+            Map<String, dynamic> metadata = result['metadata'];
+            Map<String, dynamic> configData = {};
+
+            // Combina as configurações de diferentes campos do metadata
+            if (metadata.containsKey('configurations') && metadata['configurations'] is Map) {
+              configData.addAll(metadata['configurations']);
+            }
+
+            if (metadata.containsKey('wifiConfigs') && metadata['wifiConfigs'] is Map) {
+              configData.addAll(metadata['wifiConfigs']);
+            }
+
+            // Adiciona outros campos relevantes se necessário
+            return configData;
+          }
+        }
+        return {};
+      } else {
+        print('Falha ao buscar configurações: ${response.statusCode}');
+        return {};
+      }
+    } catch (e) {
+      print('Erro ao buscar configurações: $e');
+      return {};
+    }
+  }
 }
