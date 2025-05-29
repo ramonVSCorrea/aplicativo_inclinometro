@@ -1,8 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 
 class SensorEventsPage extends StatefulWidget {
   final String sensorId;
@@ -17,6 +21,7 @@ class _SensorEventsPageState extends State<SensorEventsPage> {
   bool _isLoading = true;
   List<Map<String, dynamic>> _events = [];
   final Set<int> _expandedItems = {};
+  bool _isExporting = false;
 
   @override
   void initState() {
@@ -114,6 +119,200 @@ class _SensorEventsPageState extends State<SensorEventsPage> {
       }
     }
     return null;
+  }
+
+  Future<void> requestStoragePermission() async {
+    if (Platform.isAndroid) {
+      final status = await Permission.storage.request();
+      if (status.isGranted) {
+        print('Permissão de armazenamento concedida');
+      } else {
+        print('Permissão de armazenamento negada');
+      }
+    }
+  }
+
+  Future<void> _exportEventsToCSV() async {
+    if (_events.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Não há eventos para exportar')),
+      );
+      return;
+    }
+
+    if (_isExporting) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Export já está em andamento')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isExporting = true;
+    });
+
+    try {
+      // Solicitar permissão de armazenamento
+      await requestStoragePermission();
+
+      // Preparar conteúdo CSV
+      final csvHeader = 'Data e Hora,Evento,Descrição,Ângulo Lateral,Ângulo Frontal,Latitude,Longitude\n';
+      String csvContent = csvHeader;
+      for (var event in _events) {
+        final formattedDate = _formatDate(event['time']);
+        final eventType = event['event'].toString().replaceAll(',', ' ');
+        final description = event['description'].toString().replaceAll(',', ' ');
+        final lateralAngle = event['lateralAngle'] ?? 'N/A';
+        final frontalAngle = event['frontalAngle'] ?? 'N/A';
+        final latitude = event['latitude'] ?? 'N/A';
+        final longitude = event['longitude'] ?? 'N/A';
+
+        csvContent += '$formattedDate,"$eventType","$description",$lateralAngle,$frontalAngle,$latitude,$longitude\n';
+      }
+
+      // Nome sugerido para o arquivo
+      final now = DateTime.now();
+      final suggestedFileName = 'eventos_sensor_${widget.sensorId}_${now.day}-${now.month}-${now.year}.csv';
+
+      if (Platform.isAndroid) {
+        // Usar intent CREATE_DOCUMENT em Android
+        try {
+          // Este approach usa uma intent do sistema para criar documentos
+          final params = SaveFileDialogParams(
+            sourceFilePath: null, // Conteúdo será gravado depois
+            data: utf8.encode(csvContent), // Passar o conteúdo como bytes
+            fileName: suggestedFileName,
+            mimeTypesFilter: ['text/csv'],
+          );
+
+          final filePath = await FlutterFileDialog.saveFile(params: params);
+
+          if (filePath != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Arquivo salvo com sucesso: $filePath'))
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Operação cancelada pelo usuário'))
+            );
+          }
+        } catch (e) {
+          // Fallback para o método FilePicker
+          await _saveUsingFilePicker(csvContent, suggestedFileName);
+        }
+      } else {
+        // Para iOS e outros sistemas
+        await _saveUsingFilePicker(csvContent, suggestedFileName);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao exportar eventos: $e'))
+      );
+    } finally {
+      setState(() {
+        _isExporting = false;
+      });
+    }
+  }
+
+  Future<void> _saveUsingFilePicker(String content, String suggestedFileName) async {
+    // Método alternativo usando FilePicker
+    final TextEditingController fileNameController = TextEditingController(text: suggestedFileName);
+
+    String? selectedDirectory = await FilePicker.platform.getDirectoryPath(
+      dialogTitle: 'Escolha onde salvar o arquivo CSV',
+    );
+
+    if (selectedDirectory == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Operação cancelada'))
+      );
+      return;
+    }
+
+    // Pedir nome do arquivo
+    String? fileName = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Nome do arquivo',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
+              color: Color(0xFFFF4200),
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: fileNameController,
+                decoration: InputDecoration(
+                  labelText: 'Digite o nome do arquivo',
+                  hintText: 'eventos_sensor.csv',
+                  border: OutlineInputBorder(),
+                ),
+                style: TextStyle(fontFamily: 'Poppins'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                String name = fileNameController.text.trim();
+                if (!name.toLowerCase().endsWith('.csv')) name += '.csv';
+                Navigator.of(context).pop(name);
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFFF4200)),
+              child: Text('Salvar', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (fileName == null) return;
+
+    final filePath = '$selectedDirectory/$fileName';
+    final file = File(filePath);
+
+    if (await file.exists()) {
+      bool? replace = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Arquivo já existe'),
+          content: Text('Deseja substituir o arquivo existente?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text('Não'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFFF4200)),
+              child: Text('Sim', style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      );
+
+      if (replace != true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Arquivo não substituído'))
+        );
+        return;
+      }
+    }
+
+    await file.writeAsString(content);
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Eventos salvos em $filePath'))
+    );
   }
 
   @override
@@ -418,6 +617,21 @@ class _SensorEventsPageState extends State<SensorEventsPage> {
             );
           },
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _isExporting ? null : _exportEventsToCSV,
+        backgroundColor: _isExporting ? Colors.grey : Color(0xFFFF4200),
+        tooltip: 'Exportar para CSV',
+        child: _isExporting
+            ? SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(
+            color: Colors.white,
+            strokeWidth: 2,
+          ),
+        )
+            : Icon(Icons.download, color: Colors.white),
       ),
     );
   }
