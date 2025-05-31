@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../components/sideBar.dart';
+import 'allevents_page.dart';
 
 class DashboardsPage extends StatefulWidget {
   @override
@@ -134,17 +135,32 @@ class _DashboardsPageState extends State<DashboardsPage> {
                           _buildDashboardCard(
                               "Monitoramento em Tempo Real",
                               Icons.assessment,
-                              "Visualize dados dos sensores em tempo real com gráficos e alertas automatizados"
+                              "Visualize dados dos sensores em tempo real com gráficos e alertas automatizados",
+                              onTap: () {
+                                // Navegação para a tela de monitoramento em tempo real (se existir)
+                              }
                           ),
                           _buildDashboardCard(
                               "Histórico de Dados",
                               Icons.history,
-                              "Acesse o histórico completo de dados capturados pelos sensores"
+                              "Acesse o histórico completo de dados capturados pelos sensores",
+                              onTap: () {
+                                // Navegar para a tela AllEventsPage
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AllEventsPage(),
+                                  ),
+                                );
+                              }
                           ),
                           _buildDashboardCard(
                               "Relatórios Analíticos",
                               Icons.insert_chart,
-                              "Relatórios detalhados com análises de tendências e estatísticas dos sensores"
+                              "Relatórios detalhados com análises de tendências e estatísticas dos sensores",
+                              onTap: () {
+                                // Navegação para a tela de relatórios analíticos (se existir)
+                              }
                           ),
                         ],
                       ),
@@ -159,7 +175,7 @@ class _DashboardsPageState extends State<DashboardsPage> {
     );
   }
 
-  Widget _buildDashboardCard(String title, IconData icon, String description) {
+  Widget _buildDashboardCard(String title, IconData icon, String description, {VoidCallback? onTap}) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
@@ -179,9 +195,7 @@ class _DashboardsPageState extends State<DashboardsPage> {
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
-          onTap: () {
-            // Ação ao clicar no dashboard
-          },
+          onTap: onTap,
           child: Padding(
             padding: EdgeInsets.all(16),
             child: Column(
